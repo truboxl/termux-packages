@@ -1,9 +1,9 @@
 TERMUX_PKG_HOMEPAGE=https://www.gnu.org/software/emacs/
 TERMUX_PKG_DESCRIPTION="Extensible, customizable text editor-and more"
 TERMUX_PKG_LICENSE="GPL-3.0"
-TERMUX_PKG_VERSION=27.0.60
-TERMUX_PKG_SRCURL=https://github.com/emacs-mirror/emacs/archive/e8aa6f19e99e5de9a3953fef8ae50e2363531b3d.tar.gz
-TERMUX_PKG_SHA256=a66306d46801e56eee75a47b11ceabb0cfb76094d4d6c43c0bf7cfc851b0c503
+TERMUX_PKG_VERSION=27.0.91
+TERMUX_PKG_SRCURL=https://github.com/emacs-mirror/emacs/archive/emacs-${TERMUX_PKG_VERSION}.tar.gz
+TERMUX_PKG_SHA256=f1ea967137f4200f947cd8987a4396ac371ba2c7462a21f49ce3d7eea8ba7494
 TERMUX_PKG_DEPENDS="ncurses, gnutls, libxml2"
 TERMUX_PKG_BREAKS="emacs-dev"
 TERMUX_PKG_REPLACES="emacs-dev"
