@@ -75,11 +75,6 @@ termux_step_post_extract_package() {
 	# Termux only use info pages for emacs. Remove the info directory
 	# to get a clean Info directory file dir.
 	rm -Rf $TERMUX_PREFIX/share/info
-
-	# We cannot run a dumped emacs on Android 5.0+ due to the pie requirement.
-	# Also, the native emacs we build (bootstrap-emacs) cannot used dumps when
-	# building inside docker: https://github.com/docker/docker/issues/22801
-	export CANNOT_DUMP=yes
 }
 
 termux_step_host_build() {
