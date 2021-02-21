@@ -1,0 +1,8 @@
+TERMUX_PKG_HOMEPAGE=https://www.open-mpi.org/projects/hwloc/
+TERMUX_PKG_DESCRIPTION="Portable Hardware Locality"
+TERMUX_PKG_LICENSE="BSD 2-Clause"
+TERMUX_PKG_MAINTAINER="@termux"
+TERMUX_PKG_VERSION=2.7.1
+TERMUX_PKG_SRCURL=https://download.open-mpi.org/release/hwloc/v${TERMUX_PKG_VERSION:0:3}/hwloc-${TERMUX_PKG_VERSION}.tar.gz
+TERMUX_PKG_SHA256=4cb0a781ed980b03ad8c48beb57407aa67c4b908e45722954b9730379bc7f6d5
+TERMUX_PKG_BUILD_IN_SRC=true
