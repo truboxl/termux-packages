@@ -1,0 +1,16 @@
+diff -uNr pypy2.7-v7.3.6-src/rpython/rlib/rtime.py pypy2.7-v7.3.6-src.mod/rpython/rlib/rtime.py
+--- pypy2.7-v7.3.6-src/rpython/rlib/rtime.py	2021-10-03 14:36:11.000000000 +0800
++++ pypy2.7-v7.3.6-src.mod/rpython/rlib/rtime.py	2021-10-25 13:07:13.927390821 +0800
+@@ -29,9 +29,9 @@
+                 'sys/types.h', 'unistd.h',
+                 'sys/time.h', 'sys/resource.h']
+ 
+-    if not sys.platform.startswith("openbsd") and \
+-       not sys.platform.startswith("freebsd"):
+-        includes.append('sys/timeb.h')
++    #if not sys.platform.startswith("openbsd") and \
++    #   not sys.platform.startswith("freebsd"):
++    #    includes.append('sys/timeb.h')
+ 
+     need_rusage = True
+ 

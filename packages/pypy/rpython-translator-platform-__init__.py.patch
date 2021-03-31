@@ -1,0 +1,26 @@
+diff -uNr pypy2.7-v7.3.6-src/rpython/translator/platform/__init__.py pypy2.7-v7.3.6-src.mod/rpython/translator/platform/__init__.py
+--- pypy2.7-v7.3.6-src/rpython/translator/platform/__init__.py	2021-10-03 14:36:11.000000000 +0800
++++ pypy2.7-v7.3.6-src.mod/rpython/translator/platform/__init__.py	2021-10-25 13:08:07.011390783 +0800
+@@ -71,10 +71,13 @@
+         cfiles = self._all_cfiles(cfiles, eci)
+         compile_args = self._compile_args_from_eci(eci, standalone)
+         ofiles = []
++        import re
+         for cfile in cfiles:
+             # Windows hack: use masm for files ending in .asm
+             if str(cfile).lower().endswith('.asm'):
+                 ofiles.append(self._compile_c_file(self.masm, cfile, []))
++            elif re.search(r'platcheck_72', str(cfile).lower()):
++                ofiles.append(self._compile_c_file(self.cc, cfile, compile_args + ['-O0']))
+             else:
+                 ofiles.append(self._compile_c_file(self.cc, cfile, compile_args))
+         return ofiles
+@@ -265,7 +268,7 @@
+     # detect armhf without shelling out
+     if (platform.architecture()[0] == '64bit'
+             or platform.machine().startswith(
+-                ('arm', 'm68k', 'mips', 'parisc', 'ppc', 'sh4'))):
++                ('arm', 'm68k', 'mips', 'parisc', 'ppc', 'sh4', 'i686'))):
+         host_factory = LinuxPIC
+     else:
+         host_factory = Linux

@@ -1,17 +1,15 @@
-name: Packages
+name: Packages (Self host)
 
 on:
   push:
     branches:
     - master
     paths:
-    - 'packages/**'
-    - '!packages/pypy/**'
+    - 'packages/pypy/**'
   pull_request:
     paths:
-    - 'packages/**'
-    - '!packages/pypy/**'
-  workflow_dispatch:
+    - 'packages/pypy/**'
+    workflow_dispatch:
     inputs:
       packages:
         description: "A space-separated names of packages selected for rebuilding"
@@ -25,13 +23,17 @@ jobs:
       NDK: "/opt/termux/android-ndk"
     strategy:
       matrix:
-        target_arch: [aarch64, arm, i686, x86_64]
+        # no arm for now
+        target_arch: [aarch64, i686, x86_64]
       fail-fast: false
     steps:
     - name: Clone repository
       uses: actions/checkout@v2
       with:
         fetch-depth: 1000
+    - name: Setup binfmt_misc
+      if: (matrix.target_arch == 'aarch64') || (matrix.target_arch == 'arm')
+      run: docker run --rm --privileged aptman/qus -s -- -p aarch64 arm
     - name: Build
       run: |
         if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
@@ -65,14 +67,15 @@ jobs:
             echo "[!] Force exiting as tag '%ci:no-build' was applied to HEAD commit message."
             exit 0
           fi
+          # TODO DONT DO CUSTOM BUILD IMAGE FOR NOW
           # Build local Docker image if setup scripts were changed.
           # Useful for pull requests submitting changes for both build environment and packages.
-          if grep -qP '^scripts/(Dockerfile|setup-ubuntu\.sh)$' <<< "$CHANGED_FILES"; then
-            echo "Detected changes for environment setup scripts. Building custom Docker image now."
-            cd ./scripts
-            docker build -t termux/package-builder:latest .
-            cd ..
-          fi
+          #if grep -qP '^scripts/(Dockerfile|setup-termux\.sh)$' <<< "$CHANGED_FILES"; then
+          #  echo "Detected changes for environment setup scripts. Building custom Docker image now."
+          #  cd ./scripts
+          #  docker build -t termux/package-builder:latest .
+          #  cd ..
+          #fi
           # Parse changed files and identify new packages and deleted packages.
           # Create lists of those packages that will be passed to upload job for
           # further processing.
@@ -104,11 +107,8 @@ jobs:
             fi
           done<<<${CHANGED_FILES}
         else
-          for pkg in ${{ github.event.inputs.packages }}; do
-            echo "$pkg" >> ./built_packages.txt
-            for subpkg in $(find "packages/${pkg}/" -maxdepth 1 -type f -name \*.subpackage.sh | sort); do
-              echo "$(basename "${subpkg%%.subpackage.sh}")" >> ./built_subpackages.txt
-            done
+          for i in ${{ github.event.inputs.packages }}; do
+            echo "$i" >> ./built_packages.txt
           done
         fi
 
@@ -136,7 +136,26 @@ jobs:
 
         if [ -f ./built_packages.txt ]; then
           ./scripts/lint-packages.sh $(cat ./built_packages.txt | awk '{print "packages/"$1"/build.sh"}')
-          ./scripts/run-docker.sh ./build-package.sh -o ./debs -I -a ${{ matrix.target_arch }} $(cat ./built_packages.txt)
+          docker run \
+            --detach \
+            --name termux-package-builder-selfhost \
+            --volume $(pwd):/data/data/com.termux/files/home/termux-packages \
+            --workdir /data/data/com.termux/files/home/termux-packages \
+            --tty \
+            xeffyr/termux:${{ matrix.target_arch }}
+          ls -la ./debs
+          sudo chmod -R 777 ./debs
+          ls -la ./debs
+          docker exec -i termux-package-builder-selfhost bash -c "echo 'packages-cf.termux.org' >>/system/etc/static-dns-hosts.txt"
+          docker exec -i termux-package-builder-selfhost bash -c "echo 'objects.githubusercontent.com' >>/system/etc/static-dns-hosts.txt"
+          docker exec -i termux-package-builder-selfhost bash -c "echo 'downloads.python.org' >>/system/etc/static-dns-hosts.txt"
+          docker exec -i termux-package-builder-selfhost bash -c "echo 'distfiles.macports.org' >>/system/etc/static-dns-hosts.txt"
+          docker exec -i termux-package-builder-selfhost update-static-dns
+          docker exec -i termux-package-builder-selfhost pkg upgrade -y
+          # TODO DONT USE SETUP-TERMUX.SH FOR NOW (i686 ISSUE)
+          #docker exec -i termux-package-builder-selfhost ./scripts/setup-termux.sh
+          docker exec -i termux-package-builder-selfhost pkg install -y binutils-gold clang file gnupg lzip patch python unzip
+          docker exec -i -e "LD_PRELOAD=/data/data/com.termux/files/usr/lib/libtermux-exec.so" termux-package-builder-selfhost ./build-package.sh -o ./debs -I $(cat ./built_packages.txt)
         fi
 
         test -d ./termux-packages/debs && mv ./termux-packages/debs/* ./debs/
