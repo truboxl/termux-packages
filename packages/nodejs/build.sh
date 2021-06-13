@@ -57,7 +57,7 @@ termux_step_host_build() {
 			--disable-samples \
 			--disable-tests
 	fi
-	make -j $TERMUX_MAKE_PROCESSES install
+	make -j 1 install
 }
 
 termux_step_configure() {
