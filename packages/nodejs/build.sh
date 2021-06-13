@@ -30,7 +30,7 @@ TERMUX_PKG_HOSTBUILD=true
 # handler-outside.cc:(.text._ZN2v88internal12trap_handler17EnableTrapHandlerEb+0x25):
 # undefined reference to `v8::internal::trap_handler::RegisterDefaultTrapHandler()'
 # collect2: error: ld returned 1 exit status
-TERMUX_PKG_BLACKLISTED_ARCHES="x86_64"
+#TERMUX_PKG_BLACKLISTED_ARCHES="x86_64"
 
 termux_step_post_get_source() {
 	# Prevent caching of host build:
