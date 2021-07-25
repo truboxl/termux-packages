@@ -327,6 +327,8 @@ vifm|vifm/vifm
 virustotal-cli|VirusTotal/vt-cli
 vis|martanne/vis
 vtutils|fornwall/vtutils
+vulkan-headers|KhronosGroup/Vulkan-Headers|\d+\.\d+\.\d+
+vulkan-tools|KhronosGroup/Vulkan-Tools|\d+\.\d+\.\d+
 woff2|google/woff2
 wordgrinder|davidgiven/wordgrinder
 wren|wren-lang/wren-cli
