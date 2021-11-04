@@ -83,7 +83,13 @@ termux_step_start_build() {
 		"$TERMUX_ELF_CLEANER_SRC" \
 		022197c19129c4e57a37515bd4adcc19e05f9aa7f9ba4fbcab85a20210c39632
 	if [ "$TERMUX_ELF_CLEANER_SRC" -nt "$TERMUX_ELF_CLEANER" ]; then
-		g++ -std=c++11 -Wall -Wextra -pedantic -Os -D__ANDROID_API__=$TERMUX_PKG_API_LEVEL \
-			"$TERMUX_ELF_CLEANER_SRC" -o "$TERMUX_ELF_CLEANER"
+		if [ "$TERMUX_ON_DEVICE_BUILD" = "false" ]; then
+			g++ -std=c++11 -Wall -Wextra -pedantic -Os -D__ANDROID_API__=$TERMUX_PKG_API_LEVEL \
+				"$TERMUX_ELF_CLEANER_SRC" -o "$TERMUX_ELF_CLEANER"
+		else
+			# some bugs in qemu or termux-docker when running clang++ -std=c++11
+			g++ -Wall -Wextra -pedantic -Os -D__ANDROID_API__=$TERMUX_PKG_API_LEVEL \
+				"$TERMUX_ELF_CLEANER_SRC" -o "$TERMUX_ELF_CLEANER"
+		fi
 	fi
 }
