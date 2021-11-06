@@ -10,7 +10,7 @@ TERMUX_PKG_BUILD_DEPENDS="python2, perl"
 TERMUX_PKG_DEPENDS="libxml2, libexpat, tcl, tk, xorgproto"
 TERMUX_PKG_RECOMMENDS="clang, make, pkg-config, openssl"
 TERMUX_PKG_BUILD_IN_SRC=true
-TERMUX_PKG_BLACKLISTED_ARCHES="arm, i686"
+TERMUX_PKG_BLACKLISTED_ARCHES="arm"
 
 # http://pypy.readthedocs.org/en/latest/config/commandline.html
 
