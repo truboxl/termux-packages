@@ -1,0 +1,51 @@
+diff -uNr vulkan-tools/cube/CMakeLists.txt vulkan-tools.mod/cube/CMakeLists.txt
+--- vulkan-tools/cube/CMakeLists.txt	2022-04-22 02:22:52.000000000 +0800
++++ vulkan-tools.mod/cube/CMakeLists.txt	2022-05-09 00:41:41.450016678 +0800
+@@ -228,7 +228,6 @@
+ if(APPLE)
+     include(macOS/cube/cube.cmake)
+ elseif(NOT WIN32)
+-    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
+         add_executable(vkcube
+                        cube.c
+                        ${PROJECT_SOURCE_DIR}/cube/cube.vert
+@@ -243,7 +242,6 @@
+         if (NEED_RT)
+             target_link_libraries(vkcube rt)
+         endif()
+-    endif()
+ else()
+     if(CMAKE_CL_64)
+         set(LIB_DIR "Win64")
+@@ -280,7 +278,6 @@
+ if(APPLE)
+     include(macOS/cubepp/cubepp.cmake)
+ elseif(NOT WIN32)
+-    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
+         add_executable(vkcubepp
+                        cube.cpp
+                        ${PROJECT_SOURCE_DIR}/cube/cube.vert
+@@ -290,7 +287,6 @@
+                        ${OPTIONAL_WAYLAND_DATA_FILES})
+         target_link_libraries(vkcubepp Vulkan::Vulkan)
+         target_compile_definitions(vkcubepp PUBLIC ${CUBE_PLATFORM})
+-    endif()
+ else()
+     if(CMAKE_CL_64)
+         set(LIB_DIR "Win64")
+@@ -334,7 +330,6 @@
+             ${CMAKE_CURRENT_BINARY_DIR}/xdg-decoration-code.c
+             ${CMAKE_CURRENT_BINARY_DIR}/xdg-decoration-client-header.h)
+         include_directories(${CMAKE_CURRENT_BINARY_DIR})
+-        if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
+             add_executable(vkcube-wayland
+                            cube.c
+                            ${PROJECT_SOURCE_DIR}/cube/cube.vert
+@@ -349,7 +344,6 @@
+             if (NEED_RT)
+                 target_link_libraries(vkcube-wayland rt)
+             endif()
+-        endif()
+         install(TARGETS vkcube-wayland RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+     endif()
+ endif()
