@@ -1,0 +1,12 @@
+diff -uNr pocl/lib/CL/devices/pthread/pthread_scheduler.c pocl.mod/lib/CL/devices/pthread/pthread_scheduler.c
+--- pocl/lib/CL/devices/pthread/pthread_scheduler.c	2022-05-13 20:27:05.000000000 +0800
++++ pocl.mod/lib/CL/devices/pthread/pthread_scheduler.c	2022-05-29 21:43:37.827663452 +0800
+@@ -547,7 +547,7 @@
+       CPU_ZERO (&set);
+       CPU_SET (td->index, &set);
+       PTHREAD_CHECK (
+-          pthread_setaffinity_np (td->thread, sizeof (cpu_set_t), &set));
++          sched_setaffinity(td->thread, sizeof(cpu_set_t), &set));
+     }
+ #endif
+ 

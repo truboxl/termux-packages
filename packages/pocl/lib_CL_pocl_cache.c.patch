@@ -1,0 +1,12 @@
+diff -uNr pocl/lib/CL/pocl_cache.c pocl.mod/lib/CL/pocl_cache.c
+--- pocl/lib/CL/pocl_cache.c	2022-05-13 20:27:05.000000000 +0800
++++ pocl.mod/lib/CL/pocl_cache.c	2022-05-29 21:46:16.274805563 +0800
+@@ -440,7 +440,7 @@
+     {
+       needed = snprintf (cache_topdir, POCL_FILENAME_LENGTH, "%s", tmp_path);
+     } else {
+-#ifdef __ANDROID__
++#if defined(__ANDROID__) && !defined(__TERMUX__)
+         POCL_ABORT ("Please set the POCL_CACHE_DIR env var to your app's cache directory (Context.getCacheDir())\n");
+ 
+ #elif defined(_WIN32)
