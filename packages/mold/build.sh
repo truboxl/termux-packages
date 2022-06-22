@@ -19,19 +19,19 @@ termux_step_make() {
 	# When building mold-wrapper.so cant find
 	# spawn.h from libandroid-spawn for some reason
 	# Manually link just in case to avoid runtime surprises
-	make -j ${TERMUX_MAKE_PROCESSES} \
-		PREFIX="${TERMUX_PREFIX}" \
-		CFLAGS="${CFLAGS} -I${TERMUX_PREFIX}/include" \
-		CXXFLAGS="${CXXFLAGS}" \
-		STRIP="${STRIP}" \
+	make -j "$TERMUX_MAKE_PROCESSES" \
+		PREFIX="$TERMUX_PREFIX" \
+		CFLAGS="$CFLAGS -I${TERMUX_PREFIX}/include" \
+		CXXFLAGS="$CXXFLAGS -I${TERMUX_PREFIX}/include" \
+		STRIP="$STRIP" \
 		MOLD_WRAPPER_LDFLAGS=" -ldl -landroid-spawn"
 }
 
 termux_step_make_install() {
-	make -j ${TERMUX_MAKE_PROCESSES} install \
-		PREFIX="${TERMUX_PREFIX}" \
-		CFLAGS="${CFLAGS} -I${TERMUX_PREFIX}/include" \
-		CXXFLAGS="${CXXFLAGS}" \
-		STRIP="${STRIP}" \
+	make -j "$TERMUX_MAKE_PROCESSES" install \
+		PREFIX="$TERMUX_PREFIX" \
+		CFLAGS="$CFLAGS -I${TERMUX_PREFIX}/include" \
+		CXXFLAGS="$CXXFLAGS -I${TERMUX_PREFIX}/include" \
+		STRIP="$STRIP" \
 		MOLD_WRAPPER_LDFLAGS=" -ldl -landroid-spawn"
 }
