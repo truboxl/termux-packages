@@ -3,7 +3,7 @@ TERMUX_PKG_DESCRIPTION="Use llvm as binutils"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 # The version number is different from the original one.
-TERMUX_PKG_VERSION=0.3
+TERMUX_PKG_VERSION=0.4
 TERMUX_PKG_SKIP_SRC_EXTRACT=true
 TERMUX_PKG_DEPENDS="lld, llvm"
 TERMUX_PKG_PROVIDES="binutils"
@@ -21,6 +21,8 @@ termux_step_make_install() {
 	local dir=$TERMUX_PREFIX/share/$TERMUX_PKG_NAME
 	mkdir -p $dir
 	touch $dir/.placeholder
+
+	cp $TERMUX_PKG_BUILDER_DIR/ldd $TERMUX_PREFIX/bin/ldd
 
 	# Add some arch-prefixed symlinks like binutils.
 	for b in ar ld nm objdump ranlib readelf strip; do
