@@ -5,11 +5,10 @@ TERMUX_PKG_MAINTAINER="@termux"
 _COMMIT=2dcb0192961499018668a7301cbc625965b7c895
 _COMMIT_DATE=20220815
 _COMMIT_TIME=100946
-# termux_pkg_upgrade_version edits TERMUX_PKG_VERSION wholly
 TERMUX_PKG_VERSION="0.0.20220815g2dcb0192"
 TERMUX_PKG_SRCURL=https://github.com/kpet/clvk.git
 TERMUX_PKG_GIT_BRANCH=main
-TERMUX_PKG_BUILD_DEPENDS="vulkan-loader-android, vulkan-headers"
+TERMUX_PKG_BUILD_DEPENDS="vulkan-headers, vulkan-loader"
 TERMUX_PKG_DEPENDS="libc++"
 TERMUX_PKG_SUGGESTS="ocl-icd"
 TERMUX_PKG_HOSTBUILD=true
@@ -20,6 +19,30 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 "
 
 # https://github.com/kpet/clvk/blob/main/CMakeLists.txt
+
+# clvk prefers Khronos Vulkan Loader instead of NDK stub
+# Sticking with NDK should expose more Vulkan limitations in Android
+# As noted in build test, failure comes when linking with API 24 libvulkan.so
+# clvk will not work on Android versions older than Android 9 (API 28)
+#
+# [1877/1888] Linking CXX executable api_tests
+# FAILED: api_tests
+# ...
+# libOpenCL.so: error: undefined reference to 'vkGetPhysicalDeviceFeatures2'
+#
+# Now that Khronos Vulkan Loader is available, we can run
+# CLVK_BUILD_TESTS=ON by default
+TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
+-DCLVK_VULKAN_IMPLEMENTATION=custom
+-DVulkan_INCLUDE_DIRS=$TERMUX_PREFIX/include
+-DVulkan_LIBRARIES=vulkan
+"
+
+# clvk libOpenCL.so has hardcoded clspv bin path at build time
+# clvk cant automatically find clspv from PATH env var
+# and rely on CLVK_CLSPV_BIN env var
+# Use CLVK_CLSPV_ONLINE_COMPILER=ON to combine clspv with clvk
+TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCLVK_CLSPV_ONLINE_COMPILER=ON"
 
 # clvk currently does not have proper versioning nor releases
 # Use dates and commits as versioning for now
@@ -68,29 +91,6 @@ termux_pkg_auto_update() {
 	# maybe save a few ms as we already done version check
 	termux_pkg_upgrade_version "$latest_version" --skip-version-check
 }
-
-# clvk prefers Khronos Vulkan Loader than the one come from NDK
-# Sticking with NDK should expose more Vulkan limitations in Android (like below)
-TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
--DCLVK_VULKAN_IMPLEMENTATION=custom
--DVulkan_INCLUDE_DIRS=$TERMUX_PREFIX/include
--DVulkan_LIBRARIES=vulkan
-"
-
-# clvk build test fail when linking with API 24 libvulkan.so
-# clvk likely wont work on Android versions older than Android 9 (API 28)
-#
-# [1877/1888] Linking CXX executable api_tests
-# FAILED: api_tests
-# ...
-# libOpenCL.so: error: undefined reference to 'vkGetPhysicalDeviceFeatures2'
-TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCLVK_BUILD_TESTS=OFF"
-
-# clvk libOpenCL.so has a hardcoded path clspv bin at build time
-# clvk cant automatically find clspv from PATH env var
-# and rely on CLVK_CLSPV_BIN env var
-# Use CLVK_CLSPV_ONLINE_COMPILER=1 to combine clspv with clvk
-TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCLVK_CLSPV_ONLINE_COMPILER=1"
 
 termux_step_post_get_source() {
 	git fetch --unshallow
