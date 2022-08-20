@@ -1,0 +1,60 @@
+diff -uNr Vulkan-Tools/cube/CMakeLists.txt Vulkan-Tools.mod/cube/CMakeLists.txt
+--- Vulkan-Tools/cube/CMakeLists.txt	2022-08-19 04:56:22.000000000 +0800
++++ Vulkan-Tools.mod/cube/CMakeLists.txt	2022-08-20 12:02:23.086857176 +0800
+@@ -121,8 +121,6 @@
+         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /guard:cf")
+         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /guard:cf")
+     endif()
+-elseif(ANDROID)
+-    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR)
+ elseif(APPLE)
+     add_definitions(-DVK_USE_PLATFORM_METAL_EXT)
+ elseif(UNIX AND NOT APPLE) # i.e. Linux
+@@ -228,7 +226,6 @@
+ if(APPLE)
+     include(macOS/cube/cube.cmake)
+ elseif(NOT WIN32)
+-    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
+         add_executable(vkcube
+                        cube.c
+                        ${PROJECT_SOURCE_DIR}/cube/cube.vert
+@@ -243,7 +240,6 @@
+         if (NEED_RT)
+             target_link_libraries(vkcube rt)
+         endif()
+-    endif()
+ else()
+     if(CMAKE_CL_64)
+         set(LIB_DIR "Win64")
+@@ -280,7 +276,6 @@
+ if(APPLE)
+     include(macOS/cubepp/cubepp.cmake)
+ elseif(NOT WIN32)
+-    if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
+         add_executable(vkcubepp
+                        cube.cpp
+                        ${PROJECT_SOURCE_DIR}/cube/cube.vert
+@@ -290,7 +285,6 @@
+                        ${OPTIONAL_WAYLAND_DATA_FILES})
+         target_link_libraries(vkcubepp Vulkan::Vulkan)
+         target_compile_definitions(vkcubepp PUBLIC ${CUBE_PLATFORM})
+-    endif()
+ else()
+     if(CMAKE_CL_64)
+         set(LIB_DIR "Win64")
+@@ -334,7 +328,6 @@
+             ${CMAKE_CURRENT_BINARY_DIR}/xdg-decoration-code.c
+             ${CMAKE_CURRENT_BINARY_DIR}/xdg-decoration-client-header.h)
+         include_directories(${CMAKE_CURRENT_BINARY_DIR})
+-        if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL ${CMAKE_HOST_SYSTEM_PROCESSOR})
+             add_executable(vkcube-wayland
+                            cube.c
+                            ${PROJECT_SOURCE_DIR}/cube/cube.vert
+@@ -349,7 +342,6 @@
+             if (NEED_RT)
+                 target_link_libraries(vkcube-wayland rt)
+             endif()
+-        endif()
+         install(TARGETS vkcube-wayland RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+     endif()
+ endif()

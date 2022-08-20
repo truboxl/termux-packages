@@ -6,7 +6,7 @@ TERMUX_PKG_VERSION=$TERMUX_NDK_VERSION
 TERMUX_PKG_REVISION=3
 TERMUX_PKG_SKIP_SRC_EXTRACT=true
 TERMUX_PKG_HOSTBUILD=true
-TERMUX_PKG_CONFLICTS="vulkan-loader"
+TERMUX_PKG_CONFLICTS="vulkan-loader, vulkan-loader-x"
 
 # Android Vulkan Loader
 # https://source.android.com/devices/graphics/arch-vulkan

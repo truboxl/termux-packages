@@ -1,13 +1,14 @@
 TERMUX_PKG_HOMEPAGE=https://github.com/KhronosGroup/Vulkan-Loader
-TERMUX_PKG_DESCRIPTION="Vulkan Loader"
+TERMUX_PKG_DESCRIPTION="Vulkan Loader with X11"
 TERMUX_PKG_LICENSE="Apache-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
 # All Khronos vulkan packages should be updated at same time. Otherwise, they do not compile successfully.
 TERMUX_PKG_VERSION="1.3.225"
 TERMUX_PKG_SRCURL=https://github.com/KhronosGroup/Vulkan-Loader/archive/v${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=f20a5dcd016971b497659732ba3410aca7663f45554d24094509e4ffd0cc3239
-TERMUX_PKG_BUILD_DEPENDS="vulkan-headers (=${TERMUX_PKG_VERSION})"
-TERMUX_PKG_CONFLICTS="vulkan-loader-android, vulkan-loader-x"
+TERMUX_PKG_BUILD_DEPENDS="vulkan-headers (=${TERMUX_PKG_VERSION}), xorgproto"
+TERMUX_PKG_DEPENDS="libx11, libxcb, libxrandr"
+TERMUX_PKG_CONFLICTS="vulkan-loader-android, vulkan-loader"
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_UPDATE_TAG_TYPE="newest-tag"
 
@@ -18,8 +19,6 @@ TERMUX_PKG_UPDATE_TAG_TYPE="newest-tag"
 # https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/CMakeLists.txt
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DBUILD_WSI_WAYLAND_SUPPORT=OFF
--DBUILD_WSI_XCB_SUPPORT=OFF
--DBUILD_WSI_XLIB_SUPPORT=OFF
 -DUSE_GAS=OFF
 "
 
@@ -42,7 +41,7 @@ termux_step_create_debscripts() {
 	cat <<- EOF > postinst
 	#!$TERMUX_PREFIX/bin/sh
 	echo '
-	WARNING: This "vulkan-loader" package is for building packages. Do not use this during runtime!
+	WARNING: This "vulkan-loader-x" package is for building packages. Do not use this during runtime!
 	' >&2
 	EOF
 }

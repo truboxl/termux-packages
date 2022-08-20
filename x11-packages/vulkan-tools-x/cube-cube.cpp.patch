@@ -1,0 +1,12 @@
+diff -uNr Vulkan-Tools/cube/cube.cpp Vulkan-Tools.mod/cube/cube.cpp
+--- Vulkan-Tools/cube/cube.cpp	2022-08-19 04:56:22.000000000 +0800
++++ Vulkan-Tools.mod/cube/cube.cpp	2022-08-20 12:09:21.509257451 +0800
+@@ -1071,7 +1071,7 @@
+         demo.in_callback = false;
+     }
+ 
+-#elif defined(ANDROID)
++#elif defined(ANDROID) && !defined(__TERMUX__)
+ 
+     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+         __android_log_print(ANDROID_LOG_INFO, APP_SHORT_NAME, "%s", message.str());

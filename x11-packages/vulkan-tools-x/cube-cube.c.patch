@@ -1,0 +1,21 @@
+diff -uNr Vulkan-Tools/cube/cube.c Vulkan-Tools.mod/cube/cube.c
+--- Vulkan-Tools/cube/cube.c	2022-08-19 04:56:22.000000000 +0800
++++ Vulkan-Tools.mod/cube/cube.c	2022-08-20 12:10:36.947312822 +0800
+@@ -99,7 +99,7 @@
+     fflush(stdout);
+ }
+ 
+-#elif defined __ANDROID__
++#elif defined(__ANDROID__) && !defined(__TERMUX__)
+ #include <android/log.h>
+ #define ERR_EXIT(err_msg, err_class)                                           \
+     do {                                                                       \
+@@ -558,7 +558,7 @@
+     if (!demo->suppress_popups) MessageBox(NULL, message, "Alert", MB_OK);
+     in_callback = false;
+ 
+-#elif defined(ANDROID)
++#elif defined(ANDROID) && !defined(__TERMUX__)
+ 
+     if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
+         __android_log_print(ANDROID_LOG_INFO, APP_SHORT_NAME, "%s", message);
