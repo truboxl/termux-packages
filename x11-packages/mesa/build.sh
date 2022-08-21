@@ -4,11 +4,11 @@ TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="docs/license.rst"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=22.1.0
-TERMUX_PKG_REVISION=1
+TERMUX_PKG_REVISION=2
 TERMUX_PKG_SRCURL=https://archive.mesa3d.org/mesa-${TERMUX_PKG_VERSION}.tar.xz
 TERMUX_PKG_SHA256=df6270c1371eaa2aa6eb65b95cbbb2a98b14fa4b7ba0ed45e4ca2fd32df60477
 TERMUX_PKG_DEPENDS="libandroid-shmem, libc++, libexpat, libx11, libxext, ncurses, zlib, zstd"
-TERMUX_PKG_BUILD_DEPENDS="libllvm-static, llvm, llvm-tools, mlir, xorgproto"
+TERMUX_PKG_BUILD_DEPENDS="libllvm-static, llvm, llvm-tools, mlir, xorgproto, vulkan-loader-x"
 TERMUX_PKG_CONFLICTS="libmesa, ndk-sysroot (<< 23b-6)"
 TERMUX_PKG_REPLACES="libmesa"
 
@@ -25,7 +25,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -Dglx=xlib
 -Dplatforms=x11
 -Ddri-drivers=
--Dgallium-drivers=swrast
+-Dgallium-drivers=swrast,zink
 -Dvulkan-drivers=
 "
 
