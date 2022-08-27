@@ -38,7 +38,7 @@ termux_step_configure() {
 	export ${env_host}_OPENSSL_DIR=$TERMUX_PREFIX
 	export RUST_LIBDIR=$TERMUX_PKG_BUILDDIR/_lib
 	mkdir -p $RUST_LIBDIR
-	export CARGO_TARGET_${env_host}_RUSTFLAGS="-L$RUST_LIBDIR -C link-arg=-l:libgetloadavg.a"
+	export CARGO_TARGET_${env_host}_RUSTFLAGS="-L$RUST_LIBDIR -C link-arg=-l:libgetloadavg.a -C link-arg=-Wl,--print-gc-sections"
 
 	if [ "$TERMUX_ARCH" == "x86_64" ]; then
 		export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=$($CC -print-libgcc-file-name) -C link-arg=-l:libunwind.a"
