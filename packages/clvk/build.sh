@@ -6,6 +6,7 @@ _COMMIT=0e74c0a98e1eb97ae9bee2362b39245b3b70da30
 _COMMIT_DATE=20220922
 _COMMIT_TIME=231854
 TERMUX_PKG_VERSION="0.0.20220922.231854g0e74c0a9"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/kpet/clvk.git
 TERMUX_PKG_GIT_BRANCH=main
 TERMUX_PKG_BUILD_DEPENDS="vulkan-headers, vulkan-loader-android"
@@ -92,8 +93,7 @@ termux_pkg_auto_update() {
 
 termux_step_post_get_source() {
 	git fetch --unshallow
-	git reset --hard $_COMMIT
-	git submodule deinit --force --all
+	git checkout $_COMMIT
 	git submodule update --init --recursive
 	./external/clspv/utils/fetch_sources.py --deps llvm
 }
