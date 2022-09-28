@@ -54,7 +54,7 @@ opt/emscripten/LICENSE
 # https://github.com/emscripten-core/emscripten/issues/11362
 # can switch to stable LLVM to save space once above is fixed
 _LLVM_COMMIT=945a1468c922573a07b334a130d05f0ecca40926
-_LLVM_TGZ_SHA256=26d6d4ba7844de81ae600d6f804fb047809079925072a557bc3faf4a5d4b0b48
+#_LLVM_TGZ_SHA256=26d6d4ba7844de81ae600d6f804fb047809079925072a557bc3faf4a5d4b0b48
 
 # https://github.com/emscripten-core/emscripten/issues/12252
 # upstream says better bundle the right binaryen revision for now
@@ -148,10 +148,11 @@ termux_pkg_auto_update() {
 }
 
 termux_step_post_get_source() {
-	termux_download \
-		"https://github.com/llvm/llvm-project/archive/$_LLVM_COMMIT.tar.gz" \
-		"$TERMUX_PKG_CACHEDIR/llvm.tar.gz" \
-		"$_LLVM_TGZ_SHA256"
+	curl -LC - "https://github.com/llvm/llvm-project/archive/$_LLVM_COMMIT.tar.gz" -o "$TERMUX_PKG_CACHEDIR/llvm.tar.gz"
+	#termux_download \
+	#	"https://github.com/llvm/llvm-project/archive/$_LLVM_COMMIT.tar.gz" \
+	#	"$TERMUX_PKG_CACHEDIR/llvm.tar.gz" \
+	#	"$_LLVM_TGZ_SHA256"
 	termux_download \
 		"https://github.com/WebAssembly/binaryen/archive/$_BINARYEN_COMMIT.tar.gz" \
 		"$TERMUX_PKG_CACHEDIR/binaryen.tar.gz" \
