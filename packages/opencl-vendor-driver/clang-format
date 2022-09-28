@@ -1,0 +1,4 @@
+AlignConsecutiveMacros: AcrossEmptyLinesAndComments
+BreakBeforeBraces: Attach
+ColumnLimit: 100
+IndentWidth: 4
