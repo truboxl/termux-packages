@@ -53,7 +53,7 @@ opt/emscripten/LICENSE
 
 # https://github.com/emscripten-core/emscripten/issues/11362
 # can switch to stable LLVM to save space once above is fixed
-_LLVM_COMMIT=04a65d62a0c67da0ee383c8f1d74dea6d8b83a7e
+_LLVM_COMMIT=a41764810f800a3018a1fd374e1de1a4199e1b38
 #_LLVM_TGZ_SHA256=26d6d4ba7844de81ae600d6f804fb047809079925072a557bc3faf4a5d4b0b48
 
 # https://github.com/emscripten-core/emscripten/issues/12252
