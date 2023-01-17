@@ -1,0 +1,19 @@
+diff -uNr gl4es/src/gl/init.c gl4es.mod/src/gl/init.c
+--- gl4es/src/gl/init.c	2023-01-17 10:13:23.735408484 +0800
++++ gl4es.mod/src/gl/init.c	2023-01-20 17:50:14.975429609 +0800
+@@ -123,6 +123,15 @@
+ 
+ 
+     switch(ReturnEnvVarInt("LIBGL_FB")) {
++#ifndef NOX11
++		case 0:
++		if ((GetEnvVar("LIBGL_FB") == NULL) || (strlen(GetEnvVar("LIBGL_FB")) == 0)) {
++        SHUT_LOGD("using pbuffer\n");
++        globals4es.usefb = 0;
++        globals4es.usepbuffer = 1;
++		}
++    	  break;
++#endif
+     	case 1:
+         SHUT_LOGD("framebuffer output enabled\n");
+         globals4es.usefb = 1;

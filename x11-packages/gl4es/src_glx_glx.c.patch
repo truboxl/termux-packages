@@ -1,7 +1,7 @@
 diff -uNr gl4es/src/glx/glx.c gl4es.mod/src/glx/glx.c
---- gl4es/src/glx/glx.c	2021-10-13 23:49:59.663443188 +0800
-+++ gl4es.mod/src/glx/glx.c	2021-10-13 23:48:57.699443233 +0800
-@@ -770,8 +770,11 @@
+--- gl4es/src/glx/glx.c	2023-01-17 10:13:23.787408484 +0800
++++ gl4es.mod/src/glx/glx.c	2023-01-17 18:48:54.035386361 +0800
+@@ -771,8 +771,11 @@
      }
  
  	result = egl_eglChooseConfig(eglDisplay, configAttribs, fake->eglConfigs, 64, &fake->eglConfigsCount);
@@ -13,12 +13,13 @@ diff -uNr gl4es/src/glx/glx.c gl4es.mod/src/glx/glx.c
  
      CheckEGLErrors();
      if (result != EGL_TRUE || fake->eglConfigsCount == 0) {
-@@ -951,10 +954,12 @@
+@@ -952,10 +955,13 @@
          }
  
          result = egl_eglChooseConfig(eglDisplay, configAttribs, fake->eglConfigs, 64, &fake->eglConfigsCount);
 +
 +        fake->eglconfigIdx = 0;
++
 +#ifndef NO_GBM
          if(fake->eglConfigsCount && globals4es.usegbm)
              fake->eglconfigIdx = FindGBMConfig(eglDisplay, fake->eglConfigs, fake->eglConfigsCount);
@@ -28,9 +29,9 @@ diff -uNr gl4es/src/glx/glx.c gl4es.mod/src/glx/glx.c
  
          CheckEGLErrors();
          if (result != EGL_TRUE || fake->eglConfigsCount == 0) {
-@@ -1819,7 +1824,7 @@
+@@ -1841,7 +1847,7 @@
          attr[cur++] = EGL_STENCIL_SIZE;
-         attr[cur++] = tmp;
+         attr[cur++] = 8;
      }
 -    attr[1] |= (globals4es.usepbuffer)?(/*EGL_PBUFFER_BIT|*/EGL_PIXMAP_BIT):EGL_WINDOW_BIT;
 +    attr[1] |= (globals4es.usepbuffer)?(EGL_PBUFFER_BIT/*|EGL_PIXMAP_BIT*/):EGL_WINDOW_BIT;

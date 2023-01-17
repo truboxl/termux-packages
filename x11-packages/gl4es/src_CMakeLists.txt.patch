@@ -1,7 +1,7 @@
 diff -uNr gl4es/src/CMakeLists.txt gl4es.mod/src/CMakeLists.txt
---- gl4es/src/CMakeLists.txt	2021-06-21 07:53:58.734942738 +0000
-+++ gl4es.mod/src/CMakeLists.txt	2021-06-21 08:02:39.158267430 +0000
-@@ -224,10 +224,10 @@ else()
+--- gl4es/src/CMakeLists.txt	2023-01-17 10:13:23.687408484 +0800
++++ gl4es.mod/src/CMakeLists.txt	2023-01-17 10:16:01.067408372 +0800
+@@ -225,10 +225,10 @@
      endif()
      install(TARGETS GL
        LIBRARY
@@ -13,4 +13,4 @@ diff -uNr gl4es/src/CMakeLists.txt gl4es.mod/src/CMakeLists.txt
 +      DESTINATION "@TERMUX_PREFIX@/include/gl4es/"
      )
  endif()
-
+ 
