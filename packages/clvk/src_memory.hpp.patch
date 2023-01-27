@@ -1,0 +1,16 @@
+https://github.com/kpet/clvk/issues/491
+
+--- a/src/memory.hpp
++++ b/src/memory.hpp
+@@ -390,7 +390,11 @@ struct cvk_buffer : public cvk_mem {
+         info.buffer = vulkan_buffer();
+         info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+         info.pNext = NULL;
++#ifdef __ANDROID__
++        auto device_address = vkGetBufferDeviceAddressKHR(
++#else
+         auto device_address = vkGetBufferDeviceAddress(
++#endif
+             context()->device()->vulkan_device(), &info);
+         return device_address + vulkan_buffer_offset();
+     }
