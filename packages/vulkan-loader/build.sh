@@ -15,7 +15,7 @@ TERMUX_PKG_UPDATE_TAG_TYPE="newest-tag"
 
 # https://github.com/KhronosGroup/Vulkan-Loader/blob/master/CMakeLists.txt
 # https://github.com/KhronosGroup/Vulkan-Loader/blob/master/loader/CMakeLists.txt
-TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
+NO_TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DBUILD_WSI_WAYLAND_SUPPORT=OFF
 -DBUILD_WSI_XCB_SUPPORT=OFF
 -DBUILD_WSI_XLIB_SUPPORT=OFF
