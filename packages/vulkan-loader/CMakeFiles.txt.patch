@@ -1,0 +1,38 @@
+diff -uNr --color Vulkan-Loader/CMakeLists.txt Vulkan-Loader.mod/CMakeLists.txt
+--- Vulkan-Loader/CMakeLists.txt	2023-02-21 00:24:10.573425121 +0800
++++ Vulkan-Loader.mod/CMakeLists.txt	2023-02-21 00:32:31.961424763 +0800
+@@ -73,12 +73,12 @@
+ set(LOADER_HELPER_FOLDER "Helper Targets")
+ 
+ if(UNIX)
+-    set(FALLBACK_CONFIG_DIRS "/etc/xdg" CACHE STRING
++    set(FALLBACK_CONFIG_DIRS "@TERMUX_PREFIX@/etc/xdg" CACHE STRING
+             "Search path to use when XDG_CONFIG_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
+-    set(FALLBACK_DATA_DIRS "/usr/local/share:/usr/share" CACHE STRING
++    set(FALLBACK_DATA_DIRS "@TERMUX_PREFIX@/share" CACHE STRING
+             "Search path to use when XDG_DATA_DIRS is unset or empty or the current process is SUID/SGID. Default is freedesktop compliant.")
+     set(SYSCONFDIR "" CACHE STRING
+-            "System-wide search directory. If not set or empty, CMAKE_INSTALL_FULL_SYSCONFDIR and /etc are used.")
++            "System-wide search directory. If not set or empty, CMAKE_INSTALL_FULL_SYSCONFDIR and @TERMUX_PREFIX@/etc are used.")
+ endif()
+ 
+ # For MSVC/Windows, replace /GR with an empty string, this prevents warnings of /GR being overriden by /GR-
+@@ -93,8 +93,6 @@
+ add_library(platform_wsi INTERFACE)
+ if(WIN32)
+     target_compile_definitions(platform_wsi INTERFACE VK_USE_PLATFORM_WIN32_KHR)
+-elseif(ANDROID)
+-    target_compile_definitions(platform_wsi INTERFACE VK_USE_PLATFORM_ANDROID_KHR)
+ elseif(APPLE)
+     target_compile_definitions(platform_wsi INTERFACE VK_USE_PLATFORM_MACOS_MVK VK_USE_PLATFORM_METAL_EXT)
+ elseif(UNIX AND NOT APPLE) # i.e.: Linux
+@@ -106,6 +104,9 @@
+ 
+     find_package(PkgConfig REQUIRED QUIET) # Use PkgConfig to find Linux system libraries
+ 
++    if(ANDROID)
++        target_compile_definitions(platform_wsi INTERFACE VK_USE_PLATFORM_ANDROID_KHR)
++    endif()
+     if(BUILD_WSI_XCB_SUPPORT)
+         pkg_check_modules(XCB REQUIRED QUIET IMPORTED_TARGET xcb)
+         target_compile_definitions(platform_wsi INTERFACE VK_USE_PLATFORM_XCB_KHR)
