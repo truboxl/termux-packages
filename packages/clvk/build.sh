@@ -44,9 +44,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCLVK_CLSPV_ONLINE_COMPILER=ON"
 # clvk currently does not have proper versioning nor releases
 # Use dates and commits as versioning for now
 termux_pkg_auto_update() {
-	local latest_commit_date_tz latest_commit_date latest_commit_time latest_version
 	local latest_commit=$(curl -s https://api.github.com/repos/kpet/clvk/commits | jq .[].sha | head -1 | sed -e 's|\"||g')
-
 	if [[ -z "${latest_commit}" ]]; then
 		echo "WARN: Unable to get latest commit from upstream. Try again later." >&2
 		return 0
@@ -57,23 +55,25 @@ termux_pkg_auto_update() {
 		return 0
 	fi
 
-	latest_commit_date_tz=$(curl -s "https://api.github.com/repos/kpet/clvk/commits/${latest_commit}" | jq .commit.committer.date | sed -e 's|\"||g')
-
+	local latest_commit_date_tz=$(curl -s "https://api.github.com/repos/kpet/clvk/commits/${latest_commit}" | jq .commit.committer.date | sed -e 's|\"||g')
 	if [[ -z "${latest_commit_date_tz}" ]]; then
 		termux_error_exit "ERROR: Unable to get latest commit date info"
 	fi
 
+	local latest_commit_date latest_commit_time
 	latest_commit_date=$(echo "${latest_commit_date_tz}" | sed -e 's|\(.*\)T\(.*\)Z|\1|' -e 's|\-||g')
 	latest_commit_time=$(echo "${latest_commit_date_tz}" | sed -e 's|\(.*\)T\(.*\)Z|\2|' -e 's|\:||g')
 
 	# https://github.com/termux/termux-packages/issues/11827
 	# really fix it by including longer date time info into versioning
 	# always check this in case upstream change the version format
-	latest_version="0.0.${latest_commit_date}.${latest_commit_time}g${latest_commit:0:8}"
+	local latest_version="0.0.${latest_commit_date}.${latest_commit_time}g${latest_commit:0:8}"
 
-	# rough estimate weekly push
-	current_date=$(date "+%Y%m%d")
-	current_date_diff=$((current_date-_COMMIT_DATE))
+	local current_date_epoch _COMMIT_DATE_epoch current_date_diff
+	current_date_epoch=$(date "+%s")
+	_COMMIT_DATE_epoch=$(date -d "${_COMMIT_DATE}" "+%s")
+	current_date_diff=$(((current_date_epoch-_COMMIT_DATE_epoch)/(60*60*24)))
+
 	if [[ "${current_date_diff}" -lt 7 ]]; then
 		echo "INFO: Queuing updates after 7 days since last push, currently its ${current_date_diff}"
 		return 0
@@ -123,7 +123,7 @@ termux_step_host_build() {
 
 termux_step_pre_configure() {
 	local _libvulkan=vulkan
-	if [ $TERMUX_PKG_API_LEVEL -lt 28 ]; then
+	if [[ "${TERMUX_PKG_API_LEVEL}" -lt 28 ]]; then
 		_libvulkan="$TERMUX_STANDALONE_TOOLCHAIN/sysroot/usr/lib/$TERMUX_HOST_PLATFORM/28/libvulkan.so"
 	fi
 	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DVulkan_LIBRARIES=${_libvulkan}"
