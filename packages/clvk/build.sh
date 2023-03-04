@@ -30,7 +30,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 # ...
 # libOpenCL.so: error: undefined reference to 'vkGetPhysicalDeviceFeatures2'
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
--DCLVK_BUILD_TESTS=OFF
+-DCLVK_BUILD_TESTS=ON
 -DCLVK_VULKAN_IMPLEMENTATION=custom
 -DVulkan_INCLUDE_DIRS=${TERMUX_PREFIX}/include
 "
