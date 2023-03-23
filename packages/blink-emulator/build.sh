@@ -52,6 +52,7 @@ termux_step_configure() {
 		-e "s|^#define HAVE_KERN_ARND|// #define HAVE_KERN_ARND|" \
 		-e "s|^#define HAVE_RTLGENRANDOM|// #define HAVE_RTLGENRANDOM|" \
 		-e "s|^#define HAVE_GETDOMAINNAME|// #define HAVE_GETDOMAINNAME|" \
+		-e "s|^#define HAVE_LIBUNWIND|// #define HAVE_LIBUNWIND|" \
 
 	if [[ "${TERMUX_ARCH}" == "arm" ]] || [[ "${TERMUX_ARCH}" == "i686" ]]; then
 		sed -i config.h -e "s|^#define HAVE_INT128|// #define HAVE_INT128|"
