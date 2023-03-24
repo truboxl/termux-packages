@@ -1,0 +1,142 @@
+diff --git a/blink/blink.c b/blink/blink.c
+index cd9fe7d..06b0432 100644
+--- a/blink/blink.c
++++ b/blink/blink.c
+@@ -117,6 +117,7 @@ _Alignas(1) static const char USAGE[] =
+ #endif
+ #if !defined(DISABLE_OVERLAYS) || !defined(NDEBUG)
+     "Environment:\n"
++    "  $BLINK_NO_LINEAR     set to 1 to enable memory safety (same as -m flag)\n"
+ #endif
+ #ifndef DISABLE_OVERLAYS
+     "  $BLINK_OVERLAYS      file system roots [default \":o\"]\n"
+@@ -266,6 +267,11 @@ _Noreturn static void PrintVersion(void) {
+ static void GetOpts(int argc, char *argv[]) {
+   int opt;
+   FLAG_nolinear = !CanHaveLinearMemory();
++  if (getenv("BLINK_NO_LINEAR") != NULL) {
++    if (strcmp(getenv("BLINK_NO_LINEAR"), "1") == 0) {
++      FLAG_nolinear = true;
++    }
++  }
+ #ifndef DISABLE_OVERLAYS
+   FLAG_overlays = getenv("BLINK_OVERLAYS");
+   if (!FLAG_overlays) FLAG_overlays = DEFAULT_OVERLAYS;
+diff --git a/blink/demangle.c b/blink/demangle.c
+index e88bcb0..cdc4ae8 100644
+--- a/blink/demangle.c
++++ b/blink/demangle.c
+@@ -236,7 +236,9 @@ char *Demangle(char *p, const char *symbol, size_t n) {
+   sigset_t ss, oldss;
+   sn = strlen(symbol);
+   if (startswith(symbol, "_Z")) {
++#ifdef HAVE_PTHREAD_CANCEL
+     unassert(!pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs));
++#endif
+     unassert(!pthread_once_(&g_cxxfilt.once, InitCxxFilt));
+     LOCK(&g_cxxfilt.lock);
+     if (g_cxxfilt.pid != -1) {
+@@ -261,7 +263,9 @@ char *Demangle(char *p, const char *symbol, size_t n) {
+       r = 0;
+     }
+     UNLOCK(&g_cxxfilt.lock);
++#ifdef HAVE_PTHREAD_CANCEL
+     unassert(!pthread_setcancelstate(cs, 0));
++#endif
+   } else {
+     r = 0;
+   }
+diff --git a/blink/errfd.c b/blink/errfd.c
+index ec54e72..a9c54bc 100644
+--- a/blink/errfd.c
++++ b/blink/errfd.c
+@@ -35,10 +35,14 @@ int WriteErrorString(const char *buf) {
+ 
+ int WriteError(int fd, const char *buf, int len) {
+   int rc, cs;
++#ifdef HAVE_PTHREAD_CANCEL
+   unassert(!pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs));
++#endif
+   do rc = write(fd > 0 ? fd : g_errfd, buf, len);
+   while (rc == -1 && errno == EINTR);
++#ifdef HAVE_PTHREAD_CANCEL
+   unassert(!pthread_setcancelstate(cs, 0));
++#endif
+   return rc;
+ }
+ 
+diff --git a/blink/hostfs.c b/blink/hostfs.c
+index c51f406..1457169 100644
+--- a/blink/hostfs.c
++++ b/blink/hostfs.c
+@@ -1726,6 +1726,7 @@ int HostfsTcsetpgrp(struct VfsInfo *info, pid_t pgrp) {
+   return tcsetpgrp(hostinfo->filefd, pgrp);
+ }
+ 
++#define HAVE_SOCKATMARK
+ int HostfsSockatmark(struct VfsInfo *info) {
+   struct HostfsInfo *hostinfo;
+   VFS_LOGF("HostfsSockatmark(%p)", info);
+@@ -1735,6 +1736,7 @@ int HostfsSockatmark(struct VfsInfo *info) {
+   hostinfo = (struct HostfsInfo *)info->data;
+   return sockatmark(hostinfo->filefd);
+ }
++#endif
+ 
+ int HostfsPipe(struct VfsInfo *infos[2]) {
+   int i;
+@@ -2016,7 +2018,9 @@ struct VfsSystem g_hostfs = {.name = "hostfs",
+                                  .Tcgetsid = HostfsTcgetsid,
+                                  .Tcgetpgrp = HostfsTcgetpgrp,
+                                  .Tcsetpgrp = HostfsTcsetpgrp,
++#ifdef HAVE_SOCKATMARK
+                                  .Sockatmark = HostfsSockatmark,
++#endif
+                                  .Fexecve = HostfsFexecve,
+                              }};
+ 
+diff --git a/blink/ioctl.c b/blink/ioctl.c
+index 9ea85f2..6dd12d9 100644
+--- a/blink/ioctl.c
++++ b/blink/ioctl.c
+@@ -261,10 +261,12 @@ static int IoctlSiocatmark(struct Machine *m, int fildes, i64 addr) {
+   u8 *p;
+   int rc;
+   if (!(p = (u8 *)SchlepW(m, addr, 4))) return -1;
++#ifdef HAVE_SOCKATMARK
+   if ((rc = VfsSockatmark(fildes)) != -1) {
+     Write32(p, rc);
+     rc = 0;
+   }
++#endif
+   return rc;
+ }
+ 
+diff --git a/blink/procfs.c b/blink/procfs.c
+index 003f202..d950901 100644
+--- a/blink/procfs.c
++++ b/blink/procfs.c
+@@ -1489,7 +1489,9 @@ struct VfsSystem g_procfs = {.name = "proc",
+                                  .Tcgetsid = NULL,
+                                  .Tcgetpgrp = NULL,
+                                  .Tcsetpgrp = NULL,
++#ifdef HAVE_SOCKATMARK
+                                  .Sockatmark = NULL,
++#endif
+                                  .Fexecve = NULL,
+                              }};
+ 
+diff --git a/blink/vfs.h b/blink/vfs.h
+index 24fe23b..0b668d9 100644
+--- a/blink/vfs.h
++++ b/blink/vfs.h
+@@ -265,7 +265,9 @@ int VfsTcsendbreak(int, int);
+ int VfsTcflow(int, int);
+ pid_t VfsTcgetsid(int);
+ int VfsTcflush(int, int);
++#ifdef HAVE_SOCKATMARK
+ int VfsSockatmark(int);
++#endif
+ int VfsExecve(const char *, char *const *, char *const *);
+ 
+ void *VfsMmap(void *, size_t, int, int, int, off_t);
