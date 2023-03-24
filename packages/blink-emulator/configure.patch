@@ -1,12 +1,13 @@
 --- a/configure
 +++ b/configure
-@@ -209,6 +209,9 @@ rm -f config.log
+@@ -204,6 +204,10 @@ rm -f config.log
  run() {
    (
      printf '%s\n' "$*"
-+    if [ -n "$(echo $1 | grep noop)" ]; then exit 0; fi
-+    if [ -n "$(echo $1 | grep lm)" ]; then exit 0; fi
-+    if [ -n "$(echo $1 | grep stdatomic)" ]; then exit 0; fi
++    [ -n "$(echo "$1" | grep noop)" ] && exit 0
++    [ -n "$(echo "$1" | grep lm)" ] && exit 0
++    [ -n "$(echo "$1" | grep stdatomic)" ] && exit 0
++    [ -n "$(echo "$1" | grep zlib)" ] && exit 0
      if nice "$@"; then
        exit 0
      else
