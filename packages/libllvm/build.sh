@@ -5,7 +5,7 @@ TERMUX_PKG_LICENSE_FILE="llvm/LICENSE.TXT"
 TERMUX_PKG_MAINTAINER="@buttaface"
 LLVM_MAJOR_VERSION=15
 TERMUX_PKG_VERSION=${LLVM_MAJOR_VERSION}.0.7
-TERMUX_PKG_REVISION=3
+TERMUX_PKG_REVISION=4
 TERMUX_PKG_SHA256=8b5fcb24b4128cf04df1b0b9410ce8b1a729cb3c544e6da885d234280dedeac6
 TERMUX_PKG_SRCURL=https://github.com/llvm/llvm-project/releases/download/llvmorg-$TERMUX_PKG_VERSION/llvm-project-$TERMUX_PKG_VERSION.src.tar.xz
 TERMUX_PKG_HOSTBUILD=true
@@ -88,9 +88,13 @@ termux_step_pre_configure() {
 	cp $TERMUX_PKG_BUILDER_DIR/nl_types.h openmp/runtime/src/android
 	cp $TERMUX_PKG_BUILDER_DIR/nltypes_stubs.cpp openmp/runtime/src/android
 
-	# Add unknown vendor, otherwise it screws with the default LLVM triple
-	# detection.
+	# Change first hyphen to add unknown vendor,
+	# otherwise it screws with the default LLVM triple detection.
+	# Remove default Termux Android API level in LLVM triple and
+	# handle detection in clang.
 	export LLVM_DEFAULT_TARGET_TRIPLE=${CCTERMUX_HOST_PLATFORM/-/-unknown-}
+	LLVM_DEFAULT_TARGET_TRIPLE=${LLVM_DEFAULT_TARGET_TRIPLE/androideabi${TERMUX_PKG_API_LEVEL}/androideabi}
+	LLVM_DEFAULT_TARGET_TRIPLE=${LLVM_DEFAULT_TARGET_TRIPLE/android${TERMUX_PKG_API_LEVEL}/android}
 	export LLVM_TARGET_ARCH
 	if [ $TERMUX_ARCH = "arm" ]; then
 		LLVM_TARGET_ARCH=ARM
