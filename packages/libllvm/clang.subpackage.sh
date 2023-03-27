@@ -1,18 +1,14 @@
 TERMUX_SUBPKG_INCLUDE="
 bin/amdgpu-arch
 bin/analyze-build
-bin/c++
-bin/cc
-bin/clang*
-bin/cpp
+bin/clang-*
+bin/clang++-*
+bin/clangd
 bin/diagtool
 bin/find-all-symbols
-bin/g++
-bin/gcc
 bin/git-clang-format
 bin/hmaptool
 bin/intercept-build
-bin/*-linux-android*
 bin/modularize
 bin/nvptx-arch
 bin/pp-trace
@@ -40,7 +36,7 @@ share/man/man1/scan-build.1.gz
 share/scan-*
 "
 TERMUX_SUBPKG_DESCRIPTION="C language frontend for LLVM"
-TERMUX_SUBPKG_DEPENDS="libcompiler-rt, lld, llvm, ndk-sysroot"
+TERMUX_SUBPKG_DEPENDS="clang-default | clang-native, libcompiler-rt, lld, llvm, ndk-sysroot"
 TERMUX_SUBPKG_BREAKS="libllvm (<< 11.0.0-1), clangd"
 TERMUX_SUBPKG_REPLACES="libllvm (<< 11.0.0-1), clangd"
 TERMUX_SUBPKG_GROUPS="base-devel"

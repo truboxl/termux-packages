@@ -6,6 +6,8 @@ TERMUX_PKG_MAINTAINER="@buttaface"
 LLVM_MAJOR_VERSION=16
 TERMUX_PKG_VERSION=${LLVM_MAJOR_VERSION}.0.0
 TERMUX_PKG_SHA256=9a56d906a2c81f16f06efc493a646d497c53c2f4f28f0cb1f3c8da7f74350254
+TERMUX_PKG_REVISION=5
+TERMUX_PKG_SHA256=8b5fcb24b4128cf04df1b0b9410ce8b1a729cb3c544e6da885d234280dedeac6
 TERMUX_PKG_SRCURL=https://github.com/llvm/llvm-project/releases/download/llvmorg-$TERMUX_PKG_VERSION/llvm-project-$TERMUX_PKG_VERSION.src.tar.xz
 TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_RM_AFTER_INSTALL="
@@ -114,11 +116,16 @@ termux_step_post_make_install() {
 	cp tools/clang/docs/man/{clang,diagtool}.1 $TERMUX_PREFIX/share/man/man1
 	cd $TERMUX_PREFIX/bin
 
-	for tool in clang clang++ cc c++ cpp gcc g++ ${TERMUX_HOST_PLATFORM}-{clang,clang++,gcc,g++,cpp}; do
+	# reserve clang-LLVM_MAJOR_VERSION (main exec)
+	# reserve clang++-LLVM_MAJOR_VERSION (symlink)
+	# replace clang, clang++
+	# replace cc, c++, gcc, g++
+	# replace HOST-clang, HOST-clang++, HOST-gcc, HOST-g++
+	# keep    clang-cpp, cpp, HOST-cpp as is
+	# skip    HOST-cc, HOST-c++
+	for tool in clang++-${LLVM_MAJOR_VERSION} clang clang++ cc c++ cpp gcc g++ ${TERMUX_HOST_PLATFORM}-{clang,clang++,gcc,g++,cpp}; do
 		ln -f -s clang-${LLVM_MAJOR_VERSION} $tool
 	done
-
-	ln -f -s clang++ clang++-${LLVM_MAJOR_VERSION}
 
 	if [ $TERMUX_ARCH == "arm" ]; then
 		# For arm we replace symlinks with the same type of
@@ -128,10 +135,10 @@ termux_step_post_make_install() {
 			cat <<- EOF > $tool
 			#!$TERMUX_PREFIX/bin/bash
 			if [ "\$1" != "-cc1" ]; then
-				\`dirname \$0\`/clang --target=armv7a-linux-androideabi$TERMUX_PKG_API_LEVEL "\$@"
+				\`dirname \$0\`/clang-${LLVM_MAJOR_VERSION} --target=armv7a-linux-androideabi$TERMUX_PKG_API_LEVEL "\$@"
 			else
 				# Target is already an argument.
-				\`dirname \$0\`/clang "\$@"
+				\`dirname \$0\`/clang-${LLVM_MAJOR_VERSION} "\$@"
 			fi
 			EOF
 			chmod u+x $tool
@@ -141,10 +148,10 @@ termux_step_post_make_install() {
 			cat <<- EOF > $tool
 			#!$TERMUX_PREFIX/bin/bash
 			if [ "\$1" != "-cc1" ]; then
-				\`dirname \$0\`/clang++ --target=armv7a-linux-androideabi$TERMUX_PKG_API_LEVEL "\$@"
+				\`dirname \$0\`/clang++-${LLVM_MAJOR_VERSION} --target=armv7a-linux-androideabi$TERMUX_PKG_API_LEVEL "\$@"
 			else
 				# Target is already an argument.
-				\`dirname \$0\`/clang++ "\$@"
+				\`dirname \$0\`/clang++-${LLVM_MAJOR_VERSION} "\$@"
 			fi
 			EOF
 			chmod u+x $tool
