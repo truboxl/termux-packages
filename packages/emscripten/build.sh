@@ -107,8 +107,8 @@ _BINARYEN_BUILD_ARGS="
 -DBYN_ENABLE_LTO=ON
 "
 
-_EMSCRIPTEN_LLVM=1
-_EMSCRIPTEN_BINARYEN=1
+_EMSCRIPTEN_LLVM=0
+_EMSCRIPTEN_BINARYEN=0
 
 
 # based on scripts/updates/internal/termux_github_auto_update.sh
