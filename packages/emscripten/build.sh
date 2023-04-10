@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="Emscripten: An LLVM-to-WebAssembly Compiler"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@truboxl"
 TERMUX_PKG_VERSION="3.1.35"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=git+https://github.com/emscripten-core/emscripten
 TERMUX_PKG_GIT_BRANCH=${TERMUX_PKG_VERSION}
 TERMUX_PKG_PLATFORM_INDEPENDENT=true
@@ -106,6 +107,10 @@ _BINARYEN_BUILD_ARGS="
 -DBYN_ENABLE_LTO=ON
 "
 
+_EMSCRIPTEN_LLVM=1
+_EMSCRIPTEN_BINARYEN=1
+
+
 # based on scripts/updates/internal/termux_github_auto_update.sh
 termux_pkg_auto_update() {
 	local latest_tag
@@ -151,17 +156,26 @@ termux_pkg_auto_update() {
 }
 
 termux_step_post_get_source() {
+	if [[ "${_EMSCRIPTEN_LLVM}" == "1" ]]; then
 	termux_download \
 		"https://github.com/llvm/llvm-project/archive/${_LLVM_COMMIT}.tar.gz" \
 		"${TERMUX_PKG_CACHEDIR}/llvm.tar.gz" \
 		"${_LLVM_TGZ_SHA256}"
+	fi
+	if [[ "${_EMSCRIPTEN_BINARYEN}" == "1" ]]; then
 	termux_download \
 		"https://github.com/WebAssembly/binaryen/archive/${_BINARYEN_COMMIT}.tar.gz" \
 		"${TERMUX_PKG_CACHEDIR}/binaryen.tar.gz" \
 		"${_BINARYEN_TGZ_SHA256}"
+	fi
+	if [[ "${_EMSCRIPTEN_LLVM}" == "1" ]]; then
 	tar -xf "${TERMUX_PKG_CACHEDIR}/llvm.tar.gz" -C "${TERMUX_PKG_CACHEDIR}"
+	fi
+	if [[ "${_EMSCRIPTEN_BINARYEN}" == "1" ]]; then
 	tar -xf "${TERMUX_PKG_CACHEDIR}/binaryen.tar.gz" -C "${TERMUX_PKG_CACHEDIR}"
+	fi
 
+	if [[ "${_EMSCRIPTEN_LLVM}" == "1" ]]; then
 	local llvm_patches=$(find "${TERMUX_PKG_BUILDER_DIR}" -mindepth 1 -maxdepth 1 -type f -name 'llvm-project-*.patch.diff')
 	if [[ -n "${llvm_patches}" ]]; then
 		cd "${TERMUX_PKG_CACHEDIR}/llvm-project-${_LLVM_COMMIT}"
@@ -178,7 +192,9 @@ termux_step_post_get_source() {
 			termux_error_exit "Patch failed! Please check patch errors above!"
 		fi
 	fi
+	fi
 
+	if [[ "${_EMSCRIPTEN_BINARYEN}" == "1" ]]; then
 	local binaryen_patches=$(find "${TERMUX_PKG_BUILDER_DIR}" -mindepth 1 -maxdepth 1 -type f -name 'binaryen-*.patch.diff')
 	if [[ -n "${binaryen_patches}" ]]; then
 		cd "${TERMUX_PKG_CACHEDIR}/binaryen-${_BINARYEN_COMMIT}"
@@ -195,27 +211,30 @@ termux_step_post_get_source() {
 			termux_error_exit "Patch failed! Please check patch errors above!"
 		fi
 	fi
+	fi
 }
 
 termux_step_host_build() {
+	if [[ "${_EMSCRIPTEN_LLVM}" == "0" ]]; then return; fi
 	termux_setup_cmake
 	termux_setup_ninja
 
-	cmake \
-		-G Ninja \
+	cmake -G Ninja \
 		-S "${TERMUX_PKG_CACHEDIR}/llvm-project-${_LLVM_COMMIT}/llvm" \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DLLVM_ENABLE_PROJECTS=clang
-	cmake \
-		--build "${TERMUX_PKG_HOSTBUILD_DIR}" \
-		-j "${TERMUX_MAKE_PROCESSES}" \
-		--target llvm-tblgen clang-tblgen
+	ninja -C "${TERMUX_PKG_HOSTBUILD_DIR}" \
+		-j"${TERMUX_MAKE_PROCESSES}" \
+		llvm-tblgen clang-tblgen
 }
 
 termux_step_make() {
+	if [[ "${_EMSCRIPTEN_LLVM}" == "0" ]] && \
+		[[ "${_EMSCRIPTEN_BINARYEN}" == "0" ]]; then return; fi
 	termux_setup_cmake
 	termux_setup_ninja
 
+	if [[ "${_EMSCRIPTEN_LLVM}" == "1" ]]; then
 	# from packages/libllvm/build.sh
 	export _LLVM_DEFAULT_TARGET_TRIPLE=${CCTERMUX_HOST_PLATFORM/-/-unknown-}
 	export _LLVM_TARGET_ARCH
@@ -233,25 +252,24 @@ termux_step_make() {
 	_LLVM_BUILD_ARGS+=" -DLLVM_TARGETS_TO_BUILD=WebAssembly;${_LLVM_TARGET_ARCH}"
 	_LLVM_BUILD_ARGS+=" -DLLVM_HOST_TRIPLE=${_LLVM_DEFAULT_TARGET_TRIPLE}"
 
-	cmake \
-		-G Ninja \
+	cmake -G Ninja \
 		-S "${TERMUX_PKG_CACHEDIR}/llvm-project-${_LLVM_COMMIT}/llvm" \
 		-B "${TERMUX_PKG_BUILDDIR}/build-llvm" \
 		${_LLVM_BUILD_ARGS}
-	cmake \
-		--build "${TERMUX_PKG_BUILDDIR}/build-llvm" \
-		-j "${TERMUX_MAKE_PROCESSES}" \
-		--target install
+	ninja -C "${TERMUX_PKG_BUILDDIR}/build-llvm" \
+		-j"${TERMUX_MAKE_PROCESSES}" \
+		install
+	fi
 
-	cmake \
-		-G Ninja \
+	if [[ "${_EMSCRIPTEN_BINARYEN}" == "1" ]]; then
+	cmake -G Ninja \
 		-S "${TERMUX_PKG_CACHEDIR}/binaryen-${_BINARYEN_COMMIT}" \
 		-B "${TERMUX_PKG_BUILDDIR}/build-binaryen" \
 		${_BINARYEN_BUILD_ARGS}
-	cmake \
-		--build "${TERMUX_PKG_BUILDDIR}/build-binaryen" \
-		-j "${TERMUX_MAKE_PROCESSES}" \
-		--target install
+	ninja -C "${TERMUX_PKG_BUILDDIR}/build-binaryen" \
+		-j"${TERMUX_MAKE_PROCESSES}" \
+		install
+	fi
 }
 
 termux_step_make_install() {
@@ -270,10 +288,22 @@ termux_step_make_install() {
 	# first run generates .emscripten and exits immediately
 	rm -f "${TERMUX_PKG_SRCDIR}/.emscripten"
 	./emcc --generate-config
+
+	if [[ "${_EMSCRIPTEN_LLVM}" == "1" ]]; then
+		_LLVM_ROOT=${TERMUX_PREFIX}/opt/emscripten-llvm/bin
+	else
+		_LLVM_ROOT=${TERMUX_PREFIX}/bin
+	fi
+	if [[ "${_EMSCRIPTEN_BINARYEN}" == "1" ]]; then
+		_BINARYEN_ROOT=${TERMUX_PREFIX}/opt/emscripten-binaryen
+	else
+		_BINARYEN_ROOT=${TERMUX_PREFIX}/bin
+	fi
+
 	sed -i .emscripten \
 		-e "s|^EMSCRIPTEN_ROOT.*|EMSCRIPTEN_ROOT = '${TERMUX_PREFIX}/opt/emscripten' # directory|" \
-		-e "s|^LLVM_ROOT.*|LLVM_ROOT = '${TERMUX_PREFIX}/opt/emscripten-llvm/bin' # directory|" \
-		-e "s|^BINARYEN_ROOT.*|BINARYEN_ROOT = '${TERMUX_PREFIX}/opt/emscripten-binaryen' # directory|" \
+		-e "s|^LLVM_ROOT.*|LLVM_ROOT = '${_LLVM_ROOT}' # directory|" \
+		-e "s|^BINARYEN_ROOT.*|BINARYEN_ROOT = '${_BINARYEN_ROOT}' # directory|" \
 		-e "s|^NODE_JS.*|NODE_JS = '${TERMUX_PREFIX}/bin/node' # executable|"
 	grep "${TERMUX_PREFIX}" "${TERMUX_PKG_SRCDIR}/.emscripten"
 	install -Dm644 "${TERMUX_PKG_SRCDIR}/.emscripten" "${TERMUX_PREFIX}/opt/emscripten/.emscripten"
@@ -285,6 +315,7 @@ termux_step_make_install() {
 	EOF
 	install -Dm644 "${TERMUX_PKG_TMPDIR}/emscripten.sh" "${TERMUX_PREFIX}/etc/profile.d/emscripten.sh"
 
+	if [[ "${_EMSCRIPTEN_LLVM}" == "0" ]]; then return; fi
 	# add useful tools not installed by LLVM_INSTALL_TOOLCHAIN_ONLY=ON
 	for tool in llc llvm-{addr2line,dwarfdump,dwp,link,mc,nm,objdump,ranlib,readobj,size} opt; do
 		install -Dm755 "${TERMUX_PKG_BUILDDIR}/build-llvm/bin/${tool}" "${TERMUX_PREFIX}/opt/emscripten-llvm/bin/${tool}"
