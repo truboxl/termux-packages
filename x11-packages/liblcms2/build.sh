@@ -1,0 +1,9 @@
+TERMUX_PKG_HOMEPAGE=https://www.littlecms.com
+TERMUX_PKG_DESCRIPTION="Little CMS 2 color management library"
+TERMUX_PKG_LICENSE="MIT"
+TERMUX_PKG_MAINTAINER="@termux"
+TERMUX_PKG_VERSION=2.15
+TERMUX_PKG_SRCURL=https://github.com/mm2/Little-CMS/releases/download/lcms${TERMUX_PKG_VERSION}/lcms2-${TERMUX_PKG_VERSION}.tar.gz
+TERMUX_PKG_SHA256=b20cbcbd0f503433be2a4e81462106fa61050a35074dc24a4e356792d971ab39
+TERMUX_PKG_DEPENDS="libjpeg-turbo, libtiff"
+TERMUX_PKG_NO_STATIC_SPLIT=true
