@@ -2,42 +2,45 @@ TERMUX_PKG_HOMEPAGE=https://github.com/ldc-developers/ldc
 TERMUX_PKG_DESCRIPTION="D programming language compiler, built with LLVM"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=(1.30.0)
-TERMUX_PKG_VERSION+=(14.0.3)  # LLVM version
-TERMUX_PKG_VERSION+=(2.100.1) # TOOLS version
-TERMUX_PKG_VERSION+=(1.30.0)  # DUB version
+TERMUX_PKG_VERSION=(1.32.0)
+TERMUX_PKG_VERSION+=(15.0.7)  # LLVM version
+TERMUX_PKG_VERSION+=(2.103.0) # TOOLS version
+TERMUX_PKG_VERSION+=(1.31.1)  # DUB version
 
 TERMUX_PKG_SRCURL=(https://github.com/ldc-developers/ldc/releases/download/v${TERMUX_PKG_VERSION}/ldc-${TERMUX_PKG_VERSION}-src.tar.gz
 		   https://github.com/ldc-developers/llvm-project/releases/download/ldc-v${TERMUX_PKG_VERSION[1]}/llvm-${TERMUX_PKG_VERSION[1]}.src.tar.xz
 		   https://github.com/llvm/llvm-project/releases/download/llvmorg-${TERMUX_PKG_VERSION[1]}/libunwind-${TERMUX_PKG_VERSION[1]}.src.tar.xz
+		   https://github.com/llvm/llvm-project/releases/download/llvmorg-${TERMUX_PKG_VERSION[1]}/cmake-${TERMUX_PKG_VERSION[1]}.src.tar.xz
 		   https://github.com/dlang/tools/archive/v${TERMUX_PKG_VERSION[2]}.tar.gz
 		   https://github.com/dlang/dub/archive/v${TERMUX_PKG_VERSION[3]}.tar.gz
 		   https://github.com/ldc-developers/ldc/releases/download/v${TERMUX_PKG_VERSION}/ldc2-${TERMUX_PKG_VERSION}-linux-x86_64.tar.xz)
-TERMUX_PKG_SHA256=(fdbb376f08242d917922a6a22a773980217fafa310046fc5d6459490af23dacd
-		   9638d8d0b6a43d9cdc53699bec19e6bc9bef98f5950b99e6b8c1ec373aee4fa7
-		   301137841d1e3401f59b3828d2a9ac86a1b826b89265d55541a2fd6ca2a595eb
-		   54bde9a979d70952690a517f90de8d76631fa9a2f7252af7278dafbcaaa42d54
-		   840cd65bf5f0dd06ca688f63b94d71fccd92b526bbf1d3892fe5535b1e85c10e
-		   5784d4cc47d0845af0897d3b7473a08dd0281a4cdabac0a486740840d014fde1)
+TERMUX_PKG_SHA256=(c4ee0bf91b416dd5641353d9b267b6a48600c499c782beb112d2e460e329beac
+		   8409f2f86a8d30e4e5b0a5cbaf15ee4c95f3c85e85abe017694f0479fbbcd481
+		   406d199ae3a16add84017f40458a5e7c31f9412937fcb518715af0a0eeafbc0c
+		   8986f29b634fdaa9862eedda78513969fe9788301c9f2d938f4c10a3e7a3e7ea
+		   591bf56d7c8aa45205a3533438fef5bd48007756446f5cf032fcabcc077afdd1
+		   dce1b3f7d21f6b111830d849e6f417853bab66d9036df212aec237c1f724bc4f
+		   5a7b22cfa31568504f3f36ed0f474415c2760bf71d478aca0896a6857c00ba5a)
 # dub dlopen()s libcurl.so:
 TERMUX_PKG_DEPENDS="binutils-bin, binutils-is-llvm | binutils, clang, libc++, libcurl, zlib"
 TERMUX_PKG_BUILD_DEPENDS="binutils-cross"
 TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_FORCE_CMAKE=true
+TERMUX_DEBUG_BUILD=true
 #These CMake args are only used to configure a patched LLVM
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
--DLLVM_ENABLE_PLUGINS=OFF
--DLLVM_BUILD_TOOLS=OFF
--DLLVM_BUILD_UTILS=OFF
--DLLVM_ENABLE_UNWIND_TABLES=OFF
--DLLVM_ENABLE_TERMINFO=OFF
+-DLLVM_ENABLE_ASSERTIONS=ON
 -DLLVM_ENABLE_LIBEDIT=OFF
+-DLLVM_ENABLE_PLUGINS=OFF
+-DLLVM_ENABLE_TERMINFO=OFF
+-DLLVM_ENABLE_UNWIND_TABLES=OFF
+-DLLVM_ENABLE_ZSTD=OFF
 -DLLVM_INCLUDE_BENCHMARKS=OFF
--DCOMPILER_RT_INCLUDE_TESTS=OFF
 -DLLVM_INCLUDE_TESTS=OFF
+-DLLVM_INCLUDE_TOOLS=OFF
+-DLLVM_INCLUDE_UTILS=OFF
 -DLLVM_TABLEGEN=$TERMUX_PKG_HOSTBUILD_DIR/bin/llvm-tblgen
--DLLVM_CONFIG_PATH=$TERMUX_PKG_HOSTBUILD_DIR/bin/llvm-config
 -DPYTHON_EXECUTABLE=$(command -v python3)
 -DLLVM_TARGETS_TO_BUILD='AArch64;ARM;WebAssembly;X86'
 "
@@ -54,8 +57,8 @@ termux_step_post_get_source() {
 	mv tools-${TERMUX_PKG_VERSION[2]} dlang-tools
 	mv dub-${TERMUX_PKG_VERSION[3]} dub
 
-	# Exclude MLIR
-	rm -Rf llvm/projects/mlir
+	# https://github.com/llvm/llvm-project/issues/57573
+	cp -r cmake-${TERMUX_PKG_VERSION[1]}.src/Modules/*cmake cmake/Modules
 
 	LLVM_TRIPLE=${TERMUX_HOST_PLATFORM/-/--}
 	if [ $TERMUX_ARCH = arm ]; then LLVM_TRIPLE=${LLVM_TRIPLE/arm-/armv7a-}; fi
@@ -68,11 +71,10 @@ termux_step_host_build() {
 	# Build native llvm-tblgen, a prerequisite for cross-compiling LLVM
 	cmake -GNinja $TERMUX_PKG_SRCDIR/llvm \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_BUILD_TOOLS=OFF \
-		-DLLVM_BUILD_UTILS=OFF \
 		-DLLVM_INCLUDE_BENCHMARKS=OFF \
-		-DCOMPILER_RT_INCLUDE_TESTS=OFF \
-		-DLLVM_INCLUDE_TESTS=OFF
+		-DLLVM_INCLUDE_TESTS=OFF \
+		-DLLVM_INCLUDE_TOOLS=OFF \
+		-DLLVM_INCLUDE_UTILS=OFF
 	ninja -j $TERMUX_MAKE_PROCESSES llvm-tblgen
 }
 
