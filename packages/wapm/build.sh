@@ -5,6 +5,8 @@ TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=0.5.9
 TERMUX_PKG_SRCURL=https://github.com/wasmerio/wapm-cli/archive/v${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=67f98e7e584ee05b53a70e19624ca73538aef28f46e1bb31c49262ba0e00a2ec
+TERMUX_PKG_BREAKS="wasmer (<< 3.2.1)"
+TERMUX_PKG_REPLACES="wasmer (<< 3.2.1))"
 TERMUX_PKG_BUILD_IN_SRC=true
 
 termux_step_pre_configure() {
