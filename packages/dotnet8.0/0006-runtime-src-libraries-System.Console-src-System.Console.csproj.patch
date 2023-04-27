@@ -1,0 +1,13 @@
+diff --git a/src/runtime/src/libraries/System.Console/src/System.Console.csproj b/src/runtime/src/libraries/System.Console/src/System.Console.csproj
+index 96bb5c59bb..ce93a34e89 100644
+--- a/src/runtime/src/libraries/System.Console/src/System.Console.csproj
++++ b/src/runtime/src/libraries/System.Console/src/System.Console.csproj
+@@ -189,7 +189,7 @@
+              Link="Common\System\IO\Win32Marshal.cs" />
+   </ItemGroup>
+   <!-- Unix -->
+-  <ItemGroup Condition="'$(TargetPlatformIdentifier)' == 'unix'">
++  <ItemGroup Condition="'$(TargetPlatformIdentifier)' == 'unix' or '$(TargetPlatformIdentifier)' == 'android'">
+     <Compile Include="System\ConsolePal.Unix.cs" />
+     <Compile Include="System\ConsolePal.Unix.ConsoleStream.cs" />
+     <Compile Include="System\TerminalFormatStrings.cs" />
