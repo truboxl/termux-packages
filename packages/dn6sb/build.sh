@@ -109,8 +109,6 @@ termux_step_make() {
 
 termux_step_post_make_install() {
 	mkdir -p $TERMUX_PREFIX/opt/dn6
-	cp -fr $TERMUX_PKG_CACHEDIR $TERMUX_PREFIX/opt/dn6
 	cp -fr $TERMUX_PKG_BUILDDIR $TERMUX_PREFIX/opt/dn6
-	cp -fr $TERMUX_PKG_SRCDIR $TERMUX_PREFIX/opt/dn6
 	du -sh $TERMUX_PREFIX/opt/dn6
 }
