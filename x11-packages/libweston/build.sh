@@ -9,6 +9,7 @@ TERMUX_PKG_DEPENDS="fontconfig, glib, libcairo, libdrm, libevdev, libglvnd, libl
 TERMUX_PKG_BUILD_DEPENDS="libwayland-protocols"
 TERMUX_PKG_NO_STATIC_SPLIT=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
+-Dbackend-drm-screencast-vaapi=false
 -Dlauncher-logind=false
 "
 
