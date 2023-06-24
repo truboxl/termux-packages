@@ -9,47 +9,39 @@ TERMUX_PKG_VERSION="0.0.20230724.142210g1aa2d552"
 TERMUX_PKG_SRCURL=git+https://github.com/kpet/clvk
 TERMUX_PKG_GIT_BRANCH=main
 TERMUX_PKG_BUILD_DEPENDS="vulkan-headers, vulkan-loader-android"
-TERMUX_PKG_DEPENDS="libc++"
-TERMUX_PKG_SUGGESTS="ocl-icd"
+TERMUX_PKG_DEPENDS="libc++, vulkan-loader"
+TERMUX_PKG_ANTI_BUILD_DEPENDS="vulkan-loader"
+TERMUX_PKG_RECOMMENDS="ocl-icd"
 TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_AUTO_UPDATE=true
-
-# https://github.com/kpet/clvk/blob/main/CMakeLists.txt
-
-# Upstream prefers building with Khronos Vulkan Loader
-# We use NDK stub to properly test if it works on Android
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
--DLLVM_NATIVE_TOOL_DIR=${TERMUX_PKG_HOSTBUILD_DIR}/bin
+-DCLVK_BUILD_TESTS=ON
+-DCLVK_CLSPV_ONLINE_COMPILER=ON
 -DCLVK_VULKAN_IMPLEMENTATION=custom
+-DLLVM_INCLUDE_BENCHMARKS=OFF
+-DLLVM_INCLUDE_EXAMPLES=OFF
+-DLLVM_NATIVE_TOOL_DIR=${TERMUX_PKG_HOSTBUILD_DIR}/bin
 -DVulkan_INCLUDE_DIRS=${TERMUX_PREFIX}/include
 "
 
-# Explicitly enable build tests to check undefined symbols even when
-# its default
-#
-# [1877/1888] Linking CXX executable api_tests
-# FAILED: api_tests
-# ...
-# libOpenCL.so: error: undefined reference to 'vkGetPhysicalDeviceFeatures2'
-TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCLVK_BUILD_TESTS=ON"
+# https://github.com/kpet/clvk/blob/main/CMakeLists.txt
 
-# Use CLVK_CLSPV_ONLINE_COMPILER=ON to combine clspv with clvk
-# May look into separate clspv if clvk libOpenCL.so can find from PATH
-# instead of setting CLVK_CLSPV_BIN
-TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCLVK_CLSPV_ONLINE_COMPILER=ON"
+# Known issues:
+# https://github.com/kpet/clvk/issues/375
+# https://github.com/kpet/clvk/issues/499
+# https://github.com/kpet/clvk/issues/544
+# https://github.com/termux/termux-packages/issues/11827
 
-# clvk currently does not have proper versioning nor releases
-# Use dates and commits as versioning for now
 termux_pkg_auto_update() {
 	local latest_commit=$(curl -s https://api.github.com/repos/kpet/clvk/commits | jq .[].sha | head -1 | sed -e 's|\"||g')
 	if [[ -z "${latest_commit}" ]]; then
 		echo "WARN: Unable to get latest commit from upstream. Try again later." >&2
-		return 0
+		return
 	fi
 
 	if [[ "${latest_commit}" == "${_COMMIT}" ]]; then
 		echo "INFO: No update needed. Already at version '${TERMUX_PKG_VERSION}'."
-		return 0
+		return
 	fi
 
 	local latest_commit_date_tz=$(curl -s "https://api.github.com/repos/kpet/clvk/commits/${latest_commit}" | jq .commit.committer.date | sed -e 's|\"||g')
@@ -63,25 +55,33 @@ termux_pkg_auto_update() {
 	# https://github.com/termux/termux-packages/issues/11827
 	# really fix it by including longer date time info into versioning
 	# always check this in case upstream change the version format
-	local latest_version="0.0.${latest_commit_date}.${latest_commit_time}g${latest_commit:0:8}"
+	local latest_version="0.0.${latest_commit_date}.${latest_commit_time}"
 
 	local current_date_epoch=$(date "+%s")
 	local _COMMIT_DATE_epoch=$(date -d "${_COMMIT_DATE}" "+%s")
 	local current_date_diff=$(((current_date_epoch-_COMMIT_DATE_epoch)/(60*60*24)))
-	if [[ "${current_date_diff}" -lt 7 ]]; then
-		echo "INFO: Queuing updates after 7 days since last push, currently its ${current_date_diff}"
-		return 0
+	local cooldown_days=14
+	if [[ "${current_date_diff}" -lt "${cooldown_days}" ]]; then
+		echo "INFO: Queuing updates after ${cooldown_days} days since last push"
+		echo "INFO: Currently its ${current_date_diff}"
+		return
 	fi
 
 	if ! dpkg --compare-versions "${latest_version}" gt "${TERMUX_PKG_VERSION}"; then
-		termux_error_exit "ERROR: Resulting latest version is not counted as update to the current version (${latest_version} < ${TERMUX_PKG_VERSION})"
+		termux_error_exit "
+		ERROR: Resulting latest version is not counted as an update!
+		Latest version  = ${latest_version}
+		Current version = ${TERMUX_PKG_VERSION}
+		"
 	fi
 
 	# unlikely to happen
-	if [[ "${latest_commit_date}" -lt "${_COMMIT_DATE}" ]]; then
-		termux_error_exit "ERROR: Upstream is older than current package version. Please report to upstream."
-	elif [[ "${latest_commit_date}" -eq "${_COMMIT_DATE}" ]] && [[ "${latest_commit_time}" -lt "${_COMMIT_TIME}" ]]; then
-		termux_error_exit "ERROR: Upstream is older than current package version. Please report to upstream."
+	if [[ "${latest_commit_date}" -lt "${_COMMIT_DATE}" || \
+		"${latest_commit_date}" -eq "${_COMMIT_DATE}" && "${latest_commit_time}" -lt "${_COMMIT_TIME}" ]]; then
+		termux_error_exit "
+		ERROR: Upstream is older than current package version!
+		ERROR: Please report to upstream!
+		"
 	fi
 
 	sed -i "${TERMUX_PKG_BUILDER_DIR}/build.sh" \
@@ -96,8 +96,9 @@ termux_pkg_auto_update() {
 termux_step_post_get_source() {
 	git fetch --unshallow
 	git checkout "${_COMMIT}"
-	git submodule update --init --recursive
-	./external/clspv/utils/fetch_sources.py --deps llvm
+	git submodule update --init --recursive --depth=1
+	git clean -ffxd
+	./external/clspv/utils/fetch_sources.py --deps llvm --shallow
 }
 
 termux_step_host_build() {
@@ -108,6 +109,10 @@ termux_step_host_build() {
 		-G Ninja \
 		-S "${TERMUX_PKG_SRCDIR}/external/clspv/third_party/llvm/llvm" \
 		-DCMAKE_BUILD_TYPE=Release \
+		-DLLVM_INCLUDE_BENCHMARKS=OFF \
+		-DLLVM_INCLUDE_EXAMPLES=OFF \
+		-DLLVM_INCLUDE_TESTS=OFF \
+		-DLLVM_INCLUDE_UTILS=OFF \
 		-DLLVM_ENABLE_PROJECTS=clang
 	ninja \
 		-C "${TERMUX_PKG_HOSTBUILD_DIR}" \
@@ -118,31 +123,29 @@ termux_step_host_build() {
 termux_step_pre_configure() {
 	local _libvulkan=vulkan
 	if [[ "${TERMUX_PKG_API_LEVEL}" -lt 28 ]]; then
-		_libvulkan="$TERMUX_STANDALONE_TOOLCHAIN/sysroot/usr/lib/$TERMUX_HOST_PLATFORM/28/libvulkan.so"
+		_libvulkan="${TERMUX_STANDALONE_TOOLCHAIN}/sysroot/usr/lib/${TERMUX_HOST_PLATFORM}/28/libvulkan.so"
 	fi
 	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DVulkan_LIBRARIES=${_libvulkan}"
+
+	# from packages/libllvm/build.sh
+	local _LLVM_TARGET_TRIPLE=${TERMUX_HOST_PLATFORM/-/-unknown-}${TERMUX_PKG_API_LEVEL}
+	local _LLVM_TARGET_ARCH
+	case "${TERMUX_ARCH}" in
+		aarch64) _LLVM_TARGET_ARCH=AArch64 ;;
+		arm) _LLVM_TARGET_ARCH=ARM ;;
+		i686|x86_64) _LLVM_TARGET_ARCH=X86 ;;
+		*) termux_error_exit "Invalid arch: ${TERMUX_ARCH}" ;;
+	esac
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
+	-DLLVM_HOST_TRIPLE=${_LLVM_TARGET_TRIPLE}
+	-DLLVM_TARGET_ARCH=${_LLVM_TARGET_ARCH}
+	-DLLVM_TARGETS_TO_BUILD=${_LLVM_TARGET_ARCH}
+	"
 
 	export CFLAGS+=" -flto=thin"
 	export CXXFLAGS+=" -flto=thin"
 
-	# from packages/libllvm/build.sh
-	export _LLVM_DEFAULT_TARGET_TRIPLE=${CCTERMUX_HOST_PLATFORM/-/-unknown-}
-	export _LLVM_TARGET_ARCH
-	if [[ "${TERMUX_ARCH}" == "arm" ]]; then
-		_LLVM_TARGET_ARCH=ARM
-	elif [[ "${TERMUX_ARCH}" == "aarch64" ]]; then
-		_LLVM_TARGET_ARCH=AArch64
-	elif [[ "${TERMUX_ARCH}" == "i686" ]] || [[ "${TERMUX_ARCH}" == "x86_64" ]]; then
-		_LLVM_TARGET_ARCH=X86
-	else
-		termux_error_exit "Invalid arch: ${TERMUX_ARCH}"
-	fi
-
-	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLLVM_TARGET_ARCH=${_LLVM_TARGET_ARCH}"
-	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLLVM_TARGETS_TO_BUILD=${_LLVM_TARGET_ARCH}"
-	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLLVM_HOST_TRIPLE=${_LLVM_DEFAULT_TARGET_TRIPLE}"
-
-	# TERMUX_DEBUG_BUILD doesnt really have somewhere in between
+	# TERMUX_DEBUG_BUILD doesnt have middle ground
 	#TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCMAKE_BUILD_TYPE=RelWithDebInfo"
 	#export STRIP=:
 }
