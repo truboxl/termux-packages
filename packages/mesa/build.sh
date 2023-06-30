@@ -67,7 +67,9 @@ termux_step_pre_configure() {
 	elif [ $TERMUX_ARCH = "x86_64" ]; then
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
 		-Dgallium-drivers=swrast,virgl,d3d12
-		-Dvulkan-drivers=swrast
+		-Dvulkan-drivers=swrast,microsoft-experimental
+		-Dmicrosoft-clc=disabled
+		-Dspirv-to-dxil=false
 		"
 	else
 		termux_error_exit "Invalid arch: $TERMUX_ARCH"
