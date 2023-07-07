@@ -55,18 +55,18 @@ termux_step_pre_configure() {
 
 	if [ $TERMUX_ARCH = "arm" ] || [ $TERMUX_ARCH = "aarch64" ]; then
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
-		-Dgallium-drivers=swrast,virgl
+		-Dgallium-drivers=swrast,virgl,zink
 		-Dvulkan-drivers=swrast,freedreno
 		-Dfreedreno-kmds=msm,kgsl
 		"
 	elif [ $TERMUX_ARCH = "i686" ]; then
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
-		-Dgallium-drivers=swrast,virgl
+		-Dgallium-drivers=swrast,virgl,zink
 		-Dvulkan-drivers=swrast
 		"
 	elif [ $TERMUX_ARCH = "x86_64" ]; then
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
-		-Dgallium-drivers=swrast,virgl,d3d12
+		-Dgallium-drivers=swrast,virgl,d3d12,zink
 		-Dvulkan-drivers=swrast,microsoft-experimental
 		-Dmicrosoft-clc=disabled
 		-Dspirv-to-dxil=false
