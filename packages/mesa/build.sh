@@ -27,6 +27,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -Dllvm=enabled
 -Dshared-llvm=disabled
 -Dplatforms=android,x11,wayland
+-Dandroid-stub=true
 -Dosmesa=true
 -Dglvnd=true
 -Dxmlconfig=disabled
