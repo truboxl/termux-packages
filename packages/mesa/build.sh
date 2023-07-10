@@ -28,6 +28,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -Dshared-llvm=disabled
 -Dplatforms=android,x11,wayland
 -Dandroid-stub=true
+-Dplatform-sdk-version=26
 -Dosmesa=true
 -Dglvnd=true
 -Dxmlconfig=disabled
@@ -36,7 +37,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 termux_step_pre_configure() {
 	termux_setup_cmake
 
-	CPPFLAGS+=" -D__USE_GNU"
+	CPPFLAGS+=" -D__USE_GNU -D__ANDROID_API__=26"
 	LDFLAGS+=" -landroid-shmem"
 
 	_WRAPPER_BIN=$TERMUX_PKG_BUILDDIR/_wrapper/bin
