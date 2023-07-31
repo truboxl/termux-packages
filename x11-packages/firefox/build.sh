@@ -8,7 +8,6 @@ TERMUX_PKG_SHA256=8a38c923375639b6a382111f5f6f6388f33a3f1dedff23061dd6b10b11994a
 # ffmpeg and pulseaudio are dependencies through dlopen(3):
 TERMUX_PKG_DEPENDS="ffmpeg, fontconfig, freetype, gdk-pixbuf, glib, gtk3, libandroid-shmem, libc++, libcairo, libevent, libffi, libice, libicu, libjpeg-turbo, libnspr, libnss, libpixman, libsm, libvpx, libwebp, libx11, libxcb, libxcomposite, libxdamage, libxext, libxfixes, libxrandr, libxtst, pango, pulseaudio, zlib"
 TERMUX_PKG_BUILD_DEPENDS="libcpufeatures, libice, libsm"
-TERMUX_MAKE_PROCESSES=1
 
 termux_step_post_get_source() {
 	local f="media/ffvpx/config_unix_aarch64.h"
@@ -28,6 +27,9 @@ termux_step_pre_configure() {
 
 	CXXFLAGS+=" -U__ANDROID__"
 	LDFLAGS+=" -landroid-shmem -llog"
+
+	export MOZ_MAKE_FLAGS="-j${TERMUX_MAKE_PROCESSES}"
+	TERMUX_MAKE_PROCESSES=1
 }
 
 termux_step_configure() {
