@@ -14,7 +14,7 @@ termux_step_post_get_source() {
 	# https://github.com/dotnet/installer/issues/12185
 	# must rely git clone and not possible to use release tarball
 
-	if [ -f "${TERMUX_PKG_CACHEDIR}/src.tar" ]; then
+	if [[ -f "${TERMUX_PKG_CACHEDIR}/src.tar" ]]; then
 		rm -fr "${TERMUX_PKG_BUILDDIR}"
 		mkdir -p "${TERMUX_PKG_BUILDDIR}"
 		tar -C "${TERMUX_PKG_BUILDDIR}" -xvf "${TERMUX_PKG_CACHEDIR}/src.tar"
@@ -26,18 +26,18 @@ termux_step_post_get_source() {
 	fi
 
 	pushd "${TERMUX_PKG_BUILDDIR}"
-	./prep.sh
+	./prep.sh --bootstrap
 	popd
 }
 
 termux_step_pre_configure() {
-	return
+	#return
 	termux_setup_cmake
 	termux_setup_ninja
 }
 
 termux_step_configure() {
-	return
+	#return
 	local arch
 	case "${TERMUX_ARCH}" in
 	aarch64) arch=arm64 ;;
@@ -133,40 +133,53 @@ termux_step_configure() {
 }
 
 termux_step_make () {
-	return
+	#return
 	# source build should use this but not working for us atm
-	#./build.sh --clean-while-building -- ${_EXTRA_ARGS[@]}
+	./build.sh --clean-while-building -- ${_EXTRA_ARGS[@]}
+	return
 
 	local _packagesdir="${TERMUX_PKG_BUILDDIR}/local-packages"
 	local _downloaddir="${TERMUX_PKG_BUILDDIR}/local-download"
+	local _gitcommithash
 	mkdir -p .dotnet "${_packagesdir}" "${_downloaddir}"
 	ls -l src
 
 	# working
 	if ! :; then
 	pushd src/runtime
+	_gitcommithash=$(cat .git/HEAD)
+	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
+	echo "GitCommitHash = ${_githash}"
 	ln -sv ../../.dotnet .dotnet
+	.dotnet/dotnet build-server shutdown
 	#./eng/common/build.sh --restore --build --pack --warnAsError false ${_EXTRA_ARGS[@]}
 	./eng/build.sh --help
-	./eng/build.sh ${_EXTRA_ARGS[@]}
+	./eng/build.sh ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_githash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
-	local _runtimever_ns=$(grep VS.Redist.Common.NetCore.SharedFramework eng/Version.Details.xml | sed -e "s|.*Version=\"\(.*\)\" .*|\1|" | head -n1)
+	local _runtimever_ns=$(
+		grep VS.Redist.Common.NetCore.SharedFramework eng/Version.Details.xml | \
+		sed -e "s|.*Version=\"\(.*\)\" .*|\1|" | \
+		head -n1
+	)
 	mkdir -p "${_downloaddir}/Runtime/${_runtimever_ns}"
 	find artifacts -name "*tar*" -type f
-	#cp -fv artifacts/packages/*/*/dotnet-runtime-*-*.tar.gz "${_downloaddir}/Runtime/${_runtimever_ns}"
+	cp -fv artifacts/packages/*/*/dotnet-runtime-*-*.tar.gz "${_downloaddir}/Runtime/${_runtimever_ns}"
 	popd
 	fi
 
 	# not working
 	if ! :; then
 	pushd src/roslyn
-	${TERMUX_PKG_SRCDIR}/.dotnet/dotnet build-server shutdown
-	#ln -sv ../../.dotnet .dotnet
+	_gitcommithash=$(cat .git/HEAD)
+	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
+	echo "GitCommitHash = ${_gitcommithash}"
+	ln -sv ../../.dotnet .dotnet
+	.dotnet/dotnet build-server shutdown
 	#./eng/common/build.sh --restore --build --pack --warnAsError false ${_EXTRA_ARGS[@]}
 	DotNetBuildFromSource=false ./eng/build.sh --restore
-	./eng/build.sh --restore --build --pack /p:UseAppHost=false
+	./eng/build.sh --restore --build --pack /p:UseAppHost=false /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
@@ -174,28 +187,54 @@ termux_step_make () {
 	fi
 
 	pushd src/sdk
+	_gitcommithash=$(cat .git/HEAD)
+	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
+	echo "GitCommitHash = ${_gitcommithash}"
 	ln -sv ../../.dotnet .dotnet
+	.dotnet/dotnet build-server shutdown
 	./eng/common/build.sh --help
 	./eng/common/build.sh --restore
-	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:ArcadeBuildFromSource=true
+	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:ArcadeBuildFromSource=true /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
 	popd
 
 	pushd src/aspnetcore
+	_gitcommithash=$(cat .git/HEAD)
+	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
+	echo "GitCommitHash = ${_gitcommithash}"
+	ln -sv ../../.dotnet .dotnet
+	.dotnet/dotnet build-server shutdown
+	./eng/common/build.sh --help
+	./eng/common/build.sh --restore
+	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:ArcadeBuildFromSource=true /p:GitCommitHash=${_gitcommithash}
+	for i in artifacts/packages/*/*/*.nupkg; do
+		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
+	done
 	popd
 
 	pushd src/installer
+	_gitcommithash=$(cat .git/HEAD)
+	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
+	echo "GitCommitHash = ${_gitcommithash}"
+	ln -sv ../../.dotnet .dotnet
+	.dotnet/dotnet build-server shutdown
+	./eng/common/build.sh --help
+	./eng/common/build.sh --restore
+	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:ArcadeBuildFromSource=true /p:GitCommitHash=${_gitcommithash}
+	for i in artifacts/packages/*/*/*.nupkg; do
+		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
+	done
 	popd
 }
 
 termux_step_post_make_install() {
 	mkdir -p "${TERMUX_PREFIX}/lib/dotnet"
-	#cp -fr "${TERMUX_PKG_BUILDDIR}/local-packages" "${TERMUX_PREFIX}/lib/dotnet/local-packages"
-	#cp -fr "${TERMUX_PKG_BUILDDIR}/local-downloads"  "${TERMUX_PREFIX}/lib/dotnet/local-downloads"
-	cp -fr "${TERMUX_PKG_BUILDDIR}" "${TERMUX_PREFIX}/lib/dotnet/builddir"
-	return
+	cp -fr "${TERMUX_PKG_BUILDDIR}/local-packages" "${TERMUX_PREFIX}/lib/dotnet/local-packages"
+	cp -fr "${TERMUX_PKG_BUILDDIR}/local-downloads"  "${TERMUX_PREFIX}/lib/dotnet/local-downloads"
+	#cp -fr "${TERMUX_PKG_BUILDDIR}" "${TERMUX_PREFIX}/lib/dotnet/builddir"
+	#return
 	#local bindirs=$(find ${TERMUX_PKG_BUILDDIR}/src -mindepth 3 -maxdepth 3 -name bin -type d | sort)
 	#for bindir in ${bindirs}; do
 	#	cp -frv "${bindir}" "${TERMUX_PREFIX}/lib/dotnet"
