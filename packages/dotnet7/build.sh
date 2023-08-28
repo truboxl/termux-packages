@@ -138,8 +138,7 @@ termux_step_make () {
 	local _packagesdir="${TERMUX_PKG_BUILDDIR}/local-packages"
 	local _downloaddir="${TERMUX_PKG_BUILDDIR}/local-download"
 	local _gitcommithash
-	mkdir -p .dotnet "${_packagesdir}" "${_downloaddir}"
-	ls -l src
+	mkdir -p "${_packagesdir}" "${_downloaddir}"
 
 	# working
 	if :; then
