@@ -140,14 +140,14 @@ termux_step_make () {
 	local _gitcommithash
 	mkdir -p "${_packagesdir}" "${_downloaddir}"
 
+	#./eng/common/build.sh --restore --build --pack --warnAsError false ${_EXTRA_ARGS[@]}
+
 	# working
 	if :; then
 	pushd src/runtime
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
-	#./eng/common/build.sh --restore --build --pack --warnAsError false ${_EXTRA_ARGS[@]}
-	./eng/build.sh --help
 	./eng/build.sh ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
@@ -165,9 +165,7 @@ termux_step_make () {
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
-	#./eng/common/build.sh --restore --build --pack --warnAsError false ${_EXTRA_ARGS[@]}
-	DotNetBuildFromSource=false ./eng/build.sh --restore
-	./eng/build.sh --restore --build --pack /p:UseAppHost=false /p:GitCommitHash=${_gitcommithash}
+	./eng/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:UseAppHost=false /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
@@ -179,8 +177,6 @@ termux_step_make () {
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
-	./eng/common/build.sh --help
-	./eng/common/build.sh --restore
 	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
@@ -193,8 +189,6 @@ termux_step_make () {
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
-	./eng/common/build.sh --help
-	./eng/common/build.sh --restore
 	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
@@ -207,8 +201,6 @@ termux_step_make () {
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
-	./eng/common/build.sh --help
-	./eng/common/build.sh --restore
 	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
