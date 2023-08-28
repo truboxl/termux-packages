@@ -192,8 +192,8 @@ termux_step_make () {
 
 termux_step_post_make_install() {
 	mkdir -p "${TERMUX_PREFIX}/lib/dotnet"
-	cp -fr "${TERMUX_PKG_BUILDDIR}/local-packages" "${TERMUX_PREFIX}/lib/dotnet/local-packages"
-	cp -fr "${TERMUX_PKG_BUILDDIR}/local-downloads"  "${TERMUX_PREFIX}/lib/dotnet/local-downloads"
+	#cp -fr "${TERMUX_PKG_BUILDDIR}/local-packages" "${TERMUX_PREFIX}/lib/dotnet/local-packages"
+	#cp -fr "${TERMUX_PKG_BUILDDIR}/local-downloads"  "${TERMUX_PREFIX}/lib/dotnet/local-downloads"
 	cp -fr "${TERMUX_PKG_BUILDDIR}" "${TERMUX_PREFIX}/lib/dotnet/builddir"
 	return
 	#local bindirs=$(find ${TERMUX_PKG_BUILDDIR}/src -mindepth 3 -maxdepth 3 -name bin -type d | sort)
