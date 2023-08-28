@@ -31,11 +31,13 @@ termux_step_post_get_source() {
 }
 
 termux_step_pre_configure() {
+	return
 	termux_setup_cmake
 	termux_setup_ninja
 }
 
 termux_step_configure() {
+	return
 	local arch
 	case "${TERMUX_ARCH}" in
 	aarch64) arch=arm64 ;;
@@ -131,6 +133,7 @@ termux_step_configure() {
 }
 
 termux_step_make () {
+	return
 	# source build should use this but not working for us atm
 	#./build.sh --clean-while-building -- ${_EXTRA_ARGS[@]}
 
@@ -189,8 +192,10 @@ termux_step_make () {
 
 termux_step_post_make_install() {
 	mkdir -p "${TERMUX_PREFIX}/lib/dotnet"
-	cp -fr "${_pacakgesdir}" "${TERMUX_PREFIX}/lib/dotnet"
-	cp -fr "${_downloaddir}" "${TERMUX_PREFIX}/lib/dotnet"
+	cp -fr "${_packagesdir}" "${TERMUX_PREFIX}/lib/dotnet/packagesdir"
+	cp -fr "${_downloaddir}" "${TERMUX_PREFIX}/lib/dotnet/downloaddir"
+	cp -fr "${TERMUX_PKG_BUILDDIR}" "${TERMUX_PREFIX}/lib/dotnet/builddir"
+	return
 	#local bindirs=$(find ${TERMUX_PKG_BUILDDIR}/src -mindepth 3 -maxdepth 3 -name bin -type d | sort)
 	#for bindir in ${bindirs}; do
 	#	cp -frv "${bindir}" "${TERMUX_PREFIX}/lib/dotnet"
