@@ -31,13 +31,11 @@ termux_step_post_get_source() {
 }
 
 termux_step_pre_configure() {
-	#return
 	termux_setup_cmake
 	termux_setup_ninja
 }
 
 termux_step_configure() {
-	#return
 	local arch
 	case "${TERMUX_ARCH}" in
 	aarch64) arch=arm64 ;;
@@ -53,9 +51,9 @@ termux_step_configure() {
 	export ROOTFS_DIR="${TERMUX_PKG_TMPDIR}/sysroot"
 	rm -fr "${ROOTFS_DIR}"
 	echo "Copying ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot to ${ROOTFS_DIR} ..."
-	time cp -fr "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot" "${ROOTFS_DIR}"
+	cp -fr "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot" "${ROOTFS_DIR}"
 	echo "Copying ${TERMUX_PREFIX} to ${ROOTFS_DIR} ..."
-	time cp -fr "${TERMUX_PREFIX}" "${ROOTFS_DIR}"
+	cp -fr "${TERMUX_PREFIX}" "${ROOTFS_DIR}"
 	mv -v "${TERMUX_STANDALONE_TOOLCHAIN}"/sysroot{,.tmp}
 	rm -fr "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot.tmp"
 	ln -sv "${ROOTFS_DIR}" "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot"
