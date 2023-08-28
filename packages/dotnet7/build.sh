@@ -133,10 +133,9 @@ termux_step_configure() {
 }
 
 termux_step_make () {
+	# this is to source build for build machine, do not use this
+	#./build.sh --clean-while-building -- ${_EXTRA_ARGS[@]}
 	#return
-	# source build should use this but not working for us atm
-	./build.sh --clean-while-building -- ${_EXTRA_ARGS[@]}
-	return
 
 	local _packagesdir="${TERMUX_PKG_BUILDDIR}/local-packages"
 	local _downloaddir="${TERMUX_PKG_BUILDDIR}/local-download"
@@ -208,7 +207,7 @@ termux_step_make () {
 	.dotnet/dotnet build-server shutdown
 	./eng/common/build.sh --help
 	./eng/common/build.sh --restore
-	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:ArcadeBuildFromSource=true /p:GitCommitHash=${_gitcommithash}
+	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
@@ -222,7 +221,7 @@ termux_step_make () {
 	.dotnet/dotnet build-server shutdown
 	./eng/common/build.sh --help
 	./eng/common/build.sh --restore
-	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:ArcadeBuildFromSource=true /p:GitCommitHash=${_gitcommithash}
+	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
