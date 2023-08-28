@@ -123,8 +123,8 @@ termux_step_configure() {
 
 	# dotnet runtime cross compile has a stage of host build
 	# mono cross tool which our toolchain setup will interfere
-	mv -v "${TERMUX_STANDALONE_TOOLCHAIN}"/bin/pkg-config{,.tmp}
 	rm -fr "${TERMUX_STANDALONE_TOOLCHAIN}"/bin/pkg-config.tmp
+	mv -v "${TERMUX_STANDALONE_TOOLCHAIN}"/bin/pkg-config{,.tmp}
 	ln -sv /usr/bin/pkg-config "${TERMUX_STANDALONE_TOOLCHAIN}/bin/pkg-config"
 
 	unset PKG_CONFIG PKGCONFIG PKG_CONFIG_DIR PKG_CONFIG_LIBDIR CC CXX CFLAGS CXXFLAGS LDFLAGS
