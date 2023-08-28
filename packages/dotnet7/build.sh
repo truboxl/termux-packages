@@ -154,8 +154,8 @@ termux_step_make () {
 	done
 	local _runtimever_ns=$(grep VS.Redist.Common.NetCore.SharedFramework eng/Version.Details.xml | sed -e "s|.*Version=\"\(.*\)\" .*|\1|" | head -n1)
 	mkdir -p "${_downloaddir}/Runtime/${_runtimever_ns}"
-	find artifacts -name "*tar*" -type f
-	cp -fv artifacts/packages/*/*/dotnet-runtime-*-*.tar.gz "${_downloaddir}/Runtime/${_runtimever_ns}"
+	#find artifacts -name "*tar.*" -type f
+	#cp -fv artifacts/packages/*/*/dotnet-runtime-*-*.tar.gz "${_downloaddir}/Runtime/${_runtimever_ns}"
 	popd
 	fi
 
