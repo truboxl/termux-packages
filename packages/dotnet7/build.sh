@@ -65,7 +65,7 @@ termux_step_configure() {
 
 	# manual termux_step_configure_cmake
 	local CMAKE_PROC="${TERMUX_ARCH}"
-	test "${CMAKE_PROC}" == "arm" && CMAKE_PROC="armv7-a"
+	[[ "${CMAKE_PROC}" == "arm" ]] && CMAKE_PROC="armv7-a"
 	export CFLAGS+=" --target=$CCTERMUX_HOST_PLATFORM"
 	export CXXFLAGS+=" --target=$CCTERMUX_HOST_PLATFORM"
 
