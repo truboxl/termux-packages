@@ -142,7 +142,7 @@ termux_step_make () {
 	ls -l src
 
 	# working
-	if ! :; then
+	if :; then
 	pushd src/runtime
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
@@ -161,7 +161,7 @@ termux_step_make () {
 	fi
 
 	# not working
-	if ! :; then
+	if :; then
 	pushd src/roslyn
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
@@ -175,18 +175,21 @@ termux_step_make () {
 	popd
 	fi
 
+	if :; then
 	pushd src/sdk
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
 	./eng/common/build.sh --help
 	./eng/common/build.sh --restore
-	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:ArcadeBuildFromSource=true /p:GitCommitHash=${_gitcommithash}
+	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
 	popd
+	fi
 
+	if :; then
 	pushd src/aspnetcore
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
@@ -198,7 +201,9 @@ termux_step_make () {
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
 	popd
+	fi
 
+	if :; then
 	pushd src/installer
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
@@ -210,6 +215,7 @@ termux_step_make () {
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
 	popd
+	fi
 }
 
 termux_step_post_make_install() {
