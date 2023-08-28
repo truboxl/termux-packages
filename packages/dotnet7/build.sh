@@ -144,22 +144,16 @@ termux_step_make () {
 	# working
 	if ! :; then
 	pushd src/runtime
-	_gitcommithash=$(cat .git/HEAD)
-	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
-	echo "GitCommitHash = ${_githash}"
+	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
 	#./eng/common/build.sh --restore --build --pack --warnAsError false ${_EXTRA_ARGS[@]}
 	./eng/build.sh --help
-	./eng/build.sh ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_githash}
+	./eng/build.sh ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
-	local _runtimever_ns=$(
-		grep VS.Redist.Common.NetCore.SharedFramework eng/Version.Details.xml | \
-		sed -e "s|.*Version=\"\(.*\)\" .*|\1|" | \
-		head -n1
-	)
+	local _runtimever_ns=$(grep VS.Redist.Common.NetCore.SharedFramework eng/Version.Details.xml | sed -e "s|.*Version=\"\(.*\)\" .*|\1|" | head -n1)
 	mkdir -p "${_downloaddir}/Runtime/${_runtimever_ns}"
 	find artifacts -name "*tar*" -type f
 	cp -fv artifacts/packages/*/*/dotnet-runtime-*-*.tar.gz "${_downloaddir}/Runtime/${_runtimever_ns}"
@@ -169,9 +163,7 @@ termux_step_make () {
 	# not working
 	if ! :; then
 	pushd src/roslyn
-	_gitcommithash=$(cat .git/HEAD)
-	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
-	echo "GitCommitHash = ${_gitcommithash}"
+	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
 	#./eng/common/build.sh --restore --build --pack --warnAsError false ${_EXTRA_ARGS[@]}
@@ -184,9 +176,7 @@ termux_step_make () {
 	fi
 
 	pushd src/sdk
-	_gitcommithash=$(cat .git/HEAD)
-	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
-	echo "GitCommitHash = ${_gitcommithash}"
+	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
 	./eng/common/build.sh --help
@@ -198,9 +188,7 @@ termux_step_make () {
 	popd
 
 	pushd src/aspnetcore
-	_gitcommithash=$(cat .git/HEAD)
-	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
-	echo "GitCommitHash = ${_gitcommithash}"
+	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
 	./eng/common/build.sh --help
@@ -212,9 +200,7 @@ termux_step_make () {
 	popd
 
 	pushd src/installer
-	_gitcommithash=$(cat .git/HEAD)
-	if [[ -z "${_gitcommithash}" ]]; then termux_error_exit "$PWD: GitCommitHash is empty!"; fi
-	echo "GitCommitHash = ${_gitcommithash}"
+	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
 	./eng/common/build.sh --help
@@ -247,5 +233,6 @@ termux_step_post_make_install() {
 
 # https://learn.microsoft.com/en-us/dotnet/core/distribution-packaging
 # https://github.com/dotnet/source-build
+# http://archive.ubuntu.com/ubuntu/pool/universe/d/dotnet7/dotnet7_7.0.110-0ubuntu1~22.04.1.debian.tar.xz
 # https://git.alpinelinux.org/aports/tree/community/dotnet7-stage0/APKBUILD
 # https://src.fedoraproject.org/rpms/dotnet7.0/blob/rawhide/f/dotnet7.0.spec
