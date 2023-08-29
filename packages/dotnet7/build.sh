@@ -172,7 +172,7 @@ termux_step_make () {
 	popd
 	fi
 
-	if :; then
+	if ! :; then
 	pushd src/sdk
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
