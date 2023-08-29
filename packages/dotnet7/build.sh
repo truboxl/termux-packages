@@ -160,7 +160,7 @@ termux_step_make () {
 	fi
 
 	# not working
-	if :; then
+	if ! :; then
 	pushd src/roslyn
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
