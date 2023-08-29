@@ -17,67 +17,66 @@ termux_step_configure() {
 
 	# Android hard code to page size 4096
 	# CANNOT LINK EXECUTABLE "blink": can't enable GNU RELRO protection for "blink": Out of memory
-	sed -i config.mk \
+	sed \
 		-e "s|-Wl,-z,common-page-size=65536,-z,max-page-size=65536||g" \
 		-e "s|-Wl,-z,norelro||g" \
-		-e "s|-Wl,-z,noseparate-code||g"
+		-e "s|-Wl,-z,noseparate-code||g" \
+		-i config.mk
 
 	# https://github.com/jart/blink/blob/master/config.h.in
 	# replace host generated config.h with our own
 	# please check with a real device
 	cp -f config.h.in config.h
-	sed -i config.h -e "s|^// #define HAVE_|#define HAVE_|g"
+	sed -e "s|^// #define HAVE_|#define HAVE_|g" -i config.h
 
-	sed -i config.h -e "s|^#define HAVE_SYSCTL|// #define HAVE_SYSCTL|"
+	sed -e "s|^#define HAVE_SYSCTL|// #define HAVE_SYSCTL|" -i config.h
 
 	if [[ "${TERMUX_ARCH_BITS}" == "32" ]]; then
-		sed -i config.h -e "s|^#define HAVE_INT128|// #define HAVE_INT128|"
+		sed -e "s|^#define HAVE_INT128|// #define HAVE_INT128|" -i config.h
 	fi
 
-	sed -i config.h -e "s|^#define HAVE_SA_LEN|// #define HAVE_SA_LEN|"
+	sed -e "s|^#define HAVE_SA_LEN|// #define HAVE_SA_LEN|" -i config.h
 
 	# TODO port libandroid-fexecve from Android P
-	sed -i config.h -e "s|^#define HAVE_FEXECVE|// #define HAVE_FEXECVE|"
+	sed -e "s|^#define HAVE_FEXECVE|// #define HAVE_FEXECVE|" -i config.h
 
 	# Bad System Call
-	sed -i config.h \
-		-e "s|^#define HAVE_SETREUID|// #define HAVE_SETREUID|"
+	sed -e "s|^#define HAVE_SETREUID|// #define HAVE_SETREUID|" -i config.h
 
-	sed -i config.h \
-		-e "s|^#define HAVE_KERN_ARND|// #define HAVE_KERN_ARND|"
+	sed -e "s|^#define HAVE_KERN_ARND|// #define HAVE_KERN_ARND|" -i config.h
 
 	# TODO port libandroid-random from Android P
-	sed -i config.h \
-		-e "s|^#define HAVE_GETRANDOM|// #define HAVE_GETRANDOM|"
+	sed -e "s|^#define HAVE_GETRANDOM|// #define HAVE_GETRANDOM|" -i config.h
 
 	# Bad System Call
-	sed -i config.h \
-		-e "s|^#define HAVE_SETGROUPS|// #define HAVE_SETGROUPS|"
+	sed -e "s|^#define HAVE_SETGROUPS|// #define HAVE_SETGROUPS|" -i config.h
 
-	sed -i config.h \
-		-e "s|^#define HAVE_LIBUNWIND|// #define HAVE_LIBUNWIND|"
+	sed -e "s|^#define HAVE_LIBUNWIND|// #define HAVE_LIBUNWIND|" -i config.h
 
 	# TODO port libandroid-random from Android P
-	sed -i config.h \
-		-e "s|^#define HAVE_GETENTROPY|// #define HAVE_GETENTROPY|"
+	sed -e "s|^#define HAVE_GETENTROPY|// #define HAVE_GETENTROPY|" -i config.h
 
-	sed -i config.h \
+	sed \
 		-e "s|^#define HAVE_RTLGENRANDOM|// #define HAVE_RTLGENRANDOM|" \
 		-e "s|^#define HAVE_LIBUNWIND|// #define HAVE_LIBUNWIND|" \
-		-e "s|^#define HAVE_EPOLL_PWAIT2|// #define HAVE_EPOLL_PWAIT2|"
+		-e "s|^#define HAVE_EPOLL_PWAIT2|// #define HAVE_EPOLL_PWAIT2|" \
+		-i config.h
 
 	# TODO port libandroid-getsetdomainname from Android O
-	sed -i config.h \
-		-e "s|^#define HAVE_GETDOMAINNAME|// #define HAVE_GETDOMAINNAME|"
+	sed \
+		-e "s|^#define HAVE_GETDOMAINNAME|// #define HAVE_GETDOMAINNAME|" \
+		-i config.h
 
 	# Bad System Call
-	sed -i config.h \
-		-e "s|^#define HAVE_CLOCK_SETTIME|// #define HAVE_CLOCK_SETTIME|"
+	sed \
+		-e "s|^#define HAVE_CLOCK_SETTIME|// #define HAVE_CLOCK_SETTIME|" \
+		-i config.h
 
-	sed -i config.h \
+	sed \
 		-e "s|^#define HAVE_SYS_GETENTROPY|// #define HAVE_SYS_GETENTROPY|" \
 		-e "s|^#define HAVE_PTHREAD_SETCANCELSTATE|// #define HAVE_PTHREAD_SETCANCELSTATE|" \
-		-e "s|^#define HAVE_SOCKATMARK|// #define HAVE_SOCKATMARK|"
+		-e "s|^#define HAVE_SOCKATMARK|// #define HAVE_SOCKATMARK|" \
+		-i config.h
 
 	for file in config.log config.h config.mk; do
 		echo "INFO: ========== ${file} =========="

@@ -44,9 +44,10 @@ termux_pkg_auto_update() {
 
 	local major_version=$(echo "${latest_version}" | sed -E "s|([0-9]+).([0-9]+).([0-9]+)|\1|")
 	local minor_version=$(echo "${latest_version}" | sed -E "s|([0-9]+).([0-9]+).([0-9]+)|\2|")
-	sed -i "${TERMUX_PKG_BUILDER_DIR}/build.sh" \
+	sed \
 		-e "s|^_MAJOR_VERSION=.*|_MAJOR_VERSION=${major_version}|" \
-		-e "s|^_MINOR_VERSION=.*|_MINOR_VERSION=${minor_version}|"
+		-e "s|^_MINOR_VERSION=.*|_MINOR_VERSION=${minor_version}|" \
+		-i "${TERMUX_PKG_BUILDER_DIR}/build.sh"
 
 	termux_pkg_upgrade_version "${latest_version}" --skip-version-check
 }

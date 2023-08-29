@@ -75,10 +75,11 @@ termux_pkg_auto_update() {
 		"
 	fi
 
-	sed -i "${TERMUX_PKG_BUILDER_DIR}/build.sh" \
+	sed \
 		-e "s|^_COMMIT=.*|_COMMIT=${latest_commit}|" \
 		-e "s|^_COMMIT_DATE=.*|_COMMIT_DATE=${latest_commit_date}|" \
-		-e "s|^_COMMIT_TIME=.*|_COMMIT_TIME=${latest_commit_time}|"
+		-e "s|^_COMMIT_TIME=.*|_COMMIT_TIME=${latest_commit_time}|" \
+		-i "${TERMUX_PKG_BUILDER_DIR}/build.sh"
 
 	termux_pkg_upgrade_version "${latest_version}" --skip-version-check
 }

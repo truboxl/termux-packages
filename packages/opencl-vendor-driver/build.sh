@@ -13,8 +13,9 @@ termux_step_make_install() {
 }
 
 termux_step_create_debscripts() {
-	cp -f "${TERMUX_PKG_BUILDER_DIR}/postinst.sh" postinst
-	sed -i postinst -e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g"
+	sed \
+		-e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" \
+		"${TERMUX_PKG_BUILDER_DIR}/postinst.sh" > postinst
 
 	cat <<- EOF > prerm
 	#!${TERMUX_PREFIX}/bin/sh

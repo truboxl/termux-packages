@@ -146,11 +146,12 @@ termux_pkg_auto_update() {
 	_BINARYEN_COMMIT ${binaryen_commit} = ${binaryen_tgz_sha256}
 	EOL
 
-	sed -i "${TERMUX_PKG_BUILDER_DIR}/build.sh" \
+	sed \
 		-e "s|^_LLVM_COMMIT=.*|_LLVM_COMMIT=${llvm_commit}|" \
 		-e "s|^_LLVM_TGZ_SHA256=.*|_LLVM_TGZ_SHA256=${llvm_tgz_sha256}|" \
 		-e "s|^_BINARYEN_COMMIT=.*|_BINARYEN_COMMIT=${binaryen_commit}|" \
-		-e "s|^_BINARYEN_TGZ_SHA256=.*|_BINARYEN_TGZ_SHA256=${binaryen_tgz_sha256}|"
+		-e "s|^_BINARYEN_TGZ_SHA256=.*|_BINARYEN_TGZ_SHA256=${binaryen_tgz_sha256}|" \
+		-i "${TERMUX_PKG_BUILDER_DIR}/build.sh"
 
 	rm -fr "${tmpdir}"
 
@@ -305,11 +306,12 @@ termux_step_make_install() {
 	# first run generates .emscripten and exits immediately
 	rm -f "${TERMUX_PKG_SRCDIR}/.emscripten"
 	./emcc --generate-config
-	sed -i .emscripten \
+	sed \
 		-e "s|^EMSCRIPTEN_ROOT.*|EMSCRIPTEN_ROOT = '${TERMUX_PREFIX}/opt/emscripten' # directory|" \
 		-e "s|^LLVM_ROOT.*|LLVM_ROOT = '${TERMUX_PREFIX}/opt/emscripten-llvm/bin' # directory|" \
 		-e "s|^BINARYEN_ROOT.*|BINARYEN_ROOT = '${TERMUX_PREFIX}/opt/emscripten-binaryen' # directory|" \
-		-e "s|^NODE_JS.*|NODE_JS = '${TERMUX_PREFIX}/bin/node' # executable|"
+		-e "s|^NODE_JS.*|NODE_JS = '${TERMUX_PREFIX}/bin/node' # executable|" \
+		-i .emscripten
 	grep "${TERMUX_PREFIX}" "${TERMUX_PKG_SRCDIR}/.emscripten"
 	install -Dm644 "${TERMUX_PKG_SRCDIR}/.emscripten" "${TERMUX_PREFIX}/opt/emscripten/.emscripten"
 
