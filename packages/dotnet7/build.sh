@@ -189,7 +189,8 @@ termux_step_make () {
 	_gitcommithash=$(grep GitCommitHash ${TERMUX_PKG_BUILDDIR}/git-info/$(basename ${PWD}).props | sed -nE "s|.*<.*>(.*)</.*>|\1|p")
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
-	./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
+	#./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
+	./eng/build.sh --pack --arch "${arch}" --no-build-nodejs --os-name linux-bionic ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
