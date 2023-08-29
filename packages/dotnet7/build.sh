@@ -190,7 +190,7 @@ termux_step_make () {
 	ln -sv ../../.dotnet .dotnet
 	.dotnet/dotnet build-server shutdown
 	#./eng/common/build.sh --restore --build --pack ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
-	./eng/build.sh --pack --arch "${arch}" --no-build-nodejs --os-name linux-bionic ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
+	./eng/build.sh --pack --arch "${arch}" --no-build-nodejs --os-name linux-android ${_EXTRA_ARGS[@]} /p:GitCommitHash=${_gitcommithash}
 	for i in artifacts/packages/*/*/*.nupkg; do
 		.dotnet/dotnet nuget push "$i" --source="${_packagesdir}"
 	done
