@@ -28,6 +28,9 @@ termux_step_make() {
 	i686) ZIG_TARGET_NAME="x86-linux-musl" ;;
 	esac
 
+	# refer build.patch on skipped parts
+	# which CI took too long to build under 6 hours
+	# or unnecessary when using prebuilt zig
 	./build "${ZIG_TARGET_NAME}" baseline
 }
 
