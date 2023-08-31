@@ -211,6 +211,14 @@ termux_step_host_build() {
 	termux_setup_cmake
 	termux_setup_ninja
 
+	local _LLVM_TARGET_ARCH
+	case "${TERMUX_ARCH}" in
+	aarch64) _LLVM_TARGET_ARCH="AArch64" ;;
+	arm) _LLVM_TARGET_ARCH="ARM" ;;
+	i686|x86_64) _LLVM_TARGET_ARCH="X86" ;;
+	*) termux_error_exit "Invalid arch: ${TERMUX_ARCH}" ;;
+	esac
+
 	cmake \
 		-G Ninja \
 		-S "${TERMUX_PKG_CACHEDIR}/llvm-project-${_LLVM_COMMIT}/llvm" \
@@ -219,7 +227,8 @@ termux_step_host_build() {
 		-DLLVM_INCLUDE_BENCHMARKS=OFF \
 		-DLLVM_INCLUDE_EXAMPLES=OFF \
 		-DLLVM_INCLUDE_TESTS=OFF \
-		-DLLVM_INCLUDE_UTILS=OFF
+		-DLLVM_INCLUDE_UTILS=OFF \
+		-DLLVM_TARGETS_TO_BUILD="${_LLVM_TARGET_ARCH}"
 	ninja \
 		-C "${TERMUX_PKG_HOSTBUILD_DIR}" \
 		-j "${TERMUX_MAKE_PROCESSES}" \
@@ -258,9 +267,9 @@ termux_step_make() {
 	local _LLVM_TARGET_TRIPLE=${TERMUX_HOST_PLATFORM/-/-unknown-}${TERMUX_PKG_API_LEVEL}
 	local _LLVM_TARGET_ARCH
 	case "${TERMUX_ARCH}" in
-	aarch64) _LLVM_TARGET_ARCH=AArch64 ;;
-	arm) _LLVM_TARGET_ARCH=ARM ;;
-	i686|x86_64) _LLVM_TARGET_ARCH=X86 ;;
+	aarch64) _LLVM_TARGET_ARCH="AArch64" ;;
+	arm) _LLVM_TARGET_ARCH="ARM" ;;
+	i686|x86_64) _LLVM_TARGET_ARCH="X86" ;;
 	*) termux_error_exit "Invalid arch: ${TERMUX_ARCH}" ;;
 	esac
 	_LLVM_BUILD_ARGS+="
