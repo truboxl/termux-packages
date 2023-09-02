@@ -79,6 +79,7 @@ termux_step_host_build() {
 		-G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCOMPILER_RT_INCLUDE_TESTS=OFF \
+		-DLLVM_HOST_TRIPLE="x86_64-linux-gnu" \
 		-DLLVM_INCLUDE_BENCHMARKS=OFF \
 		-DLLVM_INCLUDE_TESTS=OFF \
 		-DLLVM_INCLUDE_TOOLS=OFF \
@@ -143,7 +144,11 @@ termux_step_post_configure() {
 	# Cross-compile & install LLVM
 	cd "$TERMUX_PKG_BUILDDIR"
 	if test -f build.ninja; then
-		ninja -j ${TERMUX_MAKE_PROCESSES} libLLVMSPIRVCodeGen.a libLLVMSPIRVDesc.a libLLVMSPIRVInfo.a install
+		ninja -j ${TERMUX_MAKE_PROCESSES} \
+			lib/libLLVMSPIRVCodeGen.a \
+			lib/libLLVMSPIRVDesc.a \
+			lib/libLLVMSPIRVInfo.a \
+			install
 	fi
 
 	# Invoke CMake for LDC:
