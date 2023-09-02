@@ -145,9 +145,9 @@ termux_step_post_configure() {
 	cd "$TERMUX_PKG_BUILDDIR"
 	if test -f build.ninja; then
 		ninja -j ${TERMUX_MAKE_PROCESSES} \
-			lib/libLLVMSPIRVCodeGen.a \
-			lib/libLLVMSPIRVDesc.a \
-			lib/libLLVMSPIRVInfo.a \
+			libLLVMSPIRVCodeGen.a \
+			libLLVMSPIRVDesc.a \
+			libLLVMSPIRVInfo.a \
 			install
 	fi
 
