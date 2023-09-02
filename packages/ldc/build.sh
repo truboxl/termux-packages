@@ -78,7 +78,7 @@ termux_step_host_build() {
 		-S "${TERMUX_PKG_SRCDIR}/llvm" \
 		-G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_DEFAULT_TARGET_TRIPLE="x86_64-linux-gnu" \
+		-DCOMPILER_RT_INCLUDE_TESTS=OFF \
 		-DLLVM_INCLUDE_BENCHMARKS=OFF \
 		-DLLVM_INCLUDE_TESTS=OFF \
 		-DLLVM_INCLUDE_TOOLS=OFF \
@@ -136,16 +136,16 @@ termux_step_pre_configure() {
 	OLD_TERMUX_PKG_BUILDDIR=$TERMUX_PKG_BUILDDIR
 	TERMUX_PKG_BUILDDIR=$TERMUX_PKG_BUILDDIR/llvm
 	mkdir "$TERMUX_PKG_BUILDDIR"
+}
 
+# CMake for LLVM has been run:
+termux_step_post_configure() {
 	# Cross-compile & install LLVM
 	cd "$TERMUX_PKG_BUILDDIR"
 	if test -f build.ninja; then
 		ninja -j ${TERMUX_MAKE_PROCESSES} libLLVMSPIRVCodeGen.a libLLVMSPIRVDesc.a libLLVMSPIRVInfo.a install
 	fi
-}
 
-# CMake for LLVM has been run:
-termux_step_post_configure() {
 	# Invoke CMake for LDC:
 
 	TERMUX_PKG_SRCDIR=$OLD_TERMUX_PKG_SRCDIR
