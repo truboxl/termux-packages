@@ -31,6 +31,11 @@ termux_setup_zig() {
 		mkdir -p "${ZIG_FOLDER}"
 		termux_download "${ZIG_TXZ_URL}" "${ZIG_TXZ_FILE}" "${ZIG_TXZ_SHA256}"
 		tar -xf "${ZIG_TXZ_FILE}" -C "${ZIG_FOLDER}" --strip-components=1
+
+		echo "termux_setup_zig: Applying patches from packages/zig"
+		for p in "${TERMUX_SCRIPTDIR}"/packages/zig/zig-*.patch; do
+			patch -d "${ZIG_FOLDER}" -p2 -i ${p}
+		done
 	fi
 
 	export PATH="${ZIG_FOLDER}:${PATH}"
