@@ -25,21 +25,37 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 "
 
 termux_pkg_auto_update() {
+	local e=0
 	local api_url="https://api.github.com/repos/kpet/clvk/commits"
-	local latest_commit=$(curl -s "${api_url}"| jq .[].sha | head -n1 | sed -e 's|\"||g')
-	if [[ -z "${latest_commit}" ]]; then
-		echo "WARN: Unable to get latest commit from upstream. Try again later." >&2
-		return
-	fi
-
+	local api_url_r=$(curl -s "${api_url}")
+	local r1=$(echo "${api_url_r}"| jq .[].sha)
+	local latest_commit=$(echo "${r1}" | head -n1 | sed -e 's|\"||g')
 	if [[ "${latest_commit}" == "${_COMMIT}" ]]; then
 		echo "INFO: No update needed. Already at version '${TERMUX_PKG_VERSION}'."
 		return
 	fi
 
-	local latest_commit_date_tz=$(curl -s "${api_url}/${latest_commit}" | jq .commit.committer.date | sed -e 's|\"||g')
-	if [[ -z "${latest_commit_date_tz}" ]]; then
-		termux_error_exit "ERROR: Unable to get latest commit date info"
+	local api_url_r2=$(curl -s "${api_url}/${latest_commit}")
+	local r2=$(echo "${api_url_r2}" | jq .commit.committer.date)
+	local latest_commit_date_tz=$(echo "${r2}" | sed -e 's|\"||g')
+
+	[[ -z "${api_url_r}" ]] && e=1
+	[[ -z "${r1}" ]] && e=1
+	[[ -z "${latest_commit}" ]] && e=1
+	[[ -z "${api_url_r2}" ]] && e=1
+	[[ -z "${r2}" ]] && e=1
+	[[ -z "${latest_commit_date_tz}" ]] && e=1
+	if [[ "${e}" != 0 ]]; then
+		cat <<- EOL >&2
+		WARN: Auto update failure!
+		api_url_r=${api_url_r}
+		r1=${r1}
+		latest_commit=${latest_commit}
+		api_url_r2=${api_url_r2}
+		r2=${r2}
+		latest_commit_date_tz=${latest_commit_date_tz}
+		EOL
+		return
 	fi
 
 	local latest_commit_date=$(echo "${latest_commit_date_tz}" | sed -e 's|\(.*\)T\(.*\)Z|\1|' -e 's|\-||g')
@@ -53,8 +69,10 @@ termux_pkg_auto_update() {
 	local current_date_diff=$(((current_date_epoch-_COMMIT_DATE_epoch)/(60*60*24)))
 	local cooldown_days=14
 	if [[ "${current_date_diff}" -lt "${cooldown_days}" ]]; then
-		echo "INFO: Queuing updates after ${cooldown_days} days since last push"
-		echo "INFO: Currently its ${current_date_diff}"
+		cat <<- EOL
+		INFO: Queuing updates after ${cooldown_days} days since last push
+		INFO: Currently its ${current_date_diff}
+		EOL
 		return
 	fi
 
@@ -154,8 +172,8 @@ termux_step_make_install() {
 	# clvk does not have proper install rule yet
 	install -Dm644 "${TERMUX_PKG_BUILDDIR}/libOpenCL.so" "${TERMUX_PREFIX}/lib/clvk/libOpenCL.so"
 
-	echo "${TERMUX_PREFIX}/lib/clvk/libOpenCL.so" > "${TERMUX_PKG_TMPDIR}/clvk.icd"
-	install -Dm644 "${TERMUX_PKG_TMPDIR}/clvk.icd" "${TERMUX_PREFIX}/etc/OpenCL/vendors/clvk.icd"
+	install -Dm644 /dev/null "${TERMUX_PREFIX}/etc/OpenCL/vendors/clvk.icd"
+	echo "${TERMUX_PREFIX}/lib/clvk/libOpenCL.so" > "${TERMUX_PREFIX}/etc/OpenCL/vendors/clvk.icd"
 }
 
 # https://github.com/kpet/clvk/blob/main/CMakeLists.txt

@@ -1,5 +1,5 @@
-TERMUX_PKG_HOMEPAGE=https://emscripten.org
-TERMUX_PKG_DESCRIPTION="Emscripten: An LLVM-to-WebAssembly Compiler"
+TERMUX_PKG_HOMEPAGE=https://emscripten.org/
+TERMUX_PKG_DESCRIPTION="An LLVM-to-WebAssembly Compiler"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="3.1.45"
@@ -112,13 +112,8 @@ _BINARYEN_BUILD_ARGS="
 
 # based on scripts/updates/internal/termux_github_auto_update.sh
 termux_pkg_auto_update() {
-	local latest_tag
-	latest_tag=$(termux_github_api_get_tag "${TERMUX_PKG_SRCURL}" "${TERMUX_PKG_UPDATE_TAG_TYPE}")
-
-	if [[ -z "${latest_tag}" ]]; then
-		termux_error_exit "ERROR: Unable to get tag from ${TERMUX_PKG_SRCURL}"
-	fi
-
+	local e=0
+	local latest_tag=$(termux_github_api_get_tag "${TERMUX_PKG_SRCURL}" "${TERMUX_PKG_UPDATE_TAG_TYPE}")
 	if [[ "${latest_tag}" == "${TERMUX_PKG_VERSION}" ]]; then
 		echo "INFO: No update needed. Already at version '${TERMUX_PKG_VERSION}'."
 		return
@@ -128,17 +123,43 @@ termux_pkg_auto_update() {
 	# https://github.com/archlinux/svntogit-community/tree/packages/emscripten/trunk
 	# below generates commit hash for the deps according to emscripten releases
 	local tmpdir=$(mktemp -d)
-	local releases_tags release_tag deps_revision deps_json llvm_commit binaryen_commit llvm_tgz_sha256 binaryen_tgz_sha256
-	releases_tags=$(curl -s https://raw.githubusercontent.com/emscripten-core/emsdk/main/emscripten-releases-tags.json)
-	release_tag=$(echo "${releases_tags}" | python3 -c "import json,sys;print(json.load(sys.stdin)[\"releases\"][\"${latest_tag}\"])")
-	deps_revision=$(curl -s "https://chromium.googlesource.com/emscripten-releases/+/${release_tag}/DEPS?format=text" | base64 -d | grep "_revision':" | sed -e "s|'|\"|g")
-	deps_json=$(echo -e "{\n${deps_revision}EOL" | sed -e "s|,EOL|\n}|")
-	llvm_commit=$(echo "${deps_json}" | python3 -c "import json,sys;print(json.load(sys.stdin)[\"llvm_project_revision\"])")
-	binaryen_commit=$(echo "${deps_json}" | python3 -c "import json,sys;print(json.load(sys.stdin)[\"binaryen_revision\"])")
+	local releases_tags=$(curl -s https://raw.githubusercontent.com/emscripten-core/emsdk/main/emscripten-releases-tags.json)
+	local release_tag=$(echo "${releases_tags}" | python3 -c "import json,sys;print(json.load(sys.stdin)[\"releases\"][\"${latest_tag}\"])")
+	local deps_revision=$(curl -s "https://chromium.googlesource.com/emscripten-releases/+/${release_tag}/DEPS?format=text" | base64 -d | grep "_revision':" | sed -e "s|'|\"|g")
+	local deps_json=$(echo -e "{\n${deps_revision}EOL" | sed -e "s|,EOL|\n}|")
+	local llvm_commit=$(echo "${deps_json}" | python3 -c "import json,sys;print(json.load(sys.stdin)[\"llvm_project_revision\"])")
+	local binaryen_commit=$(echo "${deps_json}" | python3 -c "import json,sys;print(json.load(sys.stdin)[\"binaryen_revision\"])")
 	curl -LC - "https://github.com/llvm/llvm-project/archive/${llvm_commit}.tar.gz" -o "${tmpdir}/${llvm_commit}.tar.gz"
 	curl -LC - "https://github.com/WebAssembly/binaryen/archive/${binaryen_commit}.tar.gz" -o "${tmpdir}/${binaryen_commit}.tar.gz"
-	llvm_tgz_sha256=$(sha256sum "${tmpdir}/${llvm_commit}.tar.gz" | sed -e "s| .*$||")
-	binaryen_tgz_sha256=$(sha256sum "${tmpdir}/${binaryen_commit}.tar.gz" | sed -e "s| .*$||")
+	local llvm_tgz_sha256=$(sha256sum "${tmpdir}/${llvm_commit}.tar.gz" | sed -e "s| .*$||")
+	local binaryen_tgz_sha256=$(sha256sum "${tmpdir}/${binaryen_commit}.tar.gz" | sed -e "s| .*$||")
+
+	[[ -z "${latest_tag}" ]] && e=1
+	[[ -z "${tmpdir}" ]] && e=1
+	[[ -z "${releases_tags}" ]] && e=1
+	[[ -z "${release_tag}" ]] && e=1
+	[[ -z "${deps_revision}" ]] && e=1
+	[[ -z "${deps_json}" ]] && e=1
+	[[ -z "${llvm_commit}" ]] && e=1
+	[[ -z "${binaryen_commit}" ]] && e=1
+	[[ -z "${llvm_tgz_sha256}" ]] && e=1
+	[[ -z "${binaryen_tgz_sha256}" ]] && e=1
+	if [[ "${e}" != 0 ]]; then
+		cat <<- EOL >&2
+		WARN: Auto update failure!
+		latest_tag=${latest_tag}
+		tmpdir=${tmpdir}
+		releases_tags=${releases_tags}
+		release_tag=${release_tag}
+		deps_revision=${deps_revision}
+		deps_json=${deps_json}
+		llvm_commit=${llvm_commit}
+		binaryen_commit=${binaryen_commit}
+		llvm_tgz_sha256=${llvm_tgz_sha256}
+		binaryen_tgz_sha256=${binaryen_tgz_sha256}
+		EOL
+		return
+	fi
 
 	cat <<- EOL
 	INFO: Generated *.tar.gz checksum for:
@@ -155,7 +176,7 @@ termux_pkg_auto_update() {
 
 	rm -fr "${tmpdir}"
 
-	termux_pkg_upgrade_version "$latest_tag"
+	termux_pkg_upgrade_version "${latest_tag}"
 }
 
 termux_step_post_get_source() {
@@ -178,7 +199,7 @@ termux_step_post_get_source() {
 		done
 		local llvm_patches_rej=$(find . -type f -name '*.rej')
 		if [[ -n "${llvm_patches_rej}" ]]; then
-			echo "INFO: Patch failed! Printing *.rej files ..."
+			echo "INFO: Patch failed! Printing *.rej files:"
 			for rej in ${llvm_patches_rej}; do
 				echo -e "\n\n${rej}"
 				cat "${rej}"
@@ -196,7 +217,7 @@ termux_step_post_get_source() {
 		done
 		local binaryen_patches_rej=$(find . -type f -name '*.rej')
 		if [[ -n "${binaryen_patches_rej}" ]]; then
-			echo "INFO: Patch failed! Printing *.rej files ..."
+			echo "INFO: Patch failed! Printing *.rej files:"
 			for rej in ${binaryen_patches_rej}; do
 				echo -e "\n\n${rej}"
 				cat "${rej}"
@@ -325,11 +346,11 @@ termux_step_make_install() {
 	install -Dm644 "${TERMUX_PKG_SRCDIR}/.emscripten" "${TERMUX_PREFIX}/opt/emscripten/.emscripten"
 
 	# add emscripten directory to PATH var
-	cat <<- EOF > "${TERMUX_PKG_TMPDIR}/emscripten.sh"
+	install -Dm644 /dev/null "${TERMUX_PREFIX}/etc/profile.d/emscripten.sh"
+	cat <<- EOF > "${TERMUX_PREFIX}/etc/profile.d/emscripten.sh"
 	#!${TERMUX_PREFIX}/bin/sh
 	export PATH=\${PATH}:${TERMUX_PREFIX}/opt/emscripten
 	EOF
-	install -Dm644 "${TERMUX_PKG_TMPDIR}/emscripten.sh" "${TERMUX_PREFIX}/etc/profile.d/emscripten.sh"
 
 	# add useful tools not installed by LLVM_INSTALL_TOOLCHAIN_ONLY=ON
 	for tool in llvm-{addr2line,dwarfdump,dwp,link,nm,objdump,ranlib,readobj,size,strings}; do

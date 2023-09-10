@@ -41,16 +41,14 @@ lib/libLLVMXRay.a
 "
 
 termux_pkg_auto_update() {
-	local latest_tag
-	latest_tag=$(termux_github_api_get_tag "${TERMUX_PKG_SRCURL}" "${TERMUX_PKG_UPDATE_TAG_TYPE}")
-
-	if [[ -z "${latest_tag}" ]]; then
-		termux_error_exit "ERROR: Unable to get tag from ${TERMUX_PKG_SRCURL}"
-	fi
-
+	local latest_tag=$(termux_github_api_get_tag "${TERMUX_PKG_SRCURL}" "${TERMUX_PKG_UPDATE_TAG_TYPE}")
 	if [[ "${latest_tag}" == "${TERMUX_PKG_VERSION}" ]]; then
 		echo "INFO: No update needed. Already at version '${TERMUX_PKG_VERSION}'."
 		return
+	fi
+
+	if [[ -z "${latest_tag}" ]]; then
+		termux_error_exit "ERROR: Unable to get tag from ${TERMUX_PKG_SRCURL}"
 	fi
 
 	local uptime_now=$(uptime -p)
