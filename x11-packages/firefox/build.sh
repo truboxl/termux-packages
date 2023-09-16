@@ -1,8 +1,9 @@
 TERMUX_PKG_HOMEPAGE=https://www.mozilla.org/firefox
-TERMUX_PKG_DESCRIPTION="Mozilla Firefox web browser"
+TERMUX_PKG_DESCRIPTION="Unofficial Firefox web browser"
 TERMUX_PKG_LICENSE="MPL-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=117.0
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://ftp.mozilla.org/pub/firefox/releases/${TERMUX_PKG_VERSION}/source/firefox-${TERMUX_PKG_VERSION}.source.tar.xz
 TERMUX_PKG_SHA256=fa524cb9a63334d74ef996f3cbaf1559b5836f6c8ef6e890fa20846029242ac7
 # ffmpeg and pulseaudio are dependencies through dlopen(3):
@@ -64,7 +65,7 @@ termux_step_configure() {
 		--with-system-webp \
 		--with-system-zlib \
 		--without-wasm-sandboxed-libraries \
-		--with-branding=browser/branding/official \
+		--with-branding=browser/branding/unofficial \
 		--disable-sandbox \
 		--disable-tests \
 		--disable-accessibility \
@@ -82,5 +83,5 @@ termux_step_configure() {
 }
 
 termux_step_post_make_install() {
-	install -Dm600 $TERMUX_PKG_BUILDER_DIR/firefox.desktop $TERMUX_PREFIX/share/applications/firefox.desktop
+	install -Dm644 -t "${TERMUX_PREFIX}/share/applications" "${TERMUX_PKG_BUILDER_DIR}/firefox.desktop"
 }
