@@ -12,7 +12,6 @@ TERMUX_PKG_DEPENDS="libc++, clang, openssl, lld, zlib, libllvm (<< $_LLVM_MAJOR_
 TERMUX_PKG_RM_AFTER_INSTALL="bin/llvm-* bin/llc bin/opt"
 
 termux_step_pre_configure() {
-	termux_setup_cmake
 	termux_setup_rust
 
 	local p="$TERMUX_PKG_BUILDER_DIR/src-bootstrap-cc_detect.rs.diff"
@@ -63,7 +62,6 @@ termux_step_pre_configure() {
 }
 
 termux_step_configure() {
-	termux_setup_cmake
 	termux_setup_rust
 
 	# it breaks building rust tools without doing this because it tries to find
