@@ -3,15 +3,15 @@ TERMUX_PKG_DESCRIPTION="Cross platform, open source .NET framework"
 TERMUX_PKG_LICENSE="custom"
 TERMUX_PKG_LICENSE_FILE="LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=6.12.0.182
+TERMUX_PKG_VERSION=6.12.0.205
 TERMUX_PKG_SRCURL=https://download.mono-project.com/sources/mono/mono-${TERMUX_PKG_VERSION}.tar.xz
 TERMUX_PKG_SHA256=57366a6ab4f3b5ecf111d48548031615b3a100db87c679fc006e8c8a4efd9424
 TERMUX_PKG_DEPENDS="krb5, mono-libs, zlib"
+TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --disable-btls
 --without-ikvm-native
 "
-TERMUX_PKG_HOSTBUILD=true
 
 termux_step_post_get_source() {
 	rm -f external/bdwgc/config.status
