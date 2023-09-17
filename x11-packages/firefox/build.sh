@@ -14,10 +14,19 @@ TERMUX_MAKE_PROCESSES=1
 
 termux_pkg_auto_update() {
 	# https://archive.mozilla.org/pub/firefox/releases/latest/README.txt
+	local e=0
 	local api_url="https://download.mozilla.org/?product=firefox-latest&os=linux64&lang=en-US"
-	local latest_version=$(curl -s "${api_url}" | sed -nE "s/.*firefox-(.*).tar.bz2.*/\1/p")
-	if [[ -z "${latest_version}" ]];  then
-		echo "WARN: Unable to get latest version from upstream! Try again later." >&2
+	local api_url_r=$(curl -s "${api_url}")
+	local latest_version=$(echo "${api_url_r}" | sed -nE "s/.*firefox-(.*).tar.bz2.*/\1/p")
+
+	[[ -z "${api_url_r}" ]] && e=1
+	[[ -z "${latest_version}" ]] && e=1
+	if [[ "${e}" != 0 ]]; then
+		cat <<- EOL >&2
+		WARN: Auto update failure!
+		api_url_r=${api_url_r}
+		latest_version=${latest_version}
+		EOL
 		return
 	fi
 
@@ -38,7 +47,7 @@ termux_step_pre_configure() {
 	# https://github.com/rust-lang/rust/issues/45854
 	# Out of memory when building gkrust
 	# Only Arm and using unofficial branding for some reason
-	[[ "${TERMUX_ARCH}" == "arm" ]] && RUSTFLAGS+=" -C debuginfo=0"
+	#[[ "${TERMUX_ARCH}" == "arm" ]] && RUSTFLAGS+=" -C debuginfo=0"
 
 	cargo install cbindgen
 
