@@ -15,6 +15,8 @@ UTERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 "
 
 termux_step_pre_configure() {
+	termux_setup_no_integrated_as
+	CFLAGS+=" -fno-integrated-as"
 	LDFLAGS+=" -landroid-shmem"
 	[[ "${TERMUX_ARCH}" == "i686" ]] && CFLAGS+=" -fPIC"
 	autoreconf -fi
