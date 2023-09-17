@@ -1,0 +1,16 @@
+diff -uNr dosemu-code/src/plugin/sdl/acinclude.m4 dosemu-code.mod/src/plugin/sdl/acinclude.m4
+--- dosemu-code/src/plugin/sdl/acinclude.m4	2012-12-23 03:57:21.000000000 +0800
++++ dosemu-code.mod/src/plugin/sdl/acinclude.m4	2023-09-17 09:10:27.276504772 +0800
+@@ -32,9 +32,9 @@
+     fi
+   fi
+ 
+-  if test "x$prefix" != xNONE; then
+-    PATH="$prefix/bin:$prefix/usr/bin:$PATH"
+-  fi
++  #if test "x$prefix" != xNONE; then
++  #  PATH="$prefix/bin:$prefix/usr/bin:$PATH"
++  #fi
+   AC_PATH_PROG(SDL_CONFIG, sdl-config, no, [$PATH])
+   min_sdl_version=ifelse([$1], ,0.11.0,$1)
+   AC_MSG_CHECKING(for SDL - version >= $min_sdl_version)
