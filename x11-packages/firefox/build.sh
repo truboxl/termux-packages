@@ -31,8 +31,15 @@ termux_step_post_get_source() {
 }
 
 termux_step_pre_configure() {
-	termux_setup_rust
 	termux_setup_nodejs
+	termux_setup_rust
+
+	# https://github.com/rust-lang/rust/issues/49853
+	# https://github.com/rust-lang/rust/issues/45854
+	# Out of memory when building gkrust
+	# Only Arm and using unofficial branding for some reason
+	[[ "${TERMUX_ARCH}" == "arm" ]] && RUSTFLAGS+=" -C debuginfo=0"
+
 	cargo install cbindgen
 
 	sed -i -e "s|%TERMUX_CARGO_TARGET_NAME%|$CARGO_TARGET_NAME|" $TERMUX_PKG_SRCDIR/build/moz.configure/rust.configure
@@ -42,10 +49,6 @@ termux_step_pre_configure() {
 
 	CXXFLAGS+=" -U__ANDROID__"
 	LDFLAGS+=" -landroid-shmem -llog"
-
-	# https://github.com/rust-lang/rust/issues/49853
-	# Out of memory when building gkrust (only Arm for some reason)
-	[[ "${TERMUX_ARCH}" == "arm" ]] && RUSTFLAGS+=" -C debuginfo=0"
 }
 
 termux_step_configure() {
