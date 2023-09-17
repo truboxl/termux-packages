@@ -7,7 +7,7 @@ TERMUX_PKG_SRCURL=git+https://git.code.sf.net/p/dosemu/code
 TERMUX_PKG_GIT_BRANCH=dosemu-${TERMUX_PKG_VERSION}
 UTERMUX_PKG_SHA256=
 TERMUX_PKG_DEPENDS="libandroid-shmem, libx11, sdl"
-
+TERMUX_PKG_BUILD_IN_SRC=true
 UTERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --disable-dynamic-x86
 --disable-fpu-x86
@@ -15,6 +15,7 @@ UTERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 "
 
 termux_step_pre_configure() {
+	LDFLAGS+=" -landroid-shmem"
 	[[ "${TERMUX_ARCH}" == "i686" ]] && CFLAGS+=" -fPIC"
 	autoreconf -fi
 	pushd src/plugin/sdl
