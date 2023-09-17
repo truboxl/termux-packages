@@ -19,7 +19,7 @@ UTERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 termux_step_pre_configure() {
 	#termux_setup_no_integrated_as
 	#CFLAGS+=" -fno-integrated-as"
-	LDFLAGS+=" -landroid-shmem"
+	LDFLAGS+=" -fPIC -landroid-shmem"
 	export ASFLAGS+=" -fPIC"
 	autoreconf -fi
 	pushd src/plugin/sdl
