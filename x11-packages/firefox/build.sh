@@ -42,6 +42,10 @@ termux_step_pre_configure() {
 
 	CXXFLAGS+=" -U__ANDROID__"
 	LDFLAGS+=" -landroid-shmem -llog"
+
+	# https://github.com/rust-lang/rust/issues/49853
+	# Out of memory when building gkrust (only Arm for some reason)
+	[[ "${TERMUX_ARCH}" == "arm" ]] && RUSTFLAGS+=" -C debuginfo=0"
 }
 
 termux_step_configure() {
