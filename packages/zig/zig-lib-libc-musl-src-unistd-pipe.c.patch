@@ -1,0 +1,12 @@
+diff -uNr zig-bootstrap-0.11.0/zig/lib/libc/musl/src/unistd/pipe.c zig-bootstrap-0.11.0.mod/zig/lib/libc/musl/src/unistd/pipe.c
+--- zig-bootstrap-0.11.0/zig/lib/libc/musl/src/unistd/pipe.c	2023-08-11 09:21:14.000000000 +0800
++++ zig-bootstrap-0.11.0.mod/zig/lib/libc/musl/src/unistd/pipe.c	2023-09-18 22:01:51.243387488 +0800
+@@ -3,7 +3,7 @@
+ 
+ int pipe(int fd[2])
+ {
+-#ifdef SYS_pipe
++#if defined(SYS_pipe) && !defined(__x86_64__)
+ 	return syscall(SYS_pipe, fd);
+ #else
+ 	return syscall(SYS_pipe2, fd, 0);
