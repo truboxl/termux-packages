@@ -72,7 +72,10 @@ termux_pkg_auto_update() {
 	git clone --branch "v${latest_tag}" --depth=1 --recursive \
 		"${TERMUX_PKG_SRCURL#git+}" "${tmpdir}"
 	make -C "${tmpdir}" llvm-source GO=:
-	local s=$(find . -type f ! -path '*/.git/*' -print0 | xargs -0 sha256sum | LC_ALL=C sort | sha256sum | cut -d" " -f1)
+	local s=$(
+		find "${tmpdir}" -type f ! -path '*/.git/*' -print0 | xargs -0 sha256sum | \
+		cut -d" " -f1 | LC_ALL=C sort | sha256sum | cut -d" " -f1
+	)
 
 	sed \
 		-e "s|^TERMUX_PKG_SHA256=.*|TERMUX_PKG_SHA256=${s}|" \
@@ -88,8 +91,11 @@ termux_step_post_get_source() {
 	# https://github.com/espressif/llvm-project
 	make llvm-source GO=:
 
-	local s=$(find . -type f ! -path '*/.git/*' -print0 | xargs -0 sha256sum | LC_ALL=C sort | sha256sum)
-	if [[ "${s}" != "${TERMUX_PKG_SHA256}  "* ]]; then
+	local s=$(
+		find . -type f ! -path '*/.git/*' -print0 | xargs -0 sha256sum | \
+		cut -d" " -f1 | LC_ALL=C sort | sha256sum | cut -d" " -f1
+	)
+	if [[ "${s}" != "${TERMUX_PKG_SHA256}" ]]; then
 		termux_error_exit "
 		Checksum mismatch for source files!
 		Expected = ${TERMUX_PKG_SHA256}
