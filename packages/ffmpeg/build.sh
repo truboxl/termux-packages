@@ -85,7 +85,7 @@ termux_step_configure() {
 		--enable-libsoxr \
 		--enable-libsrt \
 		--enable-libssh \
-		--enable-libsvtvav1 \
+		--enable-libsvtav1 \
 		--enable-libtheora \
 		--enable-libv4l2 \
 		--enable-libvidstab \
