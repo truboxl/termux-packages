@@ -5,7 +5,7 @@ TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=2.0-b7076
 TERMUX_PKG_SRCURL=git+https://github.com/dosemu2/dosemu2
 TERMUX_PKG_GIT_BRANCH=2.0pre9
-UTERMUX_PKG_DEPENDS="libx11"
+TERMUX_PKG_DEPENDS="libx11, sdl"
 TERMUX_PKG_BUILD_IN_SRC=true
 
 termux_step_pre_configure() {
