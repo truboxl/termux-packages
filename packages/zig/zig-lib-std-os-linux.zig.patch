@@ -1,6 +1,6 @@
 diff -uNr zig-bootstrap-0.11.0/zig/lib/std/os/linux.zig zig-bootstrap-0.11.0.mod/zig/lib/std/os/linux.zig
 --- zig-bootstrap-0.11.0/zig/lib/std/os/linux.zig	2023-08-11 09:21:14.000000000 +0800
-+++ zig-bootstrap-0.11.0.mod/zig/lib/std/os/linux.zig	2023-09-27 07:01:00.426816305 +0800
++++ zig-bootstrap-0.11.0.mod/zig/lib/std/os/linux.zig	2023-09-27 11:00:54.962817163 +0800
 @@ -590,7 +590,7 @@
  }
  
@@ -24,7 +24,7 @@ diff -uNr zig-bootstrap-0.11.0/zig/lib/std/os/linux.zig zig-bootstrap-0.11.0.mod
  
  pub fn statx(dirfd: i32, path: [*]const u8, flags: u32, mask: u32, statx_buf: *Statx) usize {
 -    if (@hasField(SYS, "statx")) {
-+    if (@hasField(SYS, "statx") and (comptime builtin.cpu.arch != (.aarch64 or .arm or .riscv64 or .x86 or .x86_64))) {
++    if (@hasField(SYS, "statx") and (comptime builtin.cpu.arch != .aarch64) and (comptime builtin.cpu.arch != .arm) and (comptime builtin.cpu.arch != .riscv64) and (comptime builtin.cpu.arch != .x86) and (comptime builtin.cpu.arch != .x86_64)) {
          return syscall5(
              .statx,
              @as(usize, @bitCast(@as(isize, dirfd))),
