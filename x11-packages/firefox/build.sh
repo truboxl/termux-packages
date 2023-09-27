@@ -55,8 +55,12 @@ termux_step_pre_configure() {
 
 	# https://github.com/rust-lang/rust/issues/49853
 	# https://github.com/rust-lang/rust/issues/45854
-	# Out of memory when building gkrust on Arm
-	[[ "${TERMUX_ARCH}" == "arm" ]] && RUSTFLAGS+=" -C debuginfo=0"
+	# Out of memory when building gkrust
+	# CI shows (signal: 9, SIGKILL: kill)
+	case "${TERMUX_ARCH}" in
+	aarch64) RUSTFLAGS+=" -C debuginfo=0" ;;
+	arm) RUSTFLAGS+=" -C debuginfo=0" ;;
+	esac
 
 	cargo install cbindgen
 
