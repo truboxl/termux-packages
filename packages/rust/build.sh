@@ -61,9 +61,8 @@ termux_step_pre_configure() {
 	$CC $CPPFLAGS -c $TERMUX_PKG_BUILDER_DIR/getloadavg.c
 	$AR rcu $RUST_LIBDIR/libgetloadavg.a getloadavg.o
 
-	# https://github.com/termux/termux-packages/issues/11427
-	# Android 8.x and older
-	# CANNOT LINK EXECUTABLE "rustc": cannot locate symbol "syncfs"
+	# https://github.com/termux/termux-packages/issues/17962
+	# Android 8.x and older: CANNOT LINK EXECUTABLE "rustc": cannot locate symbol "syncfs"
 	"${CC}" ${CPPFLAGS} -c "${TERMUX_PKG_BUILDER_DIR}/syncfs.c"
 	"${AR}" rcu "${RUST_LIBDIR}/libsyncfs.a" syncfs.o
 }
