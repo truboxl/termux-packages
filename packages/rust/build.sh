@@ -2,10 +2,13 @@ TERMUX_PKG_HOMEPAGE=https://www.rust-lang.org/
 TERMUX_PKG_DESCRIPTION="Systems programming language focused on safety, speed and concurrency"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=1.72.1
-TERMUX_PKG_REVISION=1
-TERMUX_PKG_SRCURL=https://static.rust-lang.org/dist/rustc-$TERMUX_PKG_VERSION-src.tar.xz
+TERMUX_PKG_VERSION=1.73.0~beta-20230110
+TERMUX_PKG_SRCURL=https://static.rust-lang.org/dist/rustc-${TERMUX_PKG_VERSION}-src.tar.xz
 TERMUX_PKG_SHA256=aea58d962ff1c19521b9f587aad88285f0fd35b6b6738b031a7a15bb1b70a7c3
+if [[ "${TERMUX_PKG_VERSION}" == *"~beta"* ]]; then
+TERMUX_PKG_SRCURL=https://static.rust-lang.org/dist/rustc-beta-src.tar.gz
+TERMUX_PKG_SHA256=074e50580a80d4aeaf3e8a342a0d0dcc2bc886ce0f5f6e254d772439bfe4b8c2
+fi
 _LLVM_MAJOR_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libllvm/build.sh; echo $LLVM_MAJOR_VERSION)
 _LLVM_MAJOR_VERSION_NEXT=$((_LLVM_MAJOR_VERSION + 1))
 TERMUX_PKG_DEPENDS="libc++, clang, openssl, lld, zlib, libllvm (<< $_LLVM_MAJOR_VERSION_NEXT)"
@@ -54,7 +57,7 @@ termux_step_pre_configure() {
 	# https://github.com/termux/termux-packages/issues/11427
 	# Fresh build conflict: liblzma -> rust
 	# ld: error: /data/data/com.termux/files/usr/lib/liblzma.a(liblzma_la-common.o) is incompatible with elf64-x86-64
-	mv $TERMUX_PREFIX/lib/liblzma.a $TERMUX_PREFIX/lib/liblzma.a.tmp || true
+	mv "${TERMUX_PREFIX}"/lib/liblzma.a{,.tmp} || :
 
 	# ld: error: undefined symbol: getloadavg
 	# >>> referenced by rand.c
@@ -78,20 +81,20 @@ termux_step_configure() {
 	# like 30 to 40 + minutes ... so lets get it right
 
 	# upstream only tests build ver one version behind $TERMUX_PKG_VERSION
-	local BOOTSTRAP_VERSION=1.71.1
+	local BOOTSTRAP_VERSION=1.72.1
 	rustup install $BOOTSTRAP_VERSION
 	rustup default $BOOTSTRAP_VERSION-x86_64-unknown-linux-gnu
 	export PATH=$HOME/.rustup/toolchains/$BOOTSTRAP_VERSION-x86_64-unknown-linux-gnu/bin:$PATH
 	local RUSTC=$(command -v rustc)
 	local CARGO=$(command -v cargo)
 
-	sed "s%\\@TERMUX_PREFIX\\@%$TERMUX_PREFIX%g" \
-		$TERMUX_PKG_BUILDER_DIR/config.toml \
-		| sed "s%\\@TERMUX_STANDALONE_TOOLCHAIN\\@%$TERMUX_STANDALONE_TOOLCHAIN%g" \
-		| sed "s%\\@triple\\@%$CARGO_TARGET_NAME%g" \
-		| sed "s%\\@RUSTC\\@%$RUSTC%g" \
-		| sed "s%\\@CARGO\\@%$CARGO%g" \
-		> config.toml
+	sed \
+		-e "s%\\@TERMUX_PREFIX\\@%${TERMUX_PREFIX}%g" \
+		-e "s%\\@TERMUX_STANDALONE_TOOLCHAIN\\@%${TERMUX_STANDALONE_TOOLCHAIN}%g" \
+		-e "s%\\@triple\\@%${CARGO_TARGET_NAME}%g" \
+		-e "s%\\@RUSTC\\@%${RUSTC}%g" \
+		-e "s%\\@CARGO\\@%${CARGO}%g" \
+		"${TERMUX_PKG_BUILDER_DIR}"/config.toml > config.toml
 
 	local env_host=$(printf $CARGO_TARGET_NAME | tr a-z A-Z | sed s/-/_/g)
 	export ${env_host}_OPENSSL_DIR=$TERMUX_PREFIX
@@ -117,6 +120,9 @@ termux_step_make() {
 termux_step_make_install() {
 	unset CC CXX CPP LD CFLAGS CXXFLAGS CPPFLAGS LDFLAGS PKG_CONFIG RANLIB
 
+	# remove version suffix: beta, nightly
+	local TERMUX_PKG_VERSION=${TERMUX_PKG_VERSION//~*}
+
 	if [ $TERMUX_ARCH = "x86_64" ]; then
 		mv $TERMUX_PREFIX ${TERMUX_PREFIX}a
 		$TERMUX_PKG_SRCDIR/x.py build --host x86_64-unknown-linux-gnu --stage 1 cargo
@@ -140,7 +146,7 @@ termux_step_make_install() {
 	mv $TERMUX_PREFIX/lib/libz.so.1.tmp $TERMUX_PREFIX/lib/libz.so.1
 	mv $TERMUX_PREFIX/lib/libz.so.tmp $TERMUX_PREFIX/lib/libz.so
 	mv $TERMUX_PREFIX/lib/liblzma.so.tmp $TERMUX_PREFIX/lib/liblzma.so.$LZMA_VERSION
-	mv $TERMUX_PREFIX/lib/liblzma.a.tmp $TERMUX_PREFIX/lib/liblzma.a || true
+	mv "${TERMUX_PREFIX}"/lib/liblzma.a{.tmp,} || :
 
 	ln -sf rustlib/$CARGO_TARGET_NAME/lib/*.so .
 	ln -sf $TERMUX_PREFIX/bin/lld $TERMUX_PREFIX/bin/rust-lld
