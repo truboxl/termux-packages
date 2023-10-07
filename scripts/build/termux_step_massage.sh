@@ -149,6 +149,8 @@ termux_step_massage() {
 	# https://github.com/android/ndk/issues/1614, or
 	# https://github.com/termux/termux-packages/issues/9944
 	if [ "$TERMUX_PACKAGE_LIBRARY" = "bionic" ] && [ -d "lib" ]; then
+		local t0=$(cut -d"." -f1 /proc/cputime)
+		echo "INFO: Generating symbols regex"
 		SYMBOLS="$(${READELF} -sW $(${TERMUX_HOST_PLATFORM}-clang -print-libgcc-file-name) | grep "FUNC    GLOBAL HIDDEN" | awk '{print $8}')"
 		SYMBOLS+=" $(echo libandroid_{sem_{open,close,unlink},shm{ctl,get,at,dt}})"
 		SYMBOLS+=" $(libc_o_map)"
@@ -158,6 +160,10 @@ termux_step_massage() {
 		SYMBOLS+=" $(libc_s_map)"
 		SYMBOLS+=" $(libc_t_map)"
 		grep_pattern="$(create_grep_pattern $SYMBOLS)"
+		local t1=$(cut -d"." -f1 /proc/cputime)
+		echo "INFO: Done ... $(((t1-t0)/60))m"
+		local t0=$(cut -d"." -f1 /proc/cputime)
+		echo "INFO: Running symbol checks"
 		for lib in $(find lib -name "*.so"); do
 			if ! $READELF -h "$lib" &> /dev/null; then
 				continue
@@ -166,6 +172,8 @@ termux_step_massage() {
 				termux_error_exit "${lib} contains undefined symbols:\n$(${READELF} -sW "${lib}" | grep -E "${grep_pattern}")"
 			fi
 		done
+		local t1=$(cut -d"." -f1 /proc/cputime)
+		echo "INFO: Done ... $(((t1-t0)/60))m"
 	fi
 
 	if [ "$TERMUX_PACKAGE_FORMAT" = "debian" ]; then
