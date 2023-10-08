@@ -2,42 +2,45 @@ TERMUX_PKG_HOMEPAGE=https://github.com/ldc-developers/ldc
 TERMUX_PKG_DESCRIPTION="D programming language compiler, built with LLVM"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=(1.30.0)
-TERMUX_PKG_VERSION+=(14.0.3)  # LLVM version
-TERMUX_PKG_VERSION+=(2.100.1) # TOOLS version
-TERMUX_PKG_VERSION+=(1.30.0)  # DUB version
+TERMUX_PKG_VERSION=(1.34.0)
+TERMUX_PKG_VERSION+=(16.0.6)  # LLVM version
+TERMUX_PKG_VERSION+=(2.105.0) # TOOLS version
+TERMUX_PKG_VERSION+=(1.34.0)  # DUB version
 
 TERMUX_PKG_SRCURL=(https://github.com/ldc-developers/ldc/releases/download/v${TERMUX_PKG_VERSION}/ldc-${TERMUX_PKG_VERSION}-src.tar.gz
 		   https://github.com/ldc-developers/llvm-project/releases/download/ldc-v${TERMUX_PKG_VERSION[1]}/llvm-${TERMUX_PKG_VERSION[1]}.src.tar.xz
 		   https://github.com/llvm/llvm-project/releases/download/llvmorg-${TERMUX_PKG_VERSION[1]}/libunwind-${TERMUX_PKG_VERSION[1]}.src.tar.xz
+		   https://github.com/llvm/llvm-project/releases/download/llvmorg-${TERMUX_PKG_VERSION[1]}/cmake-${TERMUX_PKG_VERSION[1]}.src.tar.xz
 		   https://github.com/dlang/tools/archive/v${TERMUX_PKG_VERSION[2]}.tar.gz
 		   https://github.com/dlang/dub/archive/v${TERMUX_PKG_VERSION[3]}.tar.gz
 		   https://github.com/ldc-developers/ldc/releases/download/v${TERMUX_PKG_VERSION}/ldc2-${TERMUX_PKG_VERSION}-linux-x86_64.tar.xz)
-TERMUX_PKG_SHA256=(fdbb376f08242d917922a6a22a773980217fafa310046fc5d6459490af23dacd
-		   9638d8d0b6a43d9cdc53699bec19e6bc9bef98f5950b99e6b8c1ec373aee4fa7
-		   301137841d1e3401f59b3828d2a9ac86a1b826b89265d55541a2fd6ca2a595eb
-		   54bde9a979d70952690a517f90de8d76631fa9a2f7252af7278dafbcaaa42d54
-		   840cd65bf5f0dd06ca688f63b94d71fccd92b526bbf1d3892fe5535b1e85c10e
-		   5784d4cc47d0845af0897d3b7473a08dd0281a4cdabac0a486740840d014fde1)
+TERMUX_PKG_SHA256=(3005c6e9c79258538c83979766767a59e3d74f3cb90ac2cb0dce5d7573beb719
+		   dcc2cf8894cc19eb01ac935d186d5edb7ce5be72eccabd7d4cdfe7f56dc9f01f
+		   7e04070aee07e43ecb5f2b321a7cc64671202af3bcf15324bb1e134cdb7b2b72
+		   39d342a4161095d2f28fb1253e4585978ac50521117da666e2b1f6f28b62f514
+		   4775807baa07acc4ad576a14507fc0d94cacd80fba2369679ffd01415716ed98
+		   970a33561310eb62a5494170e2a542f0c675952a18d4ba38a399449be0a8caff
+		   7279acc4696c125484da255072cf8a5472ac28cbfa5d88a7e0df9785416dfc15)
 # dub dlopen()s libcurl.so:
 TERMUX_PKG_DEPENDS="binutils-bin, binutils-is-llvm | binutils, clang, libc++, libcurl, zlib"
 TERMUX_PKG_BUILD_DEPENDS="binutils-cross"
 TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_FORCE_CMAKE=true
+TERMUX_DEBUG_BUILD=true
 #These CMake args are only used to configure a patched LLVM
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
--DLLVM_ENABLE_PLUGINS=OFF
--DLLVM_BUILD_TOOLS=OFF
--DLLVM_BUILD_UTILS=OFF
--DLLVM_ENABLE_UNWIND_TABLES=OFF
--DLLVM_ENABLE_TERMINFO=OFF
+-DLLVM_ENABLE_ASSERTIONS=ON
 -DLLVM_ENABLE_LIBEDIT=OFF
+-DLLVM_ENABLE_PLUGINS=OFF
+-DLLVM_ENABLE_TERMINFO=OFF
+-DLLVM_ENABLE_UNWIND_TABLES=OFF
+-DLLVM_ENABLE_ZSTD=OFF
 -DLLVM_INCLUDE_BENCHMARKS=OFF
--DCOMPILER_RT_INCLUDE_TESTS=OFF
 -DLLVM_INCLUDE_TESTS=OFF
--DLLVM_TABLEGEN=$TERMUX_PKG_HOSTBUILD_DIR/bin/llvm-tblgen
--DLLVM_CONFIG_PATH=$TERMUX_PKG_HOSTBUILD_DIR/bin/llvm-config
+-DLLVM_INCLUDE_TOOLS=OFF
+-DLLVM_INCLUDE_UTILS=OFF
+-DLLVM_TABLEGEN=${TERMUX_PKG_HOSTBUILD_DIR}/bin/llvm-tblgen
 -DPYTHON_EXECUTABLE=$(command -v python3)
 -DLLVM_TARGETS_TO_BUILD='AArch64;ARM;WebAssembly;X86'
 "
@@ -54,26 +57,35 @@ termux_step_post_get_source() {
 	mv tools-${TERMUX_PKG_VERSION[2]} dlang-tools
 	mv dub-${TERMUX_PKG_VERSION[3]} dub
 
-	# Exclude MLIR
-	rm -Rf llvm/projects/mlir
-
-	LLVM_TRIPLE=${TERMUX_HOST_PLATFORM/-/--}
-	if [ $TERMUX_ARCH = arm ]; then LLVM_TRIPLE=${LLVM_TRIPLE/arm-/armv7a-}; fi
+	# https://github.com/llvm/llvm-project/issues/57573
+	cp -rv cmake-${TERMUX_PKG_VERSION[1]}.src/Modules/*cmake cmake/Modules
 }
 
 termux_step_host_build() {
 	termux_setup_cmake
 	termux_setup_ninja
 
+	local LLVM_TARGET_ARCH
+	case "${TERMUX_ARCH}" in
+	aarch64) LLVM_TARGET_ARCH="AArch64" ;;
+	arm) LLVM_TARGET_ARCH="ARM" ;;
+	i686|x86_64) LLVM_TARGET_ARCH="X86" ;;
+	*) termux_error_exit "Invalid arch: ${TERMUX_ARCH}" ;;
+	esac
+
 	# Build native llvm-tblgen, a prerequisite for cross-compiling LLVM
-	cmake -GNinja $TERMUX_PKG_SRCDIR/llvm \
+	cmake \
+		-S "${TERMUX_PKG_SRCDIR}/llvm" \
+		-G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_BUILD_TOOLS=OFF \
-		-DLLVM_BUILD_UTILS=OFF \
-		-DLLVM_INCLUDE_BENCHMARKS=OFF \
 		-DCOMPILER_RT_INCLUDE_TESTS=OFF \
-		-DLLVM_INCLUDE_TESTS=OFF
-	ninja -j $TERMUX_MAKE_PROCESSES llvm-tblgen
+		-DLLVM_DEFAULT_TARGET_TRIPLE="x86_64-linux-gnu" \
+		-DLLVM_INCLUDE_BENCHMARKS=OFF \
+		-DLLVM_INCLUDE_TESTS=OFF \
+		-DLLVM_INCLUDE_TOOLS=OFF \
+		-DLLVM_INCLUDE_UTILS=OFF \
+		-DLLVM_TARGETS_TO_BUILD="${LLVM_TARGET_ARCH}"
+	ninja -j "${TERMUX_MAKE_PROCESSES}" llvm-tblgen
 }
 
 # Just before CMake invokation for LLVM:
@@ -81,7 +93,9 @@ termux_step_pre_configure() {
 	PATH=$TERMUX_PREFIX/opt/binutils/cross/$TERMUX_HOST_PLATFORM/bin:$PATH
 
 	LLVM_INSTALL_DIR=$TERMUX_PKG_BUILDDIR/llvm-install
-	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCMAKE_INSTALL_PREFIX=$LLVM_INSTALL_DIR"
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
+	-DCMAKE_INSTALL_PREFIX=${LLVM_INSTALL_DIR}
+	"
 
 	if [ "$TERMUX_ARCH" == "arm" ]; then
 		# [...]/ldc/src/llvm/projects/compiler-rt/lib/builtins/clear_cache.c:85:20:
@@ -92,25 +106,26 @@ termux_step_pre_configure() {
 	fi
 	LDFLAGS=" -L$TERMUX_PKG_BUILDDIR/llvm/lib $LDFLAGS -lc++_shared"
 
+	local LLVM_TARGET_ARCH
+	case "${TERMUX_ARCH}" in
+	aarch64) LLVM_TARGET_ARCH="AArch64" ;;
+	arm) LLVM_TARGET_ARCH="ARM" ;;
+	i686|x86_64) LLVM_TARGET_ARCH="X86" ;;
+	*) termux_error_exit "Invalid arch: ${TERMUX_ARCH}" ;;
+	esac
+
+	LLVM_TRIPLE=${TERMUX_HOST_PLATFORM/-/--}
+	[[ "${TERMUX_ARCH}" == "arm" ]] && LLVM_TRIPLE=${LLVM_TRIPLE/arm-/armv7a-}
+
 	# Don't build compiler-rt sanitizers:
 	# * 64-bit targets: libclang_rt.hwasan-*-android.so fails to link
 	# * 32-bit targets: compile errors for interception library
-	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCOMPILER_RT_BUILD_SANITIZERS=OFF -DCOMPILER_RT_BUILD_MEMPROF=OFF"
-
-	local LLVM_TARGET_ARCH
-	if [ $TERMUX_ARCH = "arm" ]; then
-		LLVM_TARGET_ARCH=ARM
-	elif [ $TERMUX_ARCH = "aarch64" ]; then
-		LLVM_TARGET_ARCH=AArch64
-	elif [ $TERMUX_ARCH = "i686" ]; then
-		LLVM_TARGET_ARCH=X86
-	elif [ $TERMUX_ARCH = "x86_64" ]; then
-		LLVM_TARGET_ARCH=X86
-	else
-		termux_error_exit "Invalid arch: $TERMUX_ARCH"
-	fi
-	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLLVM_DEFAULT_TARGET_TRIPLE=${LLVM_TRIPLE}"
-	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLLVM_TARGET_ARCH=${LLVM_TARGET_ARCH}"
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
+	-DCOMPILER_RT_BUILD_SANITIZERS=OFF
+	-DCOMPILER_RT_BUILD_MEMPROF=OFF
+	-DLLVM_DEFAULT_TARGET_TRIPLE=${LLVM_TRIPLE}
+	-DLLVM_TARGET_ARCH=${LLVM_TARGET_ARCH}
+	"
 
 	# CPPFLAGS adds the system llvm to the include path, which causes
 	# conflicts with the local patched llvm when compiling ldc
@@ -129,7 +144,11 @@ termux_step_post_configure() {
 	# Cross-compile & install LLVM
 	cd "$TERMUX_PKG_BUILDDIR"
 	if test -f build.ninja; then
-		ninja -j $TERMUX_MAKE_PROCESSES install
+		ninja -j ${TERMUX_MAKE_PROCESSES} \
+			libLLVMSPIRVCodeGen.a \
+			libLLVMSPIRVDesc.a \
+			libLLVMSPIRVInfo.a \
+			install
 	fi
 
 	# Invoke CMake for LDC:
@@ -140,12 +159,13 @@ termux_step_post_configure() {
 
 	# Replace non-native llvm-config executable with bash script,
 	# as it is going to be invoked during LDC CMake config.
-	sed $TERMUX_PKG_SRCDIR/.github/actions/3-build-cross/android-llvm-config.in \
+	sed \
 		-e "s|@LLVM_VERSION@|${TERMUX_PKG_VERSION[1]}|g" \
-		-e "s|@LLVM_INSTALL_DIR@|$LLVM_INSTALL_DIR|g" \
-		-e "s|@TERMUX_PKG_SRCDIR@|$TERMUX_PKG_SRCDIR/llvm|g" \
-		-e "s|@LLVM_DEFAULT_TARGET_TRIPLE@|$LLVM_TRIPLE|g" \
-		-e "s|@LLVM_TARGETS@|AArch64 ARM X86 WebAssembly|g" > $LLVM_INSTALL_DIR/bin/llvm-config
+		-e "s|@LLVM_INSTALL_DIR@|${LLVM_INSTALL_DIR}|g" \
+		-e "s|@TERMUX_PKG_SRCDIR@|${TERMUX_PKG_SRCDIR}/llvm|g" \
+		-e "s|@LLVM_DEFAULT_TARGET_TRIPLE@|${LLVM_TRIPLE}|g" \
+		-e "s|@LLVM_TARGETS@|AArch64 ARM X86 WebAssembly|g" \
+		${TERMUX_PKG_SRCDIR}/.github/actions/3-build-cross/android-llvm-config.in > ${LLVM_INSTALL_DIR}/bin/llvm-config
 	chmod 755 $LLVM_INSTALL_DIR/bin/llvm-config
 
 	LDC_FLAGS="-mtriple=$LLVM_TRIPLE"
@@ -153,13 +173,15 @@ termux_step_post_configure() {
 	LDC_PATH=$TERMUX_PKG_SRCDIR/ldc2-$TERMUX_PKG_VERSION-linux-x86_64
 	DMD=$LDC_PATH/bin/ldmd2
 
-	TERMUX_PKG_EXTRA_CONFIGURE_ARGS=" -DLLVM_ROOT_DIR=$LLVM_INSTALL_DIR \
-		-DD_COMPILER=$DMD \
-		-DCMAKE_INSTALL_PREFIX=$TERMUX_PREFIX \
-		-DLDC_WITH_LLD=OFF \
-		-DLDC_INSTALL_LLVM_RUNTIME_LIBS_OS=android \
-		-DLDC_INSTALL_LLVM_RUNTIME_LIBS_ARCH=$TERMUX_ARCH-android \
-		-DD_LINKER_ARGS='-fuse-ld=bfd;-Lldc-build-runtime.tmp/lib;-lphobos2-ldc;-ldruntime-ldc;-Wl,--gc-sections'"
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
+	-DCMAKE_INSTALL_PREFIX=${TERMUX_PREFIX}
+	-DD_COMPILER=${DMD}
+	-DD_LINKER_ARGS='-fuse-ld=bfd;-Lldc-build-runtime.tmp/lib;-lphobos2-ldc;-ldruntime-ldc;-Wl,--gc-sections'
+	-DLDC_INSTALL_LLVM_RUNTIME_LIBS_ARCH=${TERMUX_ARCH}-android
+	-DLDC_INSTALL_LLVM_RUNTIME_LIBS_OS=android
+	-DLDC_WITH_LLD=OFF
+	-DLLVM_ROOT_DIR=${LLVM_INSTALL_DIR}
+	"
 
 	termux_step_configure_cmake
 }
