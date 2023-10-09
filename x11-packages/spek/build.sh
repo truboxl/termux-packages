@@ -8,6 +8,7 @@ TERMUX_PKG_SRCURL=https://github.com/alexkay/spek/archive/refs/tags/v${TERMUX_PK
 TERMUX_PKG_SHA256=9053d2dec452dcde421daa0f5f59a9dee47927540f41d9c0c66800cb6dbf6996
 TERMUX_PKG_DEPENDS="ffmpeg, libc++, wxwidgets"
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="ac_cv_path_WX_CONFIG_PATH=$TERMUX_PREFIX/bin/wx-config"
+TERMUX_DEBUG_BUILD=true
 
 termux_step_pre_configure() {
 	mkdir -p m4

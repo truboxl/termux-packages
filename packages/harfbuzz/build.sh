@@ -11,6 +11,7 @@ TERMUX_PKG_BUILD_DEPENDS="g-ir-scanner"
 TERMUX_PKG_BREAKS="harfbuzz-dev"
 TERMUX_PKG_REPLACES="harfbuzz-dev"
 TERMUX_PKG_DISABLE_GIR=false
+TERMUX_DEBUG_BUILD=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -Dgobject=enabled
 -Dgraphite=enabled
