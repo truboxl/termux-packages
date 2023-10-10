@@ -40,7 +40,7 @@ termux_step_post_get_source() {
 }
 
 termux_step_configure() {
-	export PATH=$PATH:$TERMUX_STANDALONE_TOOLCHAIN/bin
+	#export PATH=$PATH:$TERMUX_STANDALONE_TOOLCHAIN/bin
 
 	(
 		ORIG_AR=$AR; unset AR
