@@ -42,6 +42,10 @@ termux_step_post_get_source() {
 termux_step_configure() {
 	#export PATH=$PATH:$TERMUX_STANDALONE_TOOLCHAIN/bin
 
+	file $(command -v gcc)
+	gcc -v
+	echo | gcc -E -dM -
+
 	(
 		ORIG_AR=$AR; unset AR
 		ORIG_AS=$AS; unset AS
