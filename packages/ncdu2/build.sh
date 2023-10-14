@@ -26,6 +26,12 @@ termux_step_post_get_source() {
 	sed \
 		-e "s|--with-default-terminfo-dir=/usr|--with-default-terminfo-dir=${TERMUX_PREFIX}|" \
 		-i Makefile
+	cat LICENSES/MIT.txt
+	local f=$(sed -nE "s|.*SPDX-FileCopyrightText.*: (.*)|\1|p" ChangeLog)
+	sed \
+		-e "s|<year> <copyright holders>|${f}|" \
+		-i LICENSES/MIT.txt
+	cat LICENSES/MIT.txt
 }
 
 termux_step_pre_configure() {
