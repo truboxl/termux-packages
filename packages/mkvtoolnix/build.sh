@@ -13,12 +13,11 @@ TERMUX_PKG_BUILD_DEPENDS="boost-headers"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 ac_cv_fmt=no
-enable_gui=no
 --disable-static
+--enable_gui=no
 --with-boost-filesystem=boost_filesystem
 --with-boost-system=boost_system
 --with-boost-date-time=boost_date_time
---with-qmake=${TERMUX_PREFIX}/opt/qt/cross/bin/qmake
 "
 
 termux_step_pre_configure() {
