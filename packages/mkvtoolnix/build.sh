@@ -14,7 +14,8 @@ TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 ac_cv_fmt=no
 --disable-static
---disable_gui
+--disable-gui
+--disable-qt6
 --with-boost-filesystem=boost_filesystem
 --with-boost-system=boost_system
 --with-boost-date-time=boost_date_time
