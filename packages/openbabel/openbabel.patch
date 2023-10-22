@@ -1,11 +1,11 @@
 diff -ur openbabel/src/plugin.cpp openbabel.mod/src/plugin.cpp
 --- openbabel/src/plugin.cpp	2020-05-08 23:38:02.000000000 +0800
-+++ openbabel.mod/src/plugin.cpp	2023-10-22 14:07:03.978810033 +0800
-@@ -124,6 +124,7 @@
-   PluginMapType::iterator itr;
-   for(itr=PluginMap().begin();itr!= PluginMap().end();++itr)
-   {
-+    cout << *reinterpret_cast<char*>(&itr) << endl;
-     OBPlugin* result = BaseFindType(itr->second->GetMap(), ID);
-     if(result)
-       return result;
++++ openbabel.mod/src/plugin.cpp	2023-10-22 15:00:10.525918836 +0800
+@@ -68,6 +68,7 @@
+     if(DLHandler::openLib(*itr))
+       count++;
+   }
++  cout << "count = " << count << endl;
+   if(!count) {
+     string error = "No valid OpenBabel plugs found in "+TargetDir;
+     obErrorLog.ThrowError(__FUNCTION__, error, obError);
