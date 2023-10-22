@@ -1,6 +1,6 @@
 diff -ur openbabel/src/plugin.cpp openbabel.mod/src/plugin.cpp
 --- openbabel/src/plugin.cpp	2020-05-08 23:38:02.000000000 +0800
-+++ openbabel.mod/src/plugin.cpp	2023-10-22 15:00:10.525918836 +0800
++++ openbabel.mod/src/plugin.cpp	2023-10-22 21:50:28.635576358 +0800
 @@ -68,6 +68,7 @@
      if(DLHandler::openLib(*itr))
        count++;
@@ -9,3 +9,14 @@ diff -ur openbabel/src/plugin.cpp openbabel.mod/src/plugin.cpp
    if(!count) {
      string error = "No valid OpenBabel plugs found in "+TargetDir;
      obErrorLog.ThrowError(__FUNCTION__, error, obError);
+@@ -154,8 +155,8 @@
+         PluginMapType Map = itr->second->GetMap();
+         for(itr=Map.begin(); itr!=Map.end(); ++itr)
+         {
+-          if(*(itr->first)=='_')//no listing when ID starts with '_'
+-            continue;
++          //if(*(itr->first)=='_')//no listing when ID starts with '_'
++          //  continue;
+           if(onlyIDs)
+             vlist.push_back(itr->first);
+           else
