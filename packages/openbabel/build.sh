@@ -15,6 +15,7 @@ TERMUX_PKG_REPLACES="openbabel-dev"
 TERMUX_PKG_GROUPS="science"
 # MAEPARSER gives an error related to boost's unit_test_framework during configure
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
+-DBUILD_SHARED=OFF
 -DWITH_COORDGEN=OFF
 -DWITH_MAEPARSER=OFF
 "
