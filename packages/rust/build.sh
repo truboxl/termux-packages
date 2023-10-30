@@ -107,7 +107,7 @@ termux_step_configure() {
 	esac
 
 	# NDK r26
-	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-l:libc++_shared.so"
+	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-lc++_shared"
 
 	export X86_64_UNKNOWN_LINUX_GNU_OPENSSL_LIB_DIR=/usr/lib/x86_64-linux-gnu
 	export X86_64_UNKNOWN_LINUX_GNU_OPENSSL_INCLUDE_DIR=/usr/include
