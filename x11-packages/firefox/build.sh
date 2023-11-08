@@ -80,7 +80,6 @@ termux_step_configure() {
 		--prefix=$TERMUX_PREFIX \
 		--with-sysroot=$TERMUX_PREFIX \
 		--enable-audio-backends=pulseaudio \
-		--enable-linker=lld \
 		--enable-minify=properties \
 		--enable-mobile-optimize \
 		--enable-printing \
