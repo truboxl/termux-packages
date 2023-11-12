@@ -62,6 +62,7 @@ $SUDO docker start $CONTAINER_NAME >/dev/null 2>&1 || {
 			$SUDO docker exec $DOCKER_TTY $CONTAINER_NAME sudo groupmod -g $(id -g) builder
 		fi
 	fi
+	$SUDO docker exec $DOCKER_TTY $CONTAINER_NAME sudo ln -fsv /data/data/com.termux/files/usr/opt/bionic-cross /system
 }
 
 # Set traps to ensure that the process started with docker exec and all its children are killed. 
