@@ -9,7 +9,7 @@ TERMUX_PKG_SHA256=6e226b732e1cd739464ad6862bd1a1aba42d7982922da7a53519631d249751
 TERMUX_PKG_ESSENTIAL=true
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_GROUPS="base-devel"
-
+TERMUX_PKG_BUILD_DEPENDS="bionic-host"
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 ac_cv_func_nl_langinfo=no
 ac_cv_header_langinfo_h=no
@@ -23,4 +23,11 @@ termux_step_pre_configure() {
 
 termux_step_post_configure() {
 	touch -d "next hour" $TERMUX_PKG_SRCDIR/doc/sed.1
+}
+
+termux_step_post_make_install() {
+	ls -l $TERMUX_PREFIX/opt/bionic-cross/bin
+	ls -l /system/
+	echo "Running $TERMUX_PREFIX/bin/sed"
+	$TERMUX_PREFIX/bin/sed 's/qwe/asd/g' <<< "qwerty"
 }
