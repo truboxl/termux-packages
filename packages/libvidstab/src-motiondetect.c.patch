@@ -1,0 +1,17 @@
+Default to ASCII_SERIALIZATION_MODE as BINARY_SERIALIZATION_MODE is
+unstable. This was the old behaviour in libvidstab 1.1.0.
+
+https://github.com/georgmartius/vid.stab/issues/104
+https://github.com/termux/termux-packages/issues/17795
+
+--- a/src/motiondetect.c
++++ b/src/motiondetect.c
+@@ -108,7 +108,7 @@
+   md->frameNum = 0;
+ 
+   if(md->serializationMode != ASCII_SERIALIZATION_MODE && md->serializationMode != BINARY_SERIALIZATION_MODE) {
+-    md->serializationMode = BINARY_SERIALIZATION_MODE;
++    md->serializationMode = ASCII_SERIALIZATION_MODE;
+   }
+ 
+   // TODO: get rid of shakiness parameter in the long run
