@@ -8,3 +8,7 @@ TERMUX_PKG_SRCURL=https://github.com/rakshasa/rtorrent/releases/download/v${TERM
 TERMUX_PKG_SHA256=9edf0304bf142215d3bc85a0771446b6a72d0ad8218efbe184b41e4c9c7542af
 TERMUX_PKG_DEPENDS="libc++, libcurl, libtorrent, ncurses"
 TERMUX_PKG_AUTO_UPDATE=true
+
+termux_step_pre_configure() {
+	CXXFLAGS+=" -std=c++14"
+}
