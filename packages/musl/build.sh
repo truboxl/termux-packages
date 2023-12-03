@@ -31,8 +31,14 @@ termux_step_post_get_source() {
 termux_step_pre_configure() {
 	export CC=clang
 	case "${TERMUX_ARCH}" in
-	arm) export CFLAGS+=" --target=arm-linux-musleabihf" ;;
-	*) export CFLAGS+=" --target=${TERMUX_ARCH}-linux-musl" ;;
+	arm)
+		export CFLAGS+=" --target=arm-linux-musleabihf"
+		export LDFLAGS+=" --target=arm-linux-musleabihf"
+		;;
+	*)
+		export CFLAGS+=" --target=${TERMUX_ARCH}-linux-musl"
+		export LDFLAGS+=" --target=${TERMUX_ARCH}-linux-musl"
+		;;
 	esac
 
 	# https://developer.android.com/ndk/guides/abis#x86
