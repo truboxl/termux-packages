@@ -29,6 +29,9 @@ termux_step_post_get_source() {
 }
 
 termux_step_pre_configure() {
+	export CC=clang
+	export CFLAGS+=" --target=${TERMUX_ARCH}"
+
 	# https://developer.android.com/ndk/guides/abis#x86
 	# https://gcc.gnu.org/onlinedocs/gcc/x86-Options.html#index-mlong-double-64-1
 	# https://github.com/llvm/llvm-project/blob/main/compiler-rt/lib/builtins/CMakeLists.txt
