@@ -29,16 +29,11 @@ termux_step_post_get_source() {
 }
 
 termux_step_pre_configure() {
+	local cross_cc=${CC}
 	export CC=clang
 	case "${TERMUX_ARCH}" in
-	arm)
-		export CFLAGS+=" --target=arm-linux-musleabihf"
-		export LDFLAGS+=" --target=arm-linux-musleabihf"
-		;;
-	*)
-		export CFLAGS+=" --target=${TERMUX_ARCH}-linux-musl"
-		export LDFLAGS+=" --target=${TERMUX_ARCH}-linux-musl"
-		;;
+	arm) export CFLAGS+=" --target=arm-linux-musleabihf" ;;
+	*) export CFLAGS+=" --target=${TERMUX_ARCH}-linux-musl" ;;
 	esac
 
 	# https://developer.android.com/ndk/guides/abis#x86
@@ -52,7 +47,7 @@ termux_step_pre_configure() {
 	esac
 
 	# x86, x86_64: ld.lld: error: undefined symbol: __mulxc3
-	local libgcc_ndk=$(${CC} -print-libgcc-file-name)
+	local libgcc_ndk=$(${cross_cc} -print-libgcc-file-name)
 	local libgcc_new=${TERMUX_PKG_BUILDDIR}/$(basename ${libgcc_ndk})
 	cp -f ${libgcc_ndk} ${libgcc_new}
 	${CC} ${CFLAGS} ${CPPFLAGS} -c compiler-rt-${_COMPILER_RT_VERSION}.src/lib/builtins/mulxc3.c -o ${TERMUX_PKG_BUILDDIR}/mulxc3.c.o
