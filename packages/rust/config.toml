@@ -5,17 +5,34 @@
 link-shared = true
 
 [build]
-host = ["@triple@"]
-target = ["@triple@", "wasm32-unknown-unknown", "wasm32-wasi"]
+host = ["@CARGO_TARGET_NAME@"]
+target = [
+    "aarch64-linux-android",
+    "aarch64-unknown-linux-musl",
+    "armv7-linux-androideabi",
+    "armv7-unknown-linux-musleabihf",
+    "i686-linux-android",
+    "i686-unknown-linux-musl",
+    "x86_64-linux-android",
+    "x86_64-unknown-linux-musl",
+    "wasm32-unknown-unknown",
+    "wasm32-wasi",
+]
 rustc = "@RUSTC@"
 cargo = "@CARGO@"
-
 python = "python3"
 extended = true
+tools = [
+    "cargo",
+    "clippy",
+    "rustdoc",
+    "rustfmt",
+    "rust-analyzer-proc-macro-srv",
+    "analysis",
+    "src",
+    "rust-demangler",
+]
 sanitizers = false
-
-#tools = ["cargo", "analysis", "clippy-driver" ]
-tools = ["cargo", "rls", "clippy", "rustfmt", "analysis", "src", "rustdoc", "rust-analyzer-proc-macro-srv"]
 
 [install]
 prefix = "@TERMUX_PREFIX@"
@@ -27,20 +44,48 @@ debug = false
 codegen-units = 0
 jemalloc = false
 channel = "stable"
+musl-root = "@TERMUX_PREFIX@/opt/musl"
 rpath = false
 
 [target.x86_64-unknown-linux-gnu]
 llvm-config = "/usr/bin/llvm-config-15"
 
-[target.@triple@]
+[target.aarch64-linux-android]
 android-ndk = "@TERMUX_STANDALONE_TOOLCHAIN@"
 llvm-config = "@TERMUX_PREFIX@/bin/llvm-config"
-ar = "llvm-ar"
 profiler = true
+
+[target.armv7-linux-androideabi]
+android-ndk = "@TERMUX_STANDALONE_TOOLCHAIN@"
+llvm-config = "@TERMUX_PREFIX@/bin/llvm-config"
+profiler = true
+
+[target.i686-linux-android]
+android-ndk = "@TERMUX_STANDALONE_TOOLCHAIN@"
+llvm-config = "@TERMUX_PREFIX@/bin/llvm-config"
+profiler = true
+
+[target.x86_64-linux-android]
+android-ndk = "@TERMUX_STANDALONE_TOOLCHAIN@"
+llvm-config = "@TERMUX_PREFIX@/bin/llvm-config"
+profiler = true
+
+[target.aarch64-unknown-linux-musl]
+cc = "@AARCH64_LINUX_MUSL_GCC@"
+
+[target.armv7-unknown-linux-musleabihf]
+cc = "@ARMV7_LINUX_MUSLEABIHF_GCC@"
+
+[target.i686-unknown-linux-musl]
+cc = "@I686_LINUX_MUSL_GCC@"
+
+[target.x86_64-unknown-linux-musl]
+cc = "@X86_64_LINUX_MUSL_GCC@"
 
 [target.wasm32-wasi]
 wasi-root = "@TERMUX_PREFIX@/share/wasi-sysroot"
 
 [dist]
 src-tarball = false
+compression-formats = ["gz"]
 #missing-tools = true

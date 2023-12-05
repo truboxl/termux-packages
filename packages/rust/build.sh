@@ -3,17 +3,19 @@ TERMUX_PKG_DESCRIPTION="Systems programming language focused on safety, speed an
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="1.74.0"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://static.rust-lang.org/dist/rustc-${TERMUX_PKG_VERSION}-src.tar.xz
 TERMUX_PKG_SHA256=23705e38c1a37acfd7fbb921c5dd8772619476e80d0b3b39ac8eb45bc0c33187
 _LLVM_MAJOR_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libllvm/build.sh; echo $LLVM_MAJOR_VERSION)
 _LLVM_MAJOR_VERSION_NEXT=$((_LLVM_MAJOR_VERSION + 1))
 TERMUX_PKG_DEPENDS="clang, libc++, libllvm (<< ${_LLVM_MAJOR_VERSION_NEXT}), lld, openssl, zlib"
-TERMUX_PKG_BUILD_DEPENDS="wasi-libc"
+TERMUX_PKG_BUILD_DEPENDS="musl, wasi-libc"
 TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_RM_AFTER_INSTALL="
 bin/llc
 bin/llvm-*
 bin/opt
+opt/musl
 share/wasi-sysroot
 "
 
@@ -86,12 +88,23 @@ termux_step_configure() {
 	local RUSTC=$(command -v rustc)
 	local CARGO=$(command -v cargo)
 
+	# rust finds musl-gcc for unknown reasons
+	export PATH="${TERMUX_PREFIX}/opt/musl/cross/bin:${PATH}"
+	local AARCH64_LINUX_MUSL_GCC=$(command -v aarch64-linux-musl-gcc)
+	local ARMV7_LINUX_MUSLEABIHF_GCC=$(command -v armv7-linux-musleabihf-gcc)
+	local I686_LINUX_MUSL_GCC=$(command -v i686-linux-musl-gcc)
+	local X86_64_LINUX_MUSL_GCC=$(command -v x86_64-linux-musl-gcc)
+
 	sed \
 		-e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" \
 		-e "s|@TERMUX_STANDALONE_TOOLCHAIN@|${TERMUX_STANDALONE_TOOLCHAIN}|g" \
-		-e "s|@triple@|${CARGO_TARGET_NAME}|g" \
+		-e "s|@CARGO_TARGET_NAME@|${CARGO_TARGET_NAME}|g" \
 		-e "s|@RUSTC@|${RUSTC}|g" \
 		-e "s|@CARGO@|${CARGO}|g" \
+		-e "s|@AARCH64_LINUX_MUSL_GCC@|${AARCH64_LINUX_MUSL_GCC}|g" \
+		-e "s|@ARMV7_LINUX_MUSLEABIHF_GCC@|${ARMV7_LINUX_MUSLEABIHF_GCC}|g" \
+		-e "s|@I686_LINUX_MUSL_GCC@|${I686_LINUX_MUSL_GCC}|g" \
+		-e "s|@X86_64_LINUX_MUSL_GCC@|${X86_64_LINUX_MUSL_GCC}|g" \
 		"${TERMUX_PKG_BUILDER_DIR}"/config.toml > config.toml
 
 	local env_host=$(printf $CARGO_TARGET_NAME | tr a-z A-Z | sed s/-/_/g)
@@ -126,23 +139,31 @@ termux_step_make_install() {
 	# remove version suffix: beta, nightly
 	local TERMUX_PKG_VERSION=${TERMUX_PKG_VERSION//~*}
 
-	if [ $TERMUX_ARCH = "x86_64" ]; then
-		mv $TERMUX_PREFIX ${TERMUX_PREFIX}a
-		$TERMUX_PKG_SRCDIR/x.py build --host x86_64-unknown-linux-gnu --stage 1 cargo
-		$TERMUX_PKG_SRCDIR/x.py build --host x86_64-unknown-linux-gnu --stage 1 rls
-		$TERMUX_PKG_SRCDIR/x.py build --host x86_64-unknown-linux-gnu --stage 1 rustfmt
-		$TERMUX_PKG_SRCDIR/x.py build --host x86_64-unknown-linux-gnu --stage 1 rustdoc
-		$TERMUX_PKG_SRCDIR/x.py build --host x86_64-unknown-linux-gnu --stage 1 error_index_generator
-		mv ${TERMUX_PREFIX}a ${TERMUX_PREFIX}
-	fi
-
 	$TERMUX_PKG_SRCDIR/x.py install --stage 1 --host $CARGO_TARGET_NAME --target $CARGO_TARGET_NAME
+	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target aarch64-linux-android
+	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target armv7-linux-androideabi
+	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target i686-linux-android
+	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target x86_64-linux-android
+	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target aarch64-unknown-linux-musl
+	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target armv7-unknown-linux-musleabihf
+	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target i686-unknown-linux-musl
+	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target x86_64-unknown-linux-musl
 	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target wasm32-unknown-unknown
 	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target wasm32-wasi
+
 	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target $CARGO_TARGET_NAME
+	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target aarch64-linux-android
+	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target armv7-linux-androideabi
+	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target i686-linux-android
+	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target x86_64-linux-android
+	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target aarch64-unknown-linux-musl
+	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target armv7-unknown-linux-musleabihf
+	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target i686-unknown-linux-musl
+	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target x86_64-unknown-linux-musl
 	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target wasm32-unknown-unknown
 	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target wasm32-wasi
-	tar xvf build/dist/rustc-dev-$TERMUX_PKG_VERSION-$CARGO_TARGET_NAME.tar.gz
+
+	tar -xvf build/dist/rustc-dev-$TERMUX_PKG_VERSION-$CARGO_TARGET_NAME.tar.gz
 	./rustc-dev-$TERMUX_PKG_VERSION-$CARGO_TARGET_NAME/install.sh --prefix=$TERMUX_PREFIX
 
 	cd "$TERMUX_PREFIX/lib"
