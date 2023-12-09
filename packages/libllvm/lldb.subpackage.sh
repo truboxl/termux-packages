@@ -10,4 +10,4 @@ TERMUX_SUBPKG_BREAKS="lldb-dev, lldb-static"
 TERMUX_SUBPKG_REPLACES="lldb-dev, lldb-static"
 
 # https://github.com/termux/termux-packages/issues/8880
-TERMUX_SUBPKG_EXCLUDED_ARCHES="arm, i686"
+TERMUX_SUBPKG_EXCLUDED_ARCHES="i686"
