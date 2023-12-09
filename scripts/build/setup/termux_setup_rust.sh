@@ -37,7 +37,11 @@ termux_setup_rust() {
 	local ENV_NAME=CARGO_TARGET_${CARGO_TARGET_NAME^^}_LINKER
 	ENV_NAME=${ENV_NAME//-/_}
 	export $ENV_NAME="${CC}"
-	export TARGET_CFLAGS="${CFLAGS-} ${CPPFLAGS}"
+	# TARGET_CFLAGS incorrectly applies globally so set individually
+	export CFLAGS_aarch64_linux_android="${CFLAGS-} ${CPPFLAGS}"
+	export CFLAGS_armv7_linux_androideabi="${CFLAGS-} ${CPPFLAGS}"
+	export CFLAGS_i686_linux_android="${CFLAGS-} ${CPPFLAGS}"
+	export CFLAGS_x86_64_linux_android="${CFLAGS-} ${CPPFLAGS}"
 	# This was getting applied for the host build of Rust macros or whatever, so
 	# unset it.
 	unset CFLAGS
