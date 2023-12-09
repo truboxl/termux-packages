@@ -6,6 +6,11 @@ TERMUX_PKG_VERSION="1.2.3"
 TERMUX_PKG_SRCURL=git+https://github.com/richfelker/musl-cross-make
 TERMUX_PKG_GIT_BRANCH=master
 TERMUX_PKG_BUILD_IN_SRC=true
+TERMUX_PKG_RM_AFTER_MAKE_INSTALL="
+opt/musl/lib/*.a
+opt/musl/lib/*.la
+opt/musl/lib/*.so*
+"
 
 termux_step_pre_configure() {
 	# References:
@@ -80,7 +85,7 @@ termux_step_make_install() {
 	EOF
 	fi
 
-	2>/dev/null \
+	>/dev/null \
 	make \
 		-j "${TERMUX_MAKE_PROCESSES}" \
 		OUTPUT="${TERMUX_PREFIX}/opt/musl/cross" \
@@ -119,7 +124,7 @@ termux_step_make_install() {
 	GNU_SITE = https://ftp.gnu.org/gnu
 	MUSL_CONFIG = --enable-debug
 	MUSL_VER = ${TERMUX_PKG_VERSION}
-	HOST = ${_TARGET//-musl*}
+	HOST = ${_TARGET}
 	TARGET = ${MUSL_TARGET}
 	EOF
 	if [[ "${MUSL_TARGET}" == "armv7"* ]]; then
