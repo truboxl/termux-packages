@@ -8,6 +8,9 @@ TERMUX_PKG_GIT_BRANCH=master
 TERMUX_PKG_BUILD_IN_SRC=true
 
 termux_step_pre_configure() {
+	# References:
+	# https://git.zv.io/toolchains/musl-cross-make/-/commit/f753d58b14987cc0fbdfea2f0040162da58c55b6
+
 	# use host toolchain instead of NDK
 	unset AR CC CFLAGS CPP CPPFLAGS CXX CXXFLAGS LD LDFLAGS NM OBJCOPY RANLIB
 
