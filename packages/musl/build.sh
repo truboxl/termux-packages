@@ -72,6 +72,11 @@ termux_step_make_install() {
 	MUSL_VER = ${TERMUX_PKG_VERSION}
 	TARGET = ${MUSL_TARGET}
 	EOF
+	if [[ "${MUSL_TARGET}" == "armv7"* ]]; then
+	cat <<- EOF >> "${TERMUX_PKG_SRCDIR}/config.mak"
+	GCC_CONFIG += --with-arch=armv7-a --with-fpu=neon
+	EOF
+	fi
 
 	make \
 		-j "${TERMUX_MAKE_PROCESSES}" \
@@ -83,7 +88,7 @@ termux_step_make_install() {
 	done
 
 	pushd ${TERMUX_PREFIX}/opt/musl
-	file cross/lib/*
+	ls -l cross/lib/*
 	popd
 	export PATH="${TERMUX_PREFIX}/opt/musl/cross/bin:${PATH}"
 
@@ -112,6 +117,11 @@ termux_step_make_install() {
 	MUSL_VER = ${TERMUX_PKG_VERSION}
 	TARGET = ${MUSL_TARGET}
 	EOF
+	if [[ "${MUSL_TARGET}" == "armv7"* ]]; then
+	cat <<- EOF >> "${TERMUX_PKG_SRCDIR}/config.mak"
+	GCC_CONFIG += --with-arch=armv7-a --with-fpu=neon
+	EOF
+	fi
 
 	make \
 		-j "${TERMUX_MAKE_PROCESSES}" \
@@ -123,6 +133,6 @@ termux_step_make_install() {
 	done
 
 	pushd ${TERMUX_PREFIX}/opt/musl
-	file lib/*
+	ls -l lib/*
 	popd
 }
