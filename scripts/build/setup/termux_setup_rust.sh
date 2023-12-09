@@ -37,9 +37,12 @@ termux_setup_rust() {
 	local ENV_NAME=CARGO_TARGET_${CARGO_TARGET_NAME^^}_LINKER
 	ENV_NAME=${ENV_NAME//-/_}
 	export $ENV_NAME="${CC}"
-	export TARGET_CFLAGS="${CFLAGS-} ${CPPFLAGS}"
-	# This was getting applied for the host build of Rust macros or whatever, so
-	# unset it.
+	# TARGET_CFLAGS incorrectly applies globally so set them individually
+	export CFLAGS_aarch64_linux_android="${CFLAGS-} ${CPPFLAGS}"
+	export CFLAGS_armv7_linux_androideabi="${CFLAGS-} ${CPPFLAGS}"
+	export CFLAGS_i686_linux_android="${CFLAGS-} ${CPPFLAGS}"
+	export CFLAGS_x86_64_linux_android="${CFLAGS-} ${CPPFLAGS}"
+	# Same for CFLAGS getting applied to host build and other targets
 	unset CFLAGS
 
 	if [[ -z "${TERMUX_RUST_VERSION-}" ]]; then
@@ -49,7 +52,7 @@ termux_setup_rust() {
 		TERMUX_RUST_VERSION="beta"
 	fi
 
-	curl https://sh.rustup.rs -sSf > "${TERMUX_PKG_TMPDIR}"/rustup.sh
+	curl https://sh.rustup.rs -sSfo "${TERMUX_PKG_TMPDIR}"/rustup.sh
 	sh "${TERMUX_PKG_TMPDIR}"/rustup.sh -y --default-toolchain "${TERMUX_RUST_VERSION}"
 
 	export PATH="${HOME}/.cargo/bin:${PATH}"
