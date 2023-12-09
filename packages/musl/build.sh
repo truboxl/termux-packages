@@ -12,7 +12,7 @@ termux_step_pre_configure() {
 	# https://git.zv.io/toolchains/musl-cross-make/-/commit/f753d58b14987cc0fbdfea2f0040162da58c55b6
 
 	# use host toolchain instead of NDK
-	unset AR CC CFLAGS CPP CPPFLAGS CXX CXXFLAGS LD LDFLAGS NM OBJCOPY RANLIB
+	unset AR CC CFLAGS CPP CPPFLAGS CXX CXXFLAGS LD LDFLAGS NM OBJCOPY OBJDUMP RANLIB
 
 	export _TARGET="${TERMUX_ARCH}-linux-musl"
 	case "${TERMUX_ARCH}" in
@@ -65,7 +65,6 @@ termux_step_make_install() {
 	COMMON_CONFIG += CXX="g++ -static --static"
 	COMMON_CONFIG += CXXFLAGS="-Os"
 	COMMON_CONFIG += LDFLAGS="-s"
-	GCC_CONFIG += --disable-bootstrap
 	GCC_CONFIG += --disable-cet
 	GCC_CONFIG += --disable-nls
 	GCC_CONFIG += --enable-default-pie
@@ -106,11 +105,12 @@ termux_step_make_install() {
 	cat <<- EOF > "${TERMUX_PKG_SRCDIR}/config.mak"
 	BINUTILS_CONFIG += --enable-gold=yes
 	DL_CMD = curl -sLo
+	COMMON_CONFIG += AR="${_TARGET}-ar"
 	COMMON_CONFIG += CC="${_TARGET}-gcc -static --static"
 	COMMON_CONFIG += CFLAGS="-Os"
 	COMMON_CONFIG += CXX="${_TARGET}-g++ -static --static"
 	COMMON_CONFIG += CXXFLAGS="-Os"
-	GCC_CONFIG += --disable-bootstrap
+	COMMON_CONFIG += LD="${_TARGET}-ld"
 	GCC_CONFIG += --disable-cet
 	GCC_CONFIG += --disable-nls
 	GCC_CONFIG += --enable-default-pie
