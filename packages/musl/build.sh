@@ -118,6 +118,7 @@ termux_step_make_install() {
 	GNU_SITE = https://ftp.gnu.org/gnu
 	MUSL_CONFIG = --enable-debug
 	MUSL_VER = ${TERMUX_PKG_VERSION}
+	HOST = ${_TARGET//-musl*}
 	TARGET = ${MUSL_TARGET}
 	EOF
 	if [[ "${MUSL_TARGET}" == "armv7"* ]]; then
