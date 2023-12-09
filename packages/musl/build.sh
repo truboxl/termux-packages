@@ -37,9 +37,6 @@ termux_step_pre_configure() {
 	EOL
 	chmod +x "${_WRAPPER_BIN}/ln"
 	export PATH="${_WRAPPER_BIN}:${PATH}"
-
-	# HTTP request sent, awaiting response... 500 Internal Server Error
-	# override "GNU_SITE = https://ftpmirror.gnu.org/gnu" to something more stable
 }
 
 termux_step_make() {
@@ -101,7 +98,6 @@ termux_step_make_install() {
 	cat <<- EOF > "${TERMUX_PKG_SRCDIR}/config.mak"
 	BINUTILS_CONFIG += --enable-gold=yes
 	DL_CMD = curl -sLo
-	COMMON_CONFIG += --host=${_TARGET}
 	COMMON_CONFIG += CC="${_TARGET}-gcc -static --static"
 	COMMON_CONFIG += CFLAGS="-Os"
 	COMMON_CONFIG += CXX="${_TARGET}-g++ -static --static"
