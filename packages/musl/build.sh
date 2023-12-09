@@ -124,7 +124,7 @@ termux_step_make_install() {
 	GNU_SITE = https://ftp.gnu.org/gnu
 	MUSL_CONFIG = --enable-debug
 	MUSL_VER = ${TERMUX_PKG_VERSION}
-	HOST = ${_TARGET}
+	HOST = ${_TARGET//-linux*}
 	TARGET = ${MUSL_TARGET}
 	EOF
 	if [[ "${MUSL_TARGET}" == "armv7"* ]]; then
@@ -133,6 +133,7 @@ termux_step_make_install() {
 	EOF
 	fi
 
+	>/dev/null \
 	make \
 		-j "${TERMUX_MAKE_PROCESSES}" \
 		OUTPUT="${TERMUX_PREFIX}/opt/musl" \
