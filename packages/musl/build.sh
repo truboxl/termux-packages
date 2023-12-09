@@ -80,10 +80,11 @@ termux_step_make_install() {
 	EOF
 	fi
 
+	2>/dev/null \
 	make \
 		-j "${TERMUX_MAKE_PROCESSES}" \
 		OUTPUT="${TERMUX_PREFIX}/opt/musl/cross" \
-		install >/dev/null
+		install
 
 	echo "INFO: Stage 1 clean (${MUSL_TARGET})"
 	make -j "${TERMUX_MAKE_PROCESSES}" clean
@@ -130,7 +131,7 @@ termux_step_make_install() {
 	make \
 		-j "${TERMUX_MAKE_PROCESSES}" \
 		OUTPUT="${TERMUX_PREFIX}/opt/musl" \
-		install >/dev/null
+		install
 
 	echo "INFO: Stage 2 clean (${_TARGET} -> ${MUSL_TARGET})"
 	make -j "${TERMUX_MAKE_PROCESSES}" clean
