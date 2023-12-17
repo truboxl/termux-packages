@@ -72,9 +72,6 @@ termux_step_pre_configure() {
 }
 
 termux_step_configure() {
-	termux_setup_cmake
-	termux_setup_rust
-
 	# it breaks building rust tools without doing this because it tries to find
 	# ../lib from bin location:
 	# this is about to get ugly but i have to make sure a rustc in a proper bin lib

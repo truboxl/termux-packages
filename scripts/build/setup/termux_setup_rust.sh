@@ -37,12 +37,12 @@ termux_setup_rust() {
 	local ENV_NAME=CARGO_TARGET_${CARGO_TARGET_NAME^^}_LINKER
 	ENV_NAME=${ENV_NAME//-/_}
 	export $ENV_NAME="${CC}"
-	# TARGET_CFLAGS incorrectly applies globally so set them individually
-	export CFLAGS_aarch64_linux_android="${CFLAGS-} ${CPPFLAGS}"
-	export CFLAGS_armv7_linux_androideabi="${CFLAGS-} ${CPPFLAGS}"
-	export CFLAGS_i686_linux_android="${CFLAGS-} ${CPPFLAGS}"
-	export CFLAGS_x86_64_linux_android="${CFLAGS-} ${CPPFLAGS}"
-	# Same for CFLAGS getting applied to host build and other targets
+	# TARGET_CFLAGS and CFLAGS incorrectly applied globally
+	# for host build and other targets so set them individually
+	export CFLAGS_aarch64_linux_android="${CPPFLAGS}"
+	export CFLAGS_armv7_linux_androideabi="${CPPFLAGS}"
+	export CFLAGS_i686_linux_android="${CPPFLAGS}"
+	export CFLAGS_x86_64_linux_android="${CPPFLAGS}"
 	unset CFLAGS
 
 	if [[ -z "${TERMUX_RUST_VERSION-}" ]]; then
