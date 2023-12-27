@@ -14,7 +14,7 @@ termux_step_pre_configure() {
 
 	# i686: __atomic_load
 	if [[ "${TERMUX_ARCH}" == "i686" ]]; then
-		LDFLAGS+=" $(${CC} -print-libgcc-file-name)"
+		RUSTFLAGS+=" -C link-arg=$(${CC} -print-libgcc-file-name)"
 	fi
 }
 
