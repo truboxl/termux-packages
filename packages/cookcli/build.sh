@@ -21,6 +21,7 @@ termux_step_pre_configure() {
 
 termux_step_make() {
 	pushd ui
+	npm install
 	npm run build
 	popd
 
