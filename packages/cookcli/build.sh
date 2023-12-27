@@ -10,6 +10,7 @@ TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
 
 termux_step_pre_configure() {
+	termux_setup_nodejs
 	termux_setup_rust
 
 	# i686: __atomic_load
@@ -19,6 +20,10 @@ termux_step_pre_configure() {
 }
 
 termux_step_make() {
+	pushd ui
+	npm run build
+	popd
+
 	cargo build --jobs "${TERMUX_MAKE_PROCESSES}" --target "${CARGO_TARGET_NAME}" --release
 }
 
