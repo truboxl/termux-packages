@@ -11,6 +11,11 @@ TERMUX_PKG_AUTO_UPDATE=true
 
 termux_step_pre_configure() {
 	termux_setup_rust
+
+	# i686: __atomic_load
+	if [[ "${TERMUX_ARCH}" == "i686" ]]; then
+		LDFLAGS+=" $(${CC} -print-libgcc-file-name)"
+	fi
 }
 
 termux_step_make() {
