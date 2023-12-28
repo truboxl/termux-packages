@@ -13,9 +13,21 @@ CURL_COMMON_OPTIONS=(
 
 CURL_ADDITIONAL_OPTIONS=()
 
+# Warn and dont push instead of error out if no auth provided
+check_login() {
+  local e=0
+  [[ -z "${APTLY_API_AUTH}" ]] && e=1 && echo "[$(date +%H:%M:%S)] Warning: No APTLY_API_AUTH provided"
+  [[ -z "${GPG_PASSPHRASE}" ]] && e=1 && echo "[$(date +%H:%M:%S)] Warning: No GPG_PASSPHRASE provided"
+  if [[ "${e}" != 0 ]]; then
+    echo "[$(date +%H:%M:%S)] Warning: You are most likely on a forked repo. Upload will be cancelled. Fix this if incorrect."
+    return 1
+  fi
+}
+
 # Function for deleting temporary directory with uploaded files from
 # the server.
 aptly_delete_dir() {
+  ! check_login && return 0
   echo "[$(date +%H:%M:%S)] Deleting uploads temporary directory..."
 
   curl_response=$(
@@ -33,6 +45,7 @@ aptly_delete_dir() {
 }
 
 aptly_upload_file() {
+  ! check_login && return 0
   local filename="$1"
   curl_response=$(curl \
     "${CURL_COMMON_OPTIONS[@]}" "${CURL_ADDITIONAL_OPTIONS[@]}" \
@@ -61,6 +74,7 @@ aptly_upload_file() {
 }
 
 aptly_add_to_repo() {
+  ! check_login && return 0
   echo "[$(date +%H:%M:%S)] Adding packages to repository '$REPOSITORY_NAME'..."
   curl_response=$(
     curl \
@@ -94,6 +108,7 @@ aptly_add_to_repo() {
 }
 
 aptly_publish_repo() {
+  ! check_login && return 0
   echo "[$(date +%H:%M:%S)] Publishing repository changes..."
   curl_response=$(
     curl \
