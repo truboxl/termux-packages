@@ -90,6 +90,8 @@ termux_create_pacman_subpackages() {
 			# Does pacman supports versioned dependencies?
 			#TERMUX_SUBPKG_DEPENDS+=", $TERMUX_PKG_NAME (= $TERMUX_PKG_FULLVERSION)"
 			TERMUX_SUBPKG_DEPENDS+=", $TERMUX_PKG_NAME"
+		elif [ "$TERMUX_SUBPKG_DEPEND_ON_PARENT" = force ]; then
+			TERMUX_SUBPKG_DEPENDS+=", $TERMUX_PKG_NAME"
 		elif [ "$TERMUX_SUBPKG_DEPEND_ON_PARENT" = unversioned ]; then
 			TERMUX_SUBPKG_DEPENDS+=", $TERMUX_PKG_NAME"
 		elif [ "$TERMUX_SUBPKG_DEPEND_ON_PARENT" = deps ]; then
