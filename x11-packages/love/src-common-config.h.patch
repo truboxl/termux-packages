@@ -5,7 +5,7 @@
  #	define LOVE_LINUX 1
  #endif
 -#if defined(__ANDROID__)
-+#if 0
++#if defined(__ANDROID__) && !defined(__TERMUX__)
  #	define LOVE_ANDROID 1
  #endif
  #if defined(__APPLE__)
