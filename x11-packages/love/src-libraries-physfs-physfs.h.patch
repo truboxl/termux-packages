@@ -5,7 +5,7 @@
  
  
 -#ifdef __ANDROID__
-+#if defined(__ANDROID__) && !defined(__TERMUX__)
++#if 0
  typedef struct PHYSFS_AndroidInit
  {
      void *jnienv;
