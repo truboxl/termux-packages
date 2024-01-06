@@ -19,6 +19,7 @@ termux_step_pre_configure() {
 	set(CMAKE_C_FLAGS "${CFLAGS}")
 	set(CMAKE_CXX_FLAGS "${CXXFLAGS}")
 	EOF
+	cat "${TERMUX_PKG_BUILDDIR}/android.toolchain.cmake"
 }
 
 termux_step_make() {
