@@ -13,13 +13,13 @@ termux_step_pre_configure() {
 	termux_setup_cmake
 	termux_setup_rust
 
-	local CFLAGS=$(termux_step_setup_toolchain; echo ${CFLAGS})
+	#local CFLAGS=$(termux_step_setup_toolchain; echo ${CFLAGS})
 	export TARGET_CMAKE_TOOLCHAIN_FILE="${TERMUX_PKG_BUILDDIR}/android.toolchain.cmake"
-	cat <<- EOF > "${TERMUX_PKG_BUILDDIR}/android.toolchain.cmake"
-	set(CMAKE_C_FLAGS "${CFLAGS}")
-	set(CMAKE_CXX_FLAGS "${CXXFLAGS}")
-	EOF
-	cat "${TERMUX_PKG_BUILDDIR}/android.toolchain.cmake"
+	#cat <<- EOF > "${TERMUX_PKG_BUILDDIR}/android.toolchain.cmake"
+	#set(CMAKE_C_FLAGS "${CFLAGS}")
+	#set(CMAKE_CXX_FLAGS "${CXXFLAGS}")
+	#EOF
+	touch "${TERMUX_PKG_BUILDDIR}/android.toolchain.cmake"
 }
 
 termux_step_make() {
