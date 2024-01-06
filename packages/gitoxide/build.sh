@@ -26,9 +26,9 @@ termux_step_pre_configure() {
 			| patch --silent -p1 -d ${d} || :
 	done
 
-	if [ "$TERMUX_ARCH" == "x86_64" ]; then
-		RUSTFLAGS+=" -C link-arg=$($CC -print-libgcc-file-name)"
-	fi
+	#if [ "$TERMUX_ARCH" == "x86_64" ]; then
+	#	RUSTFLAGS+=" -C link-arg=$($CC -print-libgcc-file-name)"
+	#fi
 }
 
 termux_step_make() {
