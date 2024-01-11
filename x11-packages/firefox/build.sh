@@ -97,7 +97,7 @@ termux_step_configure() {
 		--disable-tests \
 		--disable-updater \
 		--enable-audio-backends=pulseaudio \
-		--enable-default-toolkit=cairo-gtk3-wayland-only \
+		--enable-default-toolkit=cairo-gtk3-wayland \
 		--enable-minify=properties \
 		--enable-mobile-optimize \
 		--enable-printing \
