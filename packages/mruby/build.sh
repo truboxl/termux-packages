@@ -18,7 +18,6 @@ termux_step_make() {
 	-DMRB_READLINE_HISTORY=\\<readline/history.h\\> \
 	"
 	export LDFLAGS_FOR_TARGET="$LDFLAGS"
-	LDFLAGS_FOR_TARGET+=" -lncurses"
 	LDFLAGS_FOR_TARGET+=" -lreadline"
 	LDFLAGS_FOR_TARGET+=" -landroid-complex-math"
 	unset CPPFLAGS CFLAGS LDFLAGS
