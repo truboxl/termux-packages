@@ -2,22 +2,24 @@ TERMUX_PKG_HOMEPAGE=https://mruby.org/
 TERMUX_PKG_DESCRIPTION="Lightweight implementation of the Ruby language"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=3.2.0
-TERMUX_PKG_SRCURL=https://github.com/mruby/mruby/archive/${TERMUX_PKG_VERSION}.zip
-TERMUX_PKG_SHA256=64a0dd8b65825f2e7cdac6699e818648dc73bfdfc68aa1bfd58417a35315e5cc
-TERMUX_PKG_AUTO_UPDATE=true
-TERMUX_PKG_UPDATE_TAG_TYPE="newest-tag"
+TERMUX_PKG_VERSION="3.3.0-rc2"
+TERMUX_PKG_SRCURL=https://github.com/mruby/mruby/archive/refs/tags/${TERMUX_PKG_VERSION}.tar.gz
+TERMUX_PKG_SHA256=b23aa1af400a685c7f916b0383e0b76261bab2840aeca377838c1528abc4220c
 TERMUX_PKG_DEPENDS="libandroid-complex-math, readline"
 TERMUX_PKG_BUILD_IN_SRC=true
+TERMUX_PKG_AUTO_UPDATE=true
+TERMUX_PKG_UPDATE_METHOD="repology"
 
 termux_step_make() {
 	export CC_FOR_TARGET="$CC"
 	export CFLAGS_FOR_TARGET="$CPPFLAGS $CFLAGS \
-		-DMRB_USE_READLINE \
-		-DMRB_READLINE_HEADER=\\<readline/readline.h\\> \
-		-DMRB_READLINE_HISTORY=\\<readline/history.h\\> \
-		"
-	export LDFLAGS_FOR_TARGET="$LDFLAGS -lncurses -lreadline"
+	-DMRB_USE_READLINE \
+	-DMRB_READLINE_HEADER=\\<readline/readline.h\\> \
+	-DMRB_READLINE_HISTORY=\\<readline/history.h\\> \
+	"
+	export LDFLAGS_FOR_TARGET="$LDFLAGS"
+	LDFLAGS_FOR_TARGET+=" -lncurses"
+	LDFLAGS_FOR_TARGET+=" -lreadline"
 	LDFLAGS_FOR_TARGET+=" -landroid-complex-math"
 	unset CPPFLAGS CFLAGS LDFLAGS
 	export CC="$CC_FOR_BUILD"
