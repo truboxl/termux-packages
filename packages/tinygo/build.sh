@@ -4,11 +4,12 @@ TERMUX_PKG_LICENSE="custom"
 TERMUX_PKG_LICENSE_FILE="LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="0.30.0"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=git+https://github.com/tinygo-org/tinygo
 TERMUX_PKG_GIT_BRANCH="v${TERMUX_PKG_VERSION}"
 TERMUX_PKG_SHA256=4ecb1764af87efcd90fcc66cb3b25d7cf3c038fceb87d032155170a4a3c65614
-TERMUX_PKG_DEPENDS="libc++, tinygo-common"
-TERMUX_PKG_RECOMMENDS="binaryen, golang"
+TERMUX_PKG_DEPENDS="binaryen, golang, libc++"
+TERMUX_PKG_ANTI_BUILD_DEPENDS="binaryen, golang"
 TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_HOSTBUILD=true
@@ -137,6 +138,8 @@ termux_step_host_build() {
 }
 
 termux_step_pre_configure() {
+	TERMUX_PKG_DEPENDS+=", tinygo-common"
+
 	# https://github.com/termux/termux-packages/issues/16358
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
 		echo "WARN: ld.lld wrapper is not working for on-device builds. Skipping."
@@ -205,7 +208,7 @@ termux_step_make() {
 	# check excessive runpath entries
 	local tinygo_readelf=$(readelf -dW build/release/tinygo/bin/tinygo)
 	local tinygo_runpath=$(echo "${tinygo_readelf}" | sed -ne "s|.*RUNPATH.*\[\(.*\)\].*|\1|p")
-	if [[ "${tinygo_runpath}" != "${TERMUX_PREFIX}/lib" ]]; then
+	if [[ -n "$(echo "${tinygo_runpath}" | grep "${TERMUX_PREFIX}/lib:${TERMUX_PREFIX}/lib")" ]]; then
 		termux_error_exit "
 		Excessive RUNPATH found. Check readelf output below:
 		${tinygo_readelf}
