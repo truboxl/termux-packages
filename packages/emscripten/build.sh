@@ -3,11 +3,12 @@ TERMUX_PKG_DESCRIPTION="Emscripten: An LLVM-to-WebAssembly Compiler"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="3.1.52"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=git+https://github.com/emscripten-core/emscripten
 TERMUX_PKG_GIT_BRANCH=${TERMUX_PKG_VERSION}
 TERMUX_PKG_PLATFORM_INDEPENDENT=true
-TERMUX_PKG_DEPENDS="emscripten-binaryen, emscripten-llvm"
-TERMUX_PKG_RECOMMENDS="nodejs-lts | nodejs, python"
+TERMUX_PKG_DEPENDS="nodejs-lts | nodejs, python"
+TERMUX_PKG_ANTI_BUILD_DEPENDS="nodejs-lts, nodejs, python"
 TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_AUTO_UPDATE=true
@@ -226,6 +227,8 @@ termux_step_host_build() {
 }
 
 termux_step_pre_configure() {
+	TERMUX_PKG_DEPENDS+=", emscripten-binaryen, emscripten-llvm"
+
 	# https://github.com/termux/termux-packages/issues/16358
 	# TODO libclang-cpp.so* is not affected
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
