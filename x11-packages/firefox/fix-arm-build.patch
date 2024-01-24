@@ -32,8 +32,8 @@
          ]
  
  if CONFIG['GNU_AS']:
--    if CONFIG['CPU_ARCH'] == 'arm':
-+    if False:
+-    if CONFIG['TARGET_CPU'] == 'arm':
++    if CONFIG['TARGET_CPU'] == 'arm' and False:
          SOURCES += [
              'lib/arm/armcpu.c',
              'lib/arm/armstate.c',
@@ -43,8 +43,8 @@
  # License, v. 2.0. If a copy of the MPL was not distributed with this
  # file, You can obtain one at http://mozilla.org/MPL/2.0/.
  
--if CONFIG['CPU_ARCH'] == 'arm' and CONFIG['BUILD_ARM_NEON']:
-+if False:
+-if CONFIG['TARGET_CPU'] == 'arm' and CONFIG['BUILD_ARM_NEON']:
++if CONFIG['TARGET_CPU'] == 'arm' and CONFIG['BUILD_ARM_NEON'] and False:
      Library('openmax_dl')
  
      EXPORTS.dl.api += [
