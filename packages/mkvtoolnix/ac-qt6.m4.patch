@@ -1,0 +1,13 @@
+diff --git a/ac/qt6.m4 b/ac/qt6.m4
+index 15e5952..d0fe981 100644
+--- a/ac/qt6.m4
++++ b/ac/qt6.m4
+@@ -119,7 +119,7 @@ EOT
+   if test $result2 != 0; then
+     cd "$old_wd"
+     AC_MSG_RESULT(no: not all of the required Qt6 modules were found (needed: core gui widgets network concurrent svg multimedia))
+-    return
++    #return
+   fi
+ 
+   if test -f Makefile.Release; then
