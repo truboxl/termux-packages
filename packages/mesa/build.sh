@@ -61,9 +61,10 @@ termux_step_pre_configure() {
 
 	case "${TERMUX_ARCH}" in
 	aarch64|arm)
-		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -Dgallium-drivers=swrast,virgl,zink"
+		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -Dgallium-drivers=swrast,virgl,zink,panfrost"
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -Dvulkan-drivers=swrast,freedreno,panfrost"
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -Dfreedreno-kmds=msm,kgsl"
+		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -Dtools=panfrost"
 		;;
 	i686|x86_64)
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -Dgallium-drivers=swrast,virgl,zink"
