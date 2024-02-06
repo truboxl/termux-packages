@@ -208,7 +208,8 @@ termux_step_make() {
 	# check excessive runpath entries
 	local tinygo_readelf=$(readelf -dW build/release/tinygo/bin/tinygo)
 	local tinygo_runpath=$(echo "${tinygo_readelf}" | sed -ne "s|.*RUNPATH.*\[\(.*\)\].*|\1|p")
-	if [[ -n "$(echo "${tinygo_runpath}" | grep "${TERMUX_PREFIX}/lib:${TERMUX_PREFIX}/lib")" ]]; then
+	#if [[ -n "$(echo "${tinygo_runpath}" | grep "${TERMUX_PREFIX}/lib:${TERMUX_PREFIX}/lib")" ]]; then
+	if [[ "${tinygo_runpath}" != "${TERMUX_PREFIX}/lib" ]]; then
 		termux_error_exit "
 		Excessive RUNPATH found. Check readelf output below:
 		${tinygo_readelf}
