@@ -4,9 +4,9 @@ TERMUX_PKG_LICENSE="GPL-3.0"
 TERMUX_PKG_MAINTAINER="@termux"
 # `weechat-python-plugin` depends on libpython${TERMUX_PYTHON_VERSION}.so.
 # Please revbump and rebuild when bumping TERMUX_PYTHON_VERSION.
-TERMUX_PKG_VERSION="4.1.2"
+TERMUX_PKG_VERSION="4.2.1"
 TERMUX_PKG_SRCURL=https://www.weechat.org/files/src/weechat-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=9a9b910fbe768bb9de7c7ac944f5db8f233833f345b2e505e16ec6ef35effbb5
+TERMUX_PKG_SHA256=253ddf086f6c845031a2dd294b1552851d6b04cc08a2f9da4aedfb3e2f91bdcd
 TERMUX_PKG_DEPENDS="libandroid-support, libcurl, libgcrypt, libgnutls, libiconv, ncurses, zlib, zstd"
 TERMUX_PKG_BREAKS="weechat-dev"
 TERMUX_PKG_REPLACES="weechat-dev"
