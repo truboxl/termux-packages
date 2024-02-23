@@ -187,6 +187,14 @@ jobs:
 
     - name: Free additional disk space (if needed)
       run: |
+        declare -a packages
+        for repo_path in $(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json); do
+          repo=$(jq --raw-output '.["'${repo_path}'"].name' repo.json)
+          if [ -f ./built_${repo}_packages.txt ]; then
+            packages="$packages $(cat ./built_${repo}_packages.txt | tr '\n' ' ')"
+          fi
+        done
+
         if [ -n "$packages" ]; then
           if grep -qP "(^|\\s)${packages// /($|\\s)|(^|\\s)}($|\\s)" ./scripts/big-pkgs.list; then
             ./scripts/setup-ubuntu.sh
@@ -201,6 +209,14 @@ jobs:
 
     - name: Build packages
       run: |
+        declare -a packages
+        for repo_path in $(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json); do
+          repo=$(jq --raw-output '.["'${repo_path}'"].name' repo.json)
+          if [ -f ./built_${repo}_packages.txt ]; then
+            packages="$packages $(cat ./built_${repo}_packages.txt | tr '\n' ' ')"
+          fi
+        done
+
         if [ -n "$packages" ]; then
           if grep -qP "(^|\\s)${packages// /($|\\s)|(^|\\s)}($|\\s)" ./scripts/big-pkgs.list; then
             NDK=$ANDROID_NDK_LATEST_HOME ANDROID_HOME=$ANDROID_SDK_ROOT ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
