@@ -1,0 +1,167 @@
+--- a/usr/include/complex.h
++++ b/usr/include/complex.h
+@@ -60,9 +60,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex cacosl(long double complex __z) __RENAME_LDBL(cacos, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex cacosl(long double complex __z);
+ 
+ /* 7.3.5.2 The casin functions */
+ 
+@@ -72,9 +70,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex casinl(long double complex __z) __RENAME_LDBL(casin, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex casinl(long double complex __z);
+ 
+ /* 7.3.5.1 The catan functions */
+ 
+@@ -84,9 +80,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex catanl(long double complex __z) __RENAME_LDBL(catan, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex catanl(long double complex __z);
+ 
+ /* 7.3.5.1 The ccos functions */
+ 
+@@ -96,9 +90,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex ccosl(long double complex __z) __RENAME_LDBL(ccos, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex ccosl(long double complex __z);
+ 
+ /* 7.3.5.1 The csin functions */
+ 
+@@ -108,9 +100,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex csinl(long double complex __z) __RENAME_LDBL(csin, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex csinl(long double complex __z);
+ 
+ /* 7.3.5.1 The ctan functions */
+ 
+@@ -120,9 +110,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex ctanl(long double complex __z) __RENAME_LDBL(ctan, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex ctanl(long double complex __z);
+ 
+ 
+ /* 7.3.6 Hyperbolic functions */
+@@ -134,9 +122,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex cacoshl(long double complex __z) __RENAME_LDBL(cacosh, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex cacoshl(long double complex __z);
+ 
+ /* 7.3.6.2 The casinh functions */
+ 
+@@ -146,9 +132,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex casinhl(long double complex __z) __RENAME_LDBL(casinh, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex casinhl(long double complex __z);
+ 
+ /* 7.3.6.3 The catanh functions */
+ 
+@@ -158,9 +142,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex catanhl(long double complex __z) __RENAME_LDBL(catanh, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex catanhl(long double complex __z);
+ 
+ /* 7.3.6.4 The ccosh functions */
+ 
+@@ -170,9 +152,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex ccoshl(long double complex __z) __RENAME_LDBL(ccosh, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex ccoshl(long double complex __z);
+ 
+ /* 7.3.6.5 The csinh functions */
+ 
+@@ -182,9 +162,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex csinhl(long double complex __z) __RENAME_LDBL(csinh, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex csinhl(long double complex __z);
+ 
+ /* 7.3.6.6 The ctanh functions */
+ 
+@@ -194,9 +172,7 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex ctanhl(long double complex __z) __RENAME_LDBL(ctanh, 23, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++long double complex ctanhl(long double complex __z);
+ 
+ 
+ /* 7.3.7 Exponential and logarithmic functions */
+@@ -208,13 +184,11 @@
+ #endif /* __ANDROID_API__ >= 23 */
+ 
+ 
+-#if __ANDROID_API__ >= 26
+-long double complex cexpl(long double complex __z) __RENAME_LDBL(cexp, 23, 26);
++long double complex cexpl(long double complex __z);
+ /* 7.3.7.2 The clog functions */
+-double complex clog(double complex __z) __INTRODUCED_IN(26);
+-float complex clogf(float complex __z) __INTRODUCED_IN(26);
+-long double complex clogl(long double complex __z) __RENAME_LDBL(clog, 26, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++double complex clog(double complex __z);
++float complex clogf(float complex __z);
++long double complex clogl(long double complex __z);
+ 
+ 
+ /* 7.3.8 Power and absolute-value functions */
+@@ -232,11 +206,9 @@
+ 
+ /* 7.3.8.2 The cpow functions */
+ 
+-#if __ANDROID_API__ >= 26
+-double complex cpow(double complex __x, double complex __z) __INTRODUCED_IN(26);
+-float complex cpowf(float complex __x, float complex __z) __INTRODUCED_IN(26);
+-long double complex cpowl(long double complex __x, long double complex __z) __RENAME_LDBL(cpow, 26, 26);
+-#endif /* __ANDROID_API__ >= 26 */
++double complex cpow(double complex __x, double complex __z);
++float complex cpowf(float complex __x, float complex __z);
++long double complex cpowl(long double complex __x, long double complex __z);
+ 
+ /* 7.3.8.3 The csqrt functions */
+ 
