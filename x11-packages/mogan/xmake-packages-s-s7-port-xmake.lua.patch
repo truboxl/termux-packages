@@ -1,0 +1,12 @@
+--- a/xmake/packages/s/s7/port/xmake.lua
++++ b/xmake/packages/s/s7/port/xmake.lua
+@@ -60,6 +60,6 @@
+         add_ldflags("-static", "-static-libgcc", {force = true})
+     end
+     if is_plat("linux") then
+-        add_syslinks("pthread", "dl", "m")
++        add_syslinks("dl", "m")
+     end
+-end
+\ No newline at end of file
++end
