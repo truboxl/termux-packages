@@ -1,0 +1,37 @@
+--- a/shared/vg_replace_strmem.c
++++ b/shared/vg_replace_strmem.c
+@@ -162,7 +162,7 @@
+       || defined(VGPV_arm64_linux_android)
+    __asm__ __volatile__(".word 0xFFFFFFFF");
+    while (1) {}
+-#  elif defined(VGPV_x86_linux_android)
++#  elif defined(VGPV_x86_linux_android) || defined(VPGV_amd64_linux_android)
+    __asm__ __volatile__("ud2");
+    while (1) {}
+ #  else
+@@ -765,7 +765,7 @@
+ # if !defined(VGPV_arm_linux_android) \
+      && !defined(VGPV_x86_linux_android) \
+      && !defined(VGPV_mips32_linux_android) \
+-     && !defined(VGPV_arm64_linux_android)
++     && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android)
+   STRCASECMP(VG_Z_LIBC_SONAME, strcasecmp)
+   STRCASECMP(VG_Z_LIBC_SONAME, __GI_strcasecmp)
+ # endif
+@@ -813,7 +813,7 @@
+ # if !defined(VGPV_arm_linux_android) \
+      && !defined(VGPV_x86_linux_android) \
+      && !defined(VGPV_mips32_linux_android) \
+-     && !defined(VGPV_arm64_linux_android)
++     && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android)
+   STRNCASECMP(VG_Z_LIBC_SONAME, strncasecmp)
+   STRNCASECMP(VG_Z_LIBC_SONAME, __GI_strncasecmp)
+ # endif
+@@ -2049,7 +2049,7 @@
+ # if !defined(VGPV_arm_linux_android) \
+      && !defined(VGPV_x86_linux_android) \
+      && !defined(VGPV_mips32_linux_android) \
+-     && !defined(VGPV_arm64_linux_android)
++     && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android)
+   STRCASESTR(VG_Z_LIBC_SONAME,      strcasestr)
+ # endif

@@ -1,0 +1,59 @@
+Dont redefine Elf32_Nhdr and amd64 linux android patch
+
+--- a/coregrind/m_coredump/coredump-elf.c
++++ b/coregrind/m_coredump/coredump-elf.c
+@@ -140,18 +140,6 @@
+    phdr->p_align = VKI_PAGE_SIZE;
+ }
+ 
+-#if defined(VGPV_arm_linux_android) || defined(VGPV_x86_linux_android) \
+-    || defined(VGPV_mips32_linux_android)
+-/* Android's libc doesn't provide a definition for this.  Hence: */
+-typedef
+-   struct {
+-      Elf32_Word n_namesz;
+-      Elf32_Word n_descsz;
+-      Elf32_Word n_type;
+-   }
+-   Elf32_Nhdr;
+-#endif
+-
+ struct note {
+    struct note *next;
+    ESZ(Nhdr) note;
+@@ -167,7 +155,7 @@
+ #if !defined(VGPV_arm_linux_android) \
+     && !defined(VGPV_x86_linux_android) \
+     && !defined(VGPV_mips32_linux_android) \
+-    && !defined(VGPV_arm64_linux_android)
++    && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android)
+ static void add_note(struct note **list, const HChar *name, UInt type,
+                      const void *data, UInt datasz)
+ {
+@@ -723,7 +711,7 @@
+ #     if !defined(VGPV_arm_linux_android) \
+          && !defined(VGPV_x86_linux_android) \
+          && !defined(VGPV_mips32_linux_android) \
+-         && !defined(VGPV_arm64_linux_android) \
++         && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android) \
+          && !defined(VGP_nanomips_linux)
+       add_note(notelist, name, NT_FPREGSET, &fpu, sizeof(fpu));
+ #     endif
+@@ -732,7 +720,7 @@
+ #     if !defined(VGPV_arm_linux_android) \
+          && !defined(VGPV_x86_linux_android) \
+          && !defined(VGPV_mips32_linux_android) \
+-         && !defined(VGPV_arm64_linux_android)
++         && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android)
+       add_note(notelist, name, NT_PRSTATUS, &prstatus, sizeof(prstatus));
+ #     endif
+ }
+@@ -838,7 +826,7 @@
+ #  if !defined(VGPV_arm_linux_android) \
+       && !defined(VGPV_x86_linux_android) \
+       && !defined(VGPV_mips32_linux_android) \
+-      && !defined(VGPV_arm64_linux_android)
++      && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android)
+    add_note(&notelist, "CORE", NT_PRPSINFO, &prpsinfo, sizeof(prpsinfo));
+ #  endif
+ 

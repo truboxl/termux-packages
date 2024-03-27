@@ -1,6 +1,6 @@
---- ../cache/valgrind-3.13.0/include/pub_tool_libcsetjmp.h	2017-05-31 15:14:14.000000000 +0000
-+++ ./include/pub_tool_libcsetjmp.h	2018-08-17 23:14:23.768384982 +0000
-@@ -120,6 +120,16 @@
+--- a/include/pub_tool_libcsetjmp.h
++++ b/include/pub_tool_libcsetjmp.h
+@@ -118,6 +118,16 @@
  __attribute__((noreturn))
  void  VG_MINIMAL_LONGJMP(VG_MINIMAL_JMP_BUF(_env));
  

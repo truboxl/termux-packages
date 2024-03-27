@@ -1,0 +1,36 @@
+--- a/coregrind/m_aspacemgr/aspacemgr-common.c
++++ b/coregrind/m_aspacemgr/aspacemgr-common.c
+@@ -262,7 +262,7 @@
+ 
+ SysRes ML_(am_open) ( const HChar* pathname, Int flags, Int mode )
+ {
+-#  if defined(VGP_arm64_linux) || defined(VGP_nanomips_linux)
++#  if defined(VGP_arm64_linux) || defined(VGP_nanomips_linux) || defined(__ANDROID__)
+    /* ARM64 wants to use __NR_openat rather than __NR_open. */
+    SysRes res = VG_(do_syscall4)(__NR_openat,
+                                  VKI_AT_FDCWD, (UWord)pathname, flags, mode);
+@@ -291,7 +291,7 @@
+ Int ML_(am_readlink)(const HChar* path, HChar* buf, UInt bufsiz)
+ {
+    SysRes res;
+-#  if defined(VGP_arm64_linux) || defined(VGP_nanomips_linux)
++#  if defined(VGP_arm64_linux) || defined(VGP_nanomips_linux) || defined(__ANDROID__)
+    res = VG_(do_syscall4)(__NR_readlinkat, VKI_AT_FDCWD,
+                                            (UWord)path, (UWord)buf, bufsiz);
+ #  elif defined(VGO_linux) || defined(VGO_darwin) || defined(VGO_freebsd)
+@@ -330,6 +330,7 @@
+ #  if defined(VGO_linux) || defined(VGO_darwin)
+    SysRes          res;
+ #  if defined(VGO_linux)
++#ifndef __ANDROID__
+    /* First try with statx. */
+    struct vki_statx bufx;
+    const char* file_name = "";
+@@ -341,6 +342,7 @@
+       *mode = (UInt)bufx.stx_mode;
+       return True;
+    }
++#endif
+ #  endif // VGO_linux only
+ 
+ #  if defined(VGO_linux) && defined(__NR_fstat64)

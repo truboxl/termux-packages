@@ -1,11 +1,11 @@
---- a/coregrind/vgdb.c
-+++ b/coregrind/vgdb.c
-@@ -772,7 +772,7 @@
+--- a/coregrind/m_aspacemgr/aspacemgr-linux.c
++++ b/coregrind/m_aspacemgr/aspacemgr-linux.c
+@@ -281,7 +281,7 @@
  #if defined(VGPV_arm_linux_android) \
      || defined(VGPV_x86_linux_android) \
      || defined(VGPV_mips32_linux_android) \
 -    || defined(VGPV_arm64_linux_android)
 +    || defined(VGPV_arm64_linux_android) || defined(VGPV_amd64_linux_android)
-       /* Android has no pthread_cancel. As it also does not have
-          an invoker implementation, there is no need for cleanup action.
-          So, we just do nothing. */
+ # define VG_N_SEGMENTS 5000
+ #else
+ # define VG_N_SEGMENTS 30000

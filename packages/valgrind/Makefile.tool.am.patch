@@ -1,6 +1,6 @@
 --- a/Makefile.tool.am
 +++ b/Makefile.tool.am
-@@ -44,13 +44,13 @@
+@@ -51,13 +51,13 @@
  	-nodefaultlibs -nostartfiles -Wl,-u,_start @FLAG_NO_BUILD_ID@
  
  TOOL_LDFLAGS_X86_LINUX = \
@@ -16,7 +16,7 @@
  
  TOOL_LDFLAGS_AMD64_FREEBSD = \
  	$(TOOL_LDFLAGS_COMMON_FREEBSD) @FLAG_M64@
-@@ -65,10 +65,10 @@
+@@ -72,10 +72,10 @@
  	$(TOOL_LDFLAGS_COMMON_LINUX) @FLAG_M64@
  
  TOOL_LDFLAGS_ARM_LINUX = \
@@ -28,4 +28,4 @@
 +	$(TOOL_LDFLAGS_COMMON_LINUX) @FLAG_M64@ $(shell $(CC) @FLAG_M64@ -print-libgcc-file-name)
  
  TOOL_LDFLAGS_S390X_LINUX = \
- 	$(TOOL_LDFLAGS_COMMON_LINUX) @FLAG_M64@
+ 	$(TOOL_LDFLAGS_COMMON_LINUX) @FLAG_M64@ @FLAG_S390_PGSTE@

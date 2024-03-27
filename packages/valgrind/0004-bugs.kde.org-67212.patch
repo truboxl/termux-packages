@@ -1,0 +1,15 @@
+diff -uNr a/coregrind/m_ume/elf.c b/coregrind/m_ume/elf.c
+--- a/coregrind/m_ume/elf.c
++++ b/coregrind/m_ume/elf.c
+@@ -585,7 +585,11 @@
+          ebase = 0x100000;
+ #     else
+       vg_assert(VKI_PAGE_SIZE >= 4096); /* stay sane */
++#     ifdef __ANDROID__
++      ESZ(Addr) hacky_load_address = 0x200000 + 8 * VKI_PAGE_SIZE;
++#     else
+       ESZ(Addr) hacky_load_address = 0x100000 + 8 * VKI_PAGE_SIZE;
++#     endif
+       if (ebase < hacky_load_address)
+          ebase = hacky_load_address;
+ #     endif

@@ -1,0 +1,20 @@
+--- a/coregrind/m_syswrap/syswrap-linux.c
++++ b/coregrind/m_syswrap/syswrap-linux.c
+@@ -8714,7 +8714,7 @@
+ 
+ #  if defined(VGPV_arm_linux_android) || defined(VGPV_x86_linux_android) \
+       || defined(VGPV_mips32_linux_android) \
+-      || defined(VGPV_arm64_linux_android)
++      || defined(VGPV_arm64_linux_android) || defined(VGPV_amd64_linux_android)
+    /* ashmem */
+    case VKI_ASHMEM_GET_SIZE:
+    case VKI_ASHMEM_SET_SIZE:
+@@ -11482,7 +11482,7 @@
+ 
+ #  if defined(VGPV_arm_linux_android) || defined(VGPV_x86_linux_android) \
+       || defined(VGPV_mips32_linux_android) \
+-      || defined(VGPV_arm64_linux_android)
++      || defined(VGPV_arm64_linux_android) || defined(VGPV_amd64_linux_android)
+    /* ashmem */
+    case VKI_ASHMEM_GET_SIZE:
+    case VKI_ASHMEM_SET_SIZE:

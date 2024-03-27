@@ -1,0 +1,20 @@
+--- a/coregrind/launcher-linux.c
++++ b/coregrind/launcher-linux.c
+@@ -199,7 +199,7 @@
+ #  if defined(VGPV_arm_linux_android) \
+       || defined(VGPV_x86_linux_android) \
+       || defined(VGPV_mips32_linux_android) \
+-      || defined(VGPV_arm64_linux_android)
++      || defined(VGPV_arm64_linux_android) || defined(VGPV_amd64_linux_android)
+          interp = "/system/bin/sh";
+ #  else
+          interp = "/bin/sh";
+@@ -319,7 +319,7 @@
+ #           if !defined(VGPV_arm_linux_android) \
+                && !defined(VGPV_x86_linux_android) \
+                && !defined(VGPV_mips32_linux_android) \
+-               && !defined(VGPV_arm64_linux_android)
++               && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android)
+             if (header.ehdr64.e_machine == EM_PPC64 &&
+                 (header.ehdr64.e_ident[EI_OSABI] == ELFOSABI_SYSV ||
+                  header.ehdr64.e_ident[EI_OSABI] == ELFOSABI_LINUX)) {

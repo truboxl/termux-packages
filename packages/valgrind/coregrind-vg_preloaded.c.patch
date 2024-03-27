@@ -1,0 +1,20 @@
+--- a/coregrind/vg_preloaded.c
++++ b/coregrind/vg_preloaded.c
+@@ -80,7 +80,7 @@
+       && !defined(VGPV_arm_linux_android) \
+       && !defined(VGPV_x86_linux_android) \
+       && !defined(VGPV_mips32_linux_android) \
+-      && !defined(VGPV_arm64_linux_android)
++      && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android)
+ 
+    /* g++ mangled __gnu_cxx::__freeres yields -> _ZN9__gnu_cxx9__freeresEv */
+    extern void _ZN9__gnu_cxx9__freeresEv(void) __attribute__((weak));
+@@ -95,7 +95,7 @@
+       && !defined(VGPV_arm_linux_android) \
+       && !defined(VGPV_x86_linux_android) \
+       && !defined(VGPV_mips32_linux_android) \
+-      && !defined(VGPV_arm64_linux_android)
++      && !defined(VGPV_arm64_linux_android) && !defined(VGPV_amd64_linux_android)
+ 
+    extern void __libc_freeres(void) __attribute__((weak));
+    if (((to_run & VG_RUN__LIBC_FREERES) != 0) &&

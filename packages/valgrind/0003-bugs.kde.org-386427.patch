@@ -1,0 +1,288 @@
+https://bugs.kde.org/show_bug.cgi?id=386427
+
+This is a modified patch based on
+commit 32435d799b6ab5c2b542767dc3699b70f12b1d6f
+Author: Tamara Vlahovic <vtamara@rt-rk.com>
+Date:   Tue Oct 24 13:59:14 2017 +0200
+
+    Support for thread clone without shared file descriptors and file system
+
+diff -uNr a/coregrind/m_main.c b/coregrind/m_main.c
+--- a/coregrind/m_main.c
++++ b/coregrind/m_main.c
+@@ -1831,7 +1831,7 @@
+    //   p: main_process_cmd_line_options  [for VG_(clo_track_fds)]
+    //--------------------------------------------------------------
+    if (VG_(clo_track_fds)) {
+-      VG_(debugLog)(1, "main", "Init preopened fds\n");
++      VG_(debugLog)(1, "main", "Init preopened and allocated fds\n");
+       VG_(init_preopened_fds)();
+    }
+ 
+@@ -1973,6 +1973,7 @@
+         with the main thread. */
+      vg_assert(VG_(running_tid) == VG_INVALID_THREADID);
+      VG_(running_tid) = tid_main;
++     VG_(threads)[tid_main].files_not_cloned = True;
+ 
+      seg_starts = VG_(get_segment_starts)( SkFileC | SkAnonC | SkShmC,
+                                            &n_seg_starts );
+diff -uNr a/coregrind/m_syswrap/syswrap-generic.c b/coregrind/m_syswrap/syswrap-generic.c
+--- a/coregrind/m_syswrap/syswrap-generic.c
++++ b/coregrind/m_syswrap/syswrap-generic.c
+@@ -541,18 +541,22 @@
+    struct OpenFd *next, *prev;
+ } OpenFd;
+ 
+-/* List of allocated file descriptors. */
+-static OpenFd *allocated_fds = NULL;
+-
+-/* Count of open file descriptors. */
+-static Int fd_count = 0;
++typedef struct AllocatedFd
++{
++   /* Count of open file descriptors. */
++   Int fd_count;
++   /* List of allocated file descriptors. */
++   OpenFd *open_list;
++} AllocatedFd;
+ 
++/* Array of allocated fds per thread  */
++static AllocatedFd **allocated_fds = NULL;
+ 
+ /* Note the fact that a file descriptor was just closed. */
+ void ML_(record_fd_close)(Int fd)
+ {
+-   OpenFd *i = allocated_fds;
+-
++   AllocatedFd *af = allocated_fds[VG_(running_tid)];
++   OpenFd *i = af->open_list;
+    if (fd >= VG_(fd_hard_limit))
+       return;			/* Valgrind internal */
+ 
+@@ -561,13 +565,13 @@
+          if(i->prev)
+             i->prev->next = i->next;
+          else
+-            allocated_fds = i->next;
++            af->open_list = i->next;
+          if(i->next)
+             i->next->prev = i->prev;
+          if(i->pathname) 
+             VG_(free) (i->pathname);
+          VG_(free) (i);
+-         fd_count--;
++         (af->fd_count)--;
+          break;
+       }
+       i = i->next;
+@@ -583,13 +587,13 @@
+ void ML_(record_fd_open_with_given_name)(ThreadId tid, Int fd,
+                                          const HChar *pathname)
+ {
++   AllocatedFd *af = allocated_fds[VG_(running_tid)];
+    OpenFd *i;
+-
+    if (fd >= VG_(fd_hard_limit))
+       return;			/* Valgrind internal */
+ 
+    /* Check to see if this fd is already open. */
+-   i = allocated_fds;
++   i = af->open_list;
+    while (i) {
+       if (i->fd == fd) {
+          if (i->pathname) VG_(free)(i->pathname);
+@@ -603,10 +607,10 @@
+       i = VG_(malloc)("syswrap.rfdowgn.1", sizeof(OpenFd));
+ 
+       i->prev = NULL;
+-      i->next = allocated_fds;
+-      if(allocated_fds) allocated_fds->prev = i;
+-      allocated_fds = i;
+-      fd_count++;
++      i->next = af->open_list;;
++      if(af->open_list) af->open_list->prev = i;
++      af->open_list = i;
++      (af->fd_count)++;
+    }
+ 
+    i->fd = fd;
+@@ -636,7 +640,7 @@
+ // Return if a given file descriptor is already recorded.
+ Bool ML_(fd_recorded)(Int fd)
+ {
+-   OpenFd *i = allocated_fds;
++   OpenFd *i = allocated_fds[VG_(running_tid)]->open_list;
+    while (i) {
+       if (i->fd == fd)
+          return True;
+@@ -648,7 +652,7 @@
+ /* Returned string must not be modified nor free'd. */
+ const HChar *ML_(find_fd_recorded_by_fd)(Int fd)
+ {
+-   OpenFd *i = allocated_fds;
++   OpenFd *i = allocated_fds[VG_(running_tid)]->open_list;
+ 
+    while (i) {
+       if (i->fd == fd)
+@@ -823,25 +827,26 @@
+ /* Dump out a summary, and a more detailed list, of open file descriptors. */
+ void VG_(show_open_fds) (const HChar* when)
+ {
++   AllocatedFd *af = allocated_fds[VG_(running_tid)];
+    OpenFd *i;
+    int non_std = 0;
+ 
+-   for (i = allocated_fds; i; i = i->next) {
++   for (i = af->open_list; i; i = i->next) {
+       if (i->fd > 2)
+          non_std++;
+    }
+ 
+    /* If we are running quiet and there are either no open file descriptors
+       or not tracking all fds, then don't report anything.  */
+-   if ((fd_count == 0
++   if ((af->fd_count == 0
+         || ((non_std == 0) && (VG_(clo_track_fds) < 2)))
+        && (VG_(clo_verbosity) == 0))
+       return;
+ 
+    VG_(message)(Vg_UserMsg, "FILE DESCRIPTORS: %d open (%d std) %s.\n",
+-                fd_count, fd_count - non_std, when);
++                af->fd_count, af->fd_count - non_std, when);
+ 
+-   for (i = allocated_fds; i; i = i->next) {
++   for (i = af->open_list; i; i = i->next) {
+       if (i->fd <= 2 && VG_(clo_track_fds) < 2)
+           continue;
+ 
+@@ -903,6 +908,7 @@
+ void VG_(init_preopened_fds)(void)
+ {
+ // DDD: should probably use HAVE_PROC here or similar, instead.
++   VG_(init_allocated_fds)();
+ #if defined(VGO_linux)
+    Int ret;
+    struct vki_dirent64 d;
+@@ -984,6 +990,49 @@
+ #endif
+ }
+ 
++void VG_(init_allocated_fds)(void)
++{
++   if (NULL == allocated_fds) {
++      AllocatedFd *af;
++      Int i;
++      allocated_fds = VG_(malloc)("syswrap.iafds.1", sizeof(AllocatedFd*) * VG_N_THREADS);
++      af = VG_(calloc)("syswrap.iafds.2", 1, sizeof(AllocatedFd));
++      for (i = 0; i < VG_N_THREADS; i++)
++         allocated_fds[i] = af;
++   }
++}
++
++extern void VG_(copy_allocated_fds) ( UInt p_id, UInt c_id ) {
++   if (!VG_(clo_track_fds))return;
++   AllocatedFd *af_c, *af_p;
++   OpenFd *of_p, *of_cl, *of_cn;
++   af_p = allocated_fds[p_id];
++   af_c = VG_(calloc)("syswrap.cpafds.1", 1, sizeof(AllocatedFd));
++   of_p = af_p->open_list;
++   of_cl = NULL;
++   while (of_p) {
++      of_cn = VG_(malloc)("syswrap.cpafds.2", sizeof(OpenFd));
++      of_cn->prev = of_cl;
++      of_cn->next = NULL;
++      if (of_cl)
++         of_cl->next = of_cn;
++      else
++         af_c->open_list = of_cn;
++      of_cn->fd = of_p->fd;
++      of_cn->pathname = VG_(strdup)("syswrap.cpafds.3", of_p->pathname);
++      of_cn->where = NULL;
++      of_cl = of_cn;
++      of_p = of_p->next;
++   }
++   af_c->fd_count = af_p->fd_count;
++   allocated_fds[c_id] = af_c;
++}
++
++extern void VG_(clone_allocated_fds) ( UInt p_id, UInt c_id ) {
++   if (!VG_(clo_track_fds))return;
++   allocated_fds[c_id] = allocated_fds[p_id];
++}
++
+ static 
+ void pre_mem_read_sendmsg ( ThreadId tid, Bool read,
+                             const HChar *msg, Addr base, SizeT size )
+diff -uNr a/coregrind/m_syswrap/syswrap-linux.c b/coregrind/m_syswrap/syswrap-linux.c
+--- a/coregrind/m_syswrap/syswrap-linux.c
++++ b/coregrind/m_syswrap/syswrap-linux.c
+@@ -209,6 +209,8 @@
+ 
+       /* OK, thread is dead, but others still exist.  Just exit. */
+ 
++      if (VG_(clo_track_fds) && VG_(threads)[tid].files_not_cloned)
++          VG_(show_open_fds)("at thread exit");
+       /* This releases the run lock */
+       VG_(exit_thread)(tid);
+       vg_assert(tst->status == VgTs_Zombie);
+@@ -690,6 +692,13 @@
+    }
+    flags &= ~VKI_CLONE_SETTLS;
+ 
++   if(flags & VKI_CLONE_FILES)
++      VG_(clone_allocated_fds) (ptid, ctid);
++   else {
++      VG_(copy_allocated_fds) (ptid, ctid);
++      VG_(threads)[ctid].files_not_cloned = True;
++   }
++
+    /* start the thread with everything blocked */
+    VG_(sigprocmask)(VKI_SIG_SETMASK, &blockall, &savedmask);
+ 
+@@ -903,9 +912,8 @@
+    }
+ 
+    /* Only look at the flags we really care about */
+-   switch (cloneflags & (VKI_CLONE_VM | VKI_CLONE_FS 
+-                         | VKI_CLONE_FILES | VKI_CLONE_VFORK)) {
+-   case VKI_CLONE_VM | VKI_CLONE_FS | VKI_CLONE_FILES:
++   switch (cloneflags & (VKI_CLONE_VM | VKI_CLONE_VFORK | VKI_CLONE_THREAD)) {
++   case VKI_CLONE_VM | VKI_CLONE_THREAD:
+       /* thread creation */
+       SET_STATUS_from_SysRes(
+          do_clone(tid,
+@@ -936,7 +944,7 @@
+                    "x\n", ARG_FLAGS);
+       VG_(message)(Vg_UserMsg, "\n");
+       VG_(message)(Vg_UserMsg, "The only supported clone() uses are:\n");
+-      VG_(message)(Vg_UserMsg, " - via a threads library (LinuxThreads or NPTL)\n");
++      VG_(message)(Vg_UserMsg, " - with CLONE_THREAD flag set used in a threads library (LinuxThreads or NPTL)\n");
+       VG_(message)(Vg_UserMsg, " - via the implementation of fork or vfork\n");
+       VG_(unimplemented)
+          ("Valgrind does not support general clone().");
+diff -uNr a/coregrind/pub_core_syswrap.h b/coregrind/pub_core_syswrap.h
+--- a/coregrind/pub_core_syswrap.h
++++ b/coregrind/pub_core_syswrap.h
+@@ -79,7 +79,10 @@
+ 
+ /* fd leakage calls. */
+ extern void VG_(init_preopened_fds) ( void );
++extern void VG_(init_allocated_fds) ( void );
+ extern void VG_(show_open_fds) ( const HChar* when );
++extern void VG_(copy_allocated_fds) ( UInt p_id, UInt c_id );
++extern void VG_(clone_allocated_fds) ( UInt p_id, UInt c_id );
+ 
+ // When the final thread is done, where shall I call to shutdown the
+ // system cleanly?  Is set once at startup (in m_main) and never
+diff -uNr a/coregrind/pub_core_threadstate.h b/coregrind/pub_core_threadstate.h
+--- a/coregrind/pub_core_threadstate.h
++++ b/coregrind/pub_core_threadstate.h
+@@ -406,6 +406,7 @@
+    /* This thread's name. NULL, if no name. */
+    HChar *thread_name;
+    UInt ptrace;
++   Bool files_not_cloned;
+ }
+ ThreadState;
+ 
