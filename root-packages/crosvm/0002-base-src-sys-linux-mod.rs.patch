@@ -1,0 +1,40 @@
+diff --git a/base/src/sys/linux/mod.rs b/base/src/sys/linux/mod.rs
+index 4f10ebf..c6fc53c 100644
+--- a/base/src/sys/linux/mod.rs
++++ b/base/src/sys/linux/mod.rs
+@@ -4,14 +4,10 @@
+ 
+ //! Small system utility modules for usage by other modules.
+ 
+-#[cfg(target_os = "android")]
+-mod android;
+-#[cfg(target_os = "android")]
+-use android as target_os;
+-#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ #[allow(clippy::module_inception)]
+ mod linux;
+-#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ use linux as target_os;
+ use log::warn;
+ #[macro_use]
+@@ -263,11 +259,18 @@ pub fn fstat<F: AsRawDescriptor>(f: &F) -> Result<libc::stat64> {
+ }
+ 
+ /// Checks whether a file is a block device fie or not.
++#[cfg(not(all(target_os = "android", target_pointer_width = "32")))]
+ pub fn is_block_file<F: AsRawDescriptor>(file: &F) -> Result<bool> {
+     let stat = fstat(file)?;
+     Ok((stat.st_mode & libc::S_IFMT) == libc::S_IFBLK)
+ }
+ 
++#[cfg(all(target_os = "android", target_pointer_width = "32"))]
++pub fn is_block_file<F: AsRawDescriptor>(file: &F) -> Result<bool> {
++    let stat = fstat(file)?;
++    Ok((stat.st_mode as u16 & libc::S_IFMT) == libc::S_IFBLK)
++}
++
+ const BLOCK_IO_TYPE: u32 = 0x12;
+ ioctl_io_nr!(BLKDISCARD, BLOCK_IO_TYPE, 119);
+ 
