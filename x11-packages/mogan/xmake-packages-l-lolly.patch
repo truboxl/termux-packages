@@ -3,7 +3,7 @@
 @@ -0,0 +1,11 @@
 +--- a/System/Files/file.cpp
 ++++ b/System/Files/file.cpp
-+@@ -290,7 +290,7 @@ url_temp_dir_sub () {
++@@ -290,7 +290,7 @@
 + #if defined(OS_WIN) || defined(OS_MINGW)
 +   url main_tmp_dir= url_system ("$TMP") * url (".lolly");
 + #else
@@ -12,6 +12,7 @@
 + #endif
 +   static url tmp_dir= main_tmp_dir * url (as_string (get_process_id ()));
 +   return (tmp_dir);
+diff -uNr a/xmake/packages/l/lolly/xmake.lua b/xmake/packages/l/lolly/xmake.lua
 --- a/xmake/packages/l/lolly/xmake.lua
 +++ b/xmake/packages/l/lolly/xmake.lua
 @@ -51,4 +51,6 @@
@@ -19,5 +20,5 @@
          import("package.tools.xmake").install(package, configs)
      end)
 +
-+    add_patches("lolly.patch")
++    add_patches("1.3.25", "lolly.patch", "5c46292e7c4b3d5420951b477c200915412a8f0675850e3bf593230c5fabfa39")
  package_end()
