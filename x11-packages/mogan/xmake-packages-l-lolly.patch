@@ -1,0 +1,23 @@
+--- a/xmake/packages/l/lolly/lolly.patch
++++ b/xmake/packages/l/lolly/lolly.patch
+@@ -0,0 +1,11 @@
++--- a/System/Files/file.cpp
+++++ b/System/Files/file.cpp
++@@ -290,7 +290,7 @@ url_temp_dir_sub () {
++ #if defined(OS_WIN) || defined(OS_MINGW)
++   url main_tmp_dir= url_system ("$TMP") * url (".lolly");
++ #else
++-  url main_tmp_dir= url_system ("/tmp") * url (".lolly");
+++  url main_tmp_dir= url_system ("@TERMUX_PREFIX@/tmp") * url (".lolly");
++ #endif
++   static url tmp_dir= main_tmp_dir * url (as_string (get_process_id ()));
++   return (tmp_dir);
+--- a/xmake/packages/l/lolly/xmake.lua
++++ b/xmake/packages/l/lolly/xmake.lua
+@@ -51,4 +51,6 @@
+         end
+         import("package.tools.xmake").install(package, configs)
+     end)
++
++    add_patches("lolly.patch")
+ package_end()
