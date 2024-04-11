@@ -14,11 +14,7 @@ termux_step_pre_configure() {
 
 	export PKG_CONFIG_ALLOW_CROSS=1
 
-	# minijail
-	export CDRIVER=clang
-	export CXXDRIVER=clang
-
-	unset CC CFLAGS CXX CXXFLAGS LD LDFLAGS
+	unset CFLAGS CXXFLAGS LD LDFLAGS
 }
 
 termux_step_make() {
