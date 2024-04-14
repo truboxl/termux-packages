@@ -9,7 +9,7 @@ TERMUX_PKG_DEPENDS="libandroid-spawn, libc++"
 TERMUX_PKG_AUTO_UPDATE=true
 
 termux_step_pre_configure() {
-	CXXFLAGS+=" $CPPFLAGS -Dlinux=1"
+	CXXFLAGS+=" $CPPFLAGS"
 	LDFLAGS+=" -landroid-spawn"
 }
 
