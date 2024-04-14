@@ -14,7 +14,7 @@ termux_step_pre_configure() {
 }
 
 termux_step_configure() {
-	$TERMUX_PKG_SRCDIR/configure.py
+	$TERMUX_PKG_SRCDIR/configure.py --bootstrap
 }
 
 termux_step_make() {
