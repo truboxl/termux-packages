@@ -42,6 +42,8 @@ termux_step_post_get_source() {
 		fi
 		popd
 	fi
+
+	mv -v build.zig.zon build.zig.zon.unused
 }
 
 termux_step_pre_configure() {
