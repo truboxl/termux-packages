@@ -1,17 +1,18 @@
 # shellcheck shell=bash disable=SC2155
 termux_setup_zig() {
-	local DEFAULT_ZIG_VERSION=0.11.0
-	local DEFAULT_ZIG_TXZ_SHA256=2d00e789fec4f71790a6e7bf83ff91d564943c5ee843c5fd966efc474b423047
-
 	local ZIG_VERSION ZIG_TXZ_SHA256
 	case "${TERMUX_ZIG_VERSION-}" in
 	'')
-		echo "termux_setup_zig: Use default version ${DEFAULT_ZIG_VERSION}"
-		ZIG_VERSION="${DEFAULT_ZIG_VERSION}"
-		ZIG_TXZ_SHA256="${DEFAULT_ZIG_TXZ_SHA256}"
+		ZIG_VERSION=0.12.0
+		ZIG_TXZ_SHA256=c7ae866b8a76a568e2d5cfd31fe89cdb629bdd161fdd5018b29a4a0a17045cad
+		echo "termux_setup_zig: Use default version ${ZIG_VERSION}"
+		;;
+	0.12.0)
+		ZIG_VERSION=0.12.0
+		ZIG_TXZ_SHA256=c7ae866b8a76a568e2d5cfd31fe89cdb629bdd161fdd5018b29a4a0a17045cad
 		;;
 	0.11.0)
-		ZIG_VERSION="${TERMUX_ZIG_VERSION}"
+		ZIG_VERSION=0.11.0
 		ZIG_TXZ_SHA256=2d00e789fec4f71790a6e7bf83ff91d564943c5ee843c5fd966efc474b423047
 		;;
 	*dev*)
