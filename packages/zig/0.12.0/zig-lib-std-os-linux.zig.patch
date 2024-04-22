@@ -1,4 +1,3 @@
-diff --git a/zig/lib/std/os/linux.zig b/zig/lib/std/os/linux.zig
 index 69cef35e98..be16a9357e 100644
 --- a/zig/lib/std/os/linux.zig
 +++ b/zig/lib/std/os/linux.zig
