@@ -48,11 +48,10 @@ termux_step_pre_configure() {
 	termux_setup_cmake
 	termux_setup_ninja
 	termux_setup_zig
-	ls -l
+	TERMUX_PKG_SRCDIR=${TERMUX_PKG_SRCDIR}/zig-bootstrap-${TERMUX_PKG_VERSION[1]}
 }
 
 termux_step_make() {
-	ls -l
 	pushd zig-bootstrap-${TERMUX_PKG_VERSION[1]}
 	# zig 0.11.0+ uses 3 stages bootstrapping build system
 	# which NDK cant be used anymore
