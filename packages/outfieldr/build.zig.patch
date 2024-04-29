@@ -6,7 +6,7 @@ index 56839c2..8ab447a 100644
      options.addOption([]const u8, "version", version);
  
      const exe = b.addExecutable("tldr", "src/main.zig");
-+    exe.pie = true:
++    exe.pie = true;
      exe.setTarget(target);
      exe.setBuildMode(mode);
      exe.install();
