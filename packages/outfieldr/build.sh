@@ -22,7 +22,6 @@ termux_step_post_get_source() {
 termux_step_pre_configure() {
 	termux_setup_zig
 	ZIG_TARGET_NAME=${TERMUX_ARCH}-linux-android
-	[[ "${TERMUX_ARCH}" == "arm" ]] && ZIG_TARGET_NAME=arm-linux-androideabi
 }
 
 termux_step_make() {
