@@ -1,6 +1,6 @@
 # shellcheck shell=bash disable=SC2155
 termux_setup_zig() {
-	# zig 0.9.1 android triples never worked and uses musl
+	# TODO need to figure out if zig supports android targets
 	export ZIG_TARGET_NAME="${TERMUX_ARCH}-linux-musl"
 	case "${TERMUX_ARCH}" in
 	arm) ZIG_TARGET_NAME="arm-linux-musleabihf" ;;
