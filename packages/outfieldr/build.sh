@@ -25,9 +25,7 @@ termux_step_pre_configure() {
 }
 
 termux_step_make() {
-	echo MAKE1
 	zig build -Dtarget=$ZIG_TARGET_NAME
-	echo MAKE2
 }
 
 termux_step_make_install() {

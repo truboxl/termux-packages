@@ -1,12 +1,11 @@
-diff --git a/build.zig b/build.zig
-index 56839c2..8ab447a 100644
 --- a/build.zig
 +++ b/build.zig
-@@ -22,6 +22,7 @@ pub fn build(b: *Builder) !void {
-     options.addOption([]const u8, "version", version);
- 
+@@ -24,6 +24,8 @@
      const exe = b.addExecutable("tldr", "src/main.zig");
-+    exe.pie = true;
      exe.setTarget(target);
      exe.setBuildMode(mode);
++    exe.addLibPath("@TERMUX_PREFIX@/lib");
++    exe.linkSystemLibraryName("c++_shared");
      exe.install();
+     exe.setOutputDir("bin");
+     exe.addOptions("build_options", options);
