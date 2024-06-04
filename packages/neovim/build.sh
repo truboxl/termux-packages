@@ -60,7 +60,7 @@ termux_step_host_build() {
 	make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$TERMUX_PKG_HOSTBUILD_DIR -DUSE_BUNDLED_LUAROCKS=ON" install ||
 		(_patch_luv $TERMUX_PKG_SRCDIR/.deps && make CMAKE_EXTRA_FLAGS="-DCMAKE_INSTALL_PREFIX=$TERMUX_PKG_HOSTBUILD_DIR -DUSE_BUNDLED_LUAROCKS=ON" install)
 
-	make distclean
+	#make distclean
 	rm -Rf build/
 
 	cd $TERMUX_PKG_HOSTBUILD_DIR
