@@ -4,7 +4,7 @@ TERMUX_PKG_LICENSE="Apache-2.0, VIM License"
 TERMUX_PKG_LICENSE_FILE="LICENSE.txt"
 TERMUX_PKG_MAINTAINER="Joshua Kahn @TomJo2000"
 TERMUX_PKG_VERSION="0.10.0"
-TERMUX_PKG_SRCURL=https://github.com/neovim/neovim/archive/v${TERMUX_PKG_VERSION}.tar.gz
+TERMUX_PKG_SRCURL=https://github.com/neovim/neovim/archive/refs/tags/v${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=372ea2584b0ea2a5a765844d95206bda9e4a57eaa1a2412a9a0726bab750f828
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_UPDATE_VERSION_REGEXP="^\d+\.\d+\.\d+$"
@@ -68,6 +68,7 @@ termux_step_host_build() {
 
 termux_step_pre_configure() {
 	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLUA_MATH_LIBRARY=$TERMUX_STANDALONE_TOOLCHAIN/sysroot/usr/lib/$TERMUX_HOST_PLATFORM/$TERMUX_PKG_API_LEVEL/libm.so"
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLUA_PRG=${TERMUX_PKG_SRCDIR}/.deps/usr/bin/luajit"
 }
 
 termux_step_post_make_install() {
