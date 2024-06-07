@@ -1,11 +1,20 @@
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -556,7 +556,7 @@ if(NCNN_VULKAN)
+@@ -632,8 +632,8 @@ if(NCNN_VULKAN)
+         if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/glslang/CMakeLists.txt")
              message(FATAL_ERROR "The submodules were not downloaded! Please update submodules with \"git submodule update --init\" and try again.")
          else()
-             # glslang requires c++11
+-            # glslang requires c++11
 -            set(CMAKE_CXX_STANDARD 11)
++            # glslang requires c++17
 +            set(CMAKE_CXX_STANDARD 17)
  
              option(BUILD_EXTERNAL "" OFF)
              option(ENABLE_SPVREMAPPER "" OFF)
+@@ -683,3 +683,6 @@ endif()
+ if(NCNN_PYTHON)
+     add_subdirectory(python)
+ endif()
++
++# override with host built protoc
++find_package(Protobuf)

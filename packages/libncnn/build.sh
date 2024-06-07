@@ -1,18 +1,16 @@
 TERMUX_PKG_HOMEPAGE=https://github.com/Tencent/ncnn
-TERMUX_PKG_DESCRIPTION="A high-performance neural network inference framework optimized for the mobile platform"
+TERMUX_PKG_DESCRIPTION="High-performance neural network inference framework"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="@termux"
-_COMMIT=4b97730b0d033b4dc2a790e5c35745e0dbf51569
-TERMUX_PKG_VERSION="20230627"
-TERMUX_PKG_REVISION=3
+TERMUX_PKG_VERSION="20240410"
 TERMUX_PKG_SRCURL=git+https://github.com/Tencent/ncnn
-TERMUX_PKG_GIT_BRANCH=master
-TERMUX_PKG_SHA256=a81ee5b6df97830919f8ed8554c99a4f223976ed82eee0cc9f214de0ce53dd2a
-TERMUX_PKG_AUTO_UPDATE=false
-TERMUX_PKG_DEPENDS="abseil-cpp, glslang, libc++, vulkan-loader"
-TERMUX_PKG_BUILD_DEPENDS="protobuf-static, python, vulkan-headers, vulkan-loader-android"
+TERMUX_PKG_GIT_BRANCH=${TERMUX_PKG_VERSION}
+TERMUX_PKG_SHA256=8805a6a7c9201779e04f64000f8b501e66e4c7aaf2756a8e5f217031ece70012
+TERMUX_PKG_DEPENDS="abseil-cpp, libc++"
+TERMUX_PKG_BUILD_DEPENDS="protobuf-static, python"
 TERMUX_PKG_PYTHON_COMMON_DEPS="wheel, pybind11"
 TERMUX_PKG_BUILD_IN_SRC=true
+TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DNCNN_BUILD_BENCHMARK=OFF
 -DNCNN_BUILD_EXAMPLES=OFF
@@ -28,29 +26,29 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DNCNN_SIMPLEOMP=ON
 -DNCNN_SIMPLESTL=OFF
 -DNCNN_SYSTEM_GLSLANG=ON
--DNCNN_VULKAN=ON
--DVulkan_LIBRARY=${TERMUX_PREFIX}/lib/libvulkan.so
--DVulkan_INCLUDE_DIRS=${TERMUX_PREFIX}/include
+-DNCNN_VULKAN=OFF
+"
+TERMUX_PKG_RM_AFTER_INSTALL="
+lib/libprotobuf.so
 "
 
 termux_step_post_get_source() {
-	git fetch --unshallow
-	git checkout "${_COMMIT}"
-	git submodule update --init --recursive --depth=1
-	git clean -ffxd
-
 	local version=$(git log -1 --format=%cs | sed -e "s|-||g")
 	if [[ "${version}" != "${TERMUX_PKG_VERSION}" ]]; then
-		termux_error_exit <<- EOL
+		termux_error_exit "
 		Version mismatch detected!
-		build.sh: ${TERMUX_PKG_VERSION}
-		git repo: ${version}
-		EOL
+		Expected = ${TERMUX_PKG_VERSION}
+		Actual   = ${version}
+		"
 	fi
 
 	local s=$(find . -type f ! -path '*/.git/*' -print0 | xargs -0 sha256sum | LC_ALL=C sort | sha256sum)
 	if [[ "${s}" != "${TERMUX_PKG_SHA256}  "* ]]; then
-		termux_error_exit "Checksum mismatch for source files"
+		termux_error_exit "
+		Checksum mismatch for source files!
+		Expected = ${TERMUX_PKG_SHA256}
+		Actual   = ${s}
+		"
 	fi
 }
 
@@ -70,11 +68,19 @@ termux_step_pre_configure() {
 termux_step_post_make_install() {
 	# the build system can only build static or shared
 	# at a given time
+	find . -name CMakeCache.txt \
+		-exec echo "{}" \; \
+		-exec cat "{}" \;
+	local PROTOC_BIN=$(find ${TERMUX_PKG_TMPDIR} -type f -name protoc)
 	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
 	-DNCNN_BUILD_TOOLS=ON
 	-DNCNN_SHARED_LIB=ON
+	-DProtobuf_PROTOC_EXECUTABLE=${PROTOC_BIN}
 	"
 	termux_step_configure
+	find . -name CMakeCache.txt \
+		-exec echo "{}" \; \
+		-exec cat "{}" \;
 	termux_step_make
 	termux_step_make_install
 
@@ -102,36 +108,32 @@ termux_step_post_make_install() {
 	local benchmarks=$(find benchmark -mindepth 1 -maxdepth 1 -type f | sort)
 	for benchmark in ${benchmarks}; do
 		case "$(basename "${benchmark}")" in
-			*[Cc][Mm]ake*) continue ;;
-			*.cpp*) continue ;;
-			*.md) continue ;;
-			*.*) install -v -Dm644 "${benchmark}" -t "${tools_dir}/benchmark" ;;
-			*) install -v -Dm755 "${benchmark}" -t "${tools_dir}/benchmark" ;;
+		*[Cc][Mm]ake*) continue ;;
+		*.cpp*) continue ;;
+		*.md) continue ;;
+		*.*) install -v -Dm644 -t "${tools_dir}/benchmark" "${benchmark}" ;;
+		*) install -v -Dm755 -t "${tools_dir}/benchmark" "${benchmark}" ;;
 		esac
 	done
 
 	local examples=$(find examples -mindepth 1 -maxdepth 1 -type f | sort)
 	for example in ${examples}; do
 		case "$(basename "${example}")" in
-			*[Cc][Mm]ake*) continue ;;
-			*.cpp*) continue ;;
-			*.*) install -v -Dm644 "${example}" -t "${tools_dir}/examples" ;;
-			*) install -v -Dm755 "${example}" -t "${tools_dir}/examples" ;;
+		*[Cc][Mm]ake*) continue ;;
+		*.cpp*) continue ;;
+		*.*) install -v -Dm644 -t "${tools_dir}/examples" "${example}" ;;
+		*) install -v -Dm755 -t "${tools_dir}/examples" "${example}" ;;
 		esac
 	done
 
 	local tests=$(find tests -mindepth 1 -maxdepth 1 -type f | sort)
 	for test in ${tests}; do
 		case "$(basename "${test}")" in
-			*[Cc][Mm]ake*) continue ;;
-			*.cpp*) continue ;;
-			*.h) continue ;;
-			*.py) continue ;;
-			*) install -v -Dm755 "${test}" -t "${tools_dir}/tests" ;;
+		*[Cc][Mm]ake*) continue ;;
+		*.cpp*) continue ;;
+		*.h) continue ;;
+		*.py) continue ;;
+		*) install -v -Dm755 -t "${tools_dir}/tests" "${test}" ;;
 		esac
 	done
-}
-
-termux_step_post_massage() {
-	rm -f lib/libprotobuf.so
 }
