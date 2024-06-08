@@ -9,6 +9,7 @@ TERMUX_PKG_SHA256=8805a6a7c9201779e04f64000f8b501e66e4c7aaf2756a8e5f217031ece700
 TERMUX_PKG_DEPENDS="abseil-cpp, libc++"
 TERMUX_PKG_BUILD_DEPENDS="protobuf-static, python"
 TERMUX_PKG_PYTHON_COMMON_DEPS="wheel, pybind11"
+TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
@@ -27,6 +28,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DNCNN_SIMPLESTL=OFF
 -DNCNN_SYSTEM_GLSLANG=ON
 -DNCNN_VULKAN=OFF
+-Dprotobuf_DIR=${TERMUX_PKG_HOSTBUILD_DIR}/prefix/cmake
 "
 TERMUX_PKG_RM_AFTER_INSTALL="
 lib/libprotobuf.so
@@ -52,6 +54,23 @@ termux_step_post_get_source() {
 	fi
 }
 
+termux_step_host_build() {
+	termux_setup_cmake
+	termux_setup_ninja
+
+	local PROTOBUF_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo ${TERMUX_PKG_VERSION#*:})
+	local PROTOBUF_SRCURL=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SRCURL)
+	local PROTOBUF_SHA256=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SHA256)
+	termux_download ${PROTOBUF_SRCURL} ${TERMUX_PKG_CACHEDIR}/protobuf-${PROTOBUF_VERSION}.tar.gz ${TERMUX_PKG_SHA256}
+	tar -xvf ${TERMMUX_PKG_CACHEDIR}/protobuf-${PROTOBUF_VERSION}.tar.gz
+	pushd protobuf-${PROTOBUF_VERSION}
+	mkdir -p build
+	cmake -G Ninja -B build -DCMAKE_INSTALL_PREFIX=${TERMUX_PKG_HOSTBUILD_DIR}/prefix
+	ninja -C build -j ${TERMUX_MAKE_PROCESSES} install
+	popd
+}
+
+
 termux_step_pre_configure() {
 	termux_setup_cmake
 	termux_setup_ninja
@@ -72,11 +91,8 @@ termux_step_post_make_install() {
 	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
 	-DNCNN_BUILD_TOOLS=ON
 	-DNCNN_SHARED_LIB=ON
-	-DProtobuf_PROTOC_EXECUTABLE=${PROTOC_BIN}
 	"
 	termux_step_configure
-	find . -name CMakeCache.txt \
-		-exec sed -e "s|Protobuf_PROTOC_EXECUTABLE:FILEPATH=.*|Protobuf_PROTOC_EXECUTABLE:FILEPATH=${PROTOC_BIN}|" -i "{}" \;
 	termux_step_make
 	termux_step_make_install
 
