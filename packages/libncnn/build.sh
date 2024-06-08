@@ -61,7 +61,7 @@ termux_step_host_build() {
 	local PROTOBUF_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo ${TERMUX_PKG_VERSION#*:})
 	local PROTOBUF_SRCURL=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SRCURL)
 	local PROTOBUF_SHA256=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SHA256)
-	termux_download ${PROTOBUF_SRCURL} ${TERMUX_PKG_CACHEDIR}/protobuf-${PROTOBUF_VERSION}.tar.gz ${TERMUX_PKG_SHA256}
+	termux_download ${PROTOBUF_SRCURL} ${TERMUX_PKG_CACHEDIR}/protobuf-${PROTOBUF_VERSION}.tar.gz ${PROTOBUF_SHA256}
 	tar -xvf ${TERMMUX_PKG_CACHEDIR}/protobuf-${PROTOBUF_VERSION}.tar.gz
 	pushd protobuf-${PROTOBUF_VERSION}
 	mkdir -p build
