@@ -68,9 +68,6 @@ termux_step_pre_configure() {
 termux_step_post_make_install() {
 	# the build system can only build static or shared
 	# at a given time
-	find . -name CMakeCache.txt \
-		-exec echo "{}" \; \
-		-exec cat "{}" \;
 	local PROTOC_BIN=$(find ${TERMUX_PKG_TMPDIR} -type f -name protoc)
 	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+="
 	-DNCNN_BUILD_TOOLS=ON
@@ -79,8 +76,7 @@ termux_step_post_make_install() {
 	"
 	termux_step_configure
 	find . -name CMakeCache.txt \
-		-exec echo "{}" \; \
-		-exec cat "{}" \;
+		-exec sed -e "s|Protobuf_PROTOC_EXECUTABLE:FILEPATH=.*|Protobuf_PROTOC_EXECUTABLE:FILEPATH=${PROTOC_BIN}|" -i "{}" \;
 	termux_step_make
 	termux_step_make_install
 
