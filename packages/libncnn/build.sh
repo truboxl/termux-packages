@@ -58,6 +58,7 @@ termux_step_post_get_source() {
 
 	termux_download ${_PROTOBUF_SRCURL} ${TERMUX_PKG_CACHEDIR}/protobuf-${_PROTOBUF_VERSION}.tar.xz ${_PROTOBUF_SHA256}
 	tar -xf ${TERMUX_PKG_CACHEDIR}/protobuf-${_PROTOBUF_VERSION}.tar.xz
+	git -C ${TERMUX_PKG_SRCDIR}/protobuf-${_PROTOBUF_VERSION} submodule update --init --recursive --depth=1
 }
 
 termux_step_host_build() {
