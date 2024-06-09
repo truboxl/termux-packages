@@ -8,12 +8,12 @@ _PROTOBUF_SRCURL=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERM
 _PROTOBUF_SHA256=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SHA256)
 TERMUX_PKG_SRCURL=(
 	git+https://github.com/Tencent/ncnn
-	${PROTOBUF_SRCURL}
+	${_PROTOBUF_SRCURL}
 )
 TERMUX_PKG_GIT_BRANCH=${TERMUX_PKG_VERSION}
 TERMUX_PKG_SHA256=(
 	8805a6a7c9201779e04f64000f8b501e66e4c7aaf2756a8e5f217031ece70012
-	${PROTOBUF_SHA256}
+	${_PROTOBUF_SHA256}
 )
 TERMUX_PKG_DEPENDS="abseil-cpp, libc++"
 TERMUX_PKG_BUILD_DEPENDS="protobuf-static, python"
@@ -70,7 +70,7 @@ termux_step_host_build() {
 	mkdir -p build
 	cmake \
 		-G Ninja \
-		-S ${TERMUX_PKG_SRCDIR}/protobuf-${PROTOBUF_VERSION} \
+		-S ${TERMUX_PKG_SRCDIR}/protobuf-${_PROTOBUF_VERSION} \
 		-B build \
 		-DCMAKE_INSTALL_PREFIX=${TERMUX_PKG_HOSTBUILD_DIR}/prefix
 	ninja \
