@@ -6,15 +6,9 @@ TERMUX_PKG_VERSION="20240410"
 _PROTOBUF_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo ${TERMUX_PKG_VERSION#*:})
 _PROTOBUF_SRCURL=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SRCURL)
 _PROTOBUF_SHA256=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SHA256)
-TERMUX_PKG_SRCURL=(
-	git+https://github.com/Tencent/ncnn
-	${_PROTOBUF_SRCURL}
-)
+TERMUX_PKG_SRCURL=git+https://github.com/Tencent/ncnn
 TERMUX_PKG_GIT_BRANCH=${TERMUX_PKG_VERSION}
-TERMUX_PKG_SHA256=(
-	8805a6a7c9201779e04f64000f8b501e66e4c7aaf2756a8e5f217031ece70012
-	${_PROTOBUF_SHA256}
-)
+TERMUX_PKG_SHA256=8805a6a7c9201779e04f64000f8b501e66e4c7aaf2756a8e5f217031ece70012
 TERMUX_PKG_DEPENDS="abseil-cpp, libc++"
 TERMUX_PKG_BUILD_DEPENDS="protobuf-static, python"
 TERMUX_PKG_PYTHON_COMMON_DEPS="wheel, pybind11"
@@ -61,6 +55,9 @@ termux_step_post_get_source() {
 		Actual   = ${s}
 		"
 	fi
+
+	termux_download ${_PROTOBUF_SRCURL} ${TERMUX_PKG_CACHEDIR}/protobuf-${_PROTOBUF_VERSION}.tar.xz ${_PROTOBUF_SHA256}
+	tar -xvf ${TERMUX_PKG_CACHEDIR}/protobuf-${_PROTOBUF_VERSION}.tar.xz
 }
 
 termux_step_host_build() {
