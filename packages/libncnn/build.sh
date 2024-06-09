@@ -58,6 +58,9 @@ termux_step_host_build() {
 	termux_setup_cmake
 	termux_setup_ninja
 
+	# termux_step_host_build does not populate TERMUX_PKG_CACHEDIR
+	mkdir -p ${TERMUX_PKG_BUILDER_DIR}/cache
+
 	local PROTOBUF_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo ${TERMUX_PKG_VERSION#*:})
 	local PROTOBUF_SRCURL=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SRCURL)
 	local PROTOBUF_SHA256=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SHA256)
