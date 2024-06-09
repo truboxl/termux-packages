@@ -57,7 +57,7 @@ termux_step_post_get_source() {
 	fi
 
 	termux_download ${_PROTOBUF_SRCURL} ${TERMUX_PKG_CACHEDIR}/protobuf-${_PROTOBUF_VERSION}.tar.xz ${_PROTOBUF_SHA256}
-	tar -xvf ${TERMUX_PKG_CACHEDIR}/protobuf-${_PROTOBUF_VERSION}.tar.xz
+	tar -xf ${TERMUX_PKG_CACHEDIR}/protobuf-${_PROTOBUF_VERSION}.tar.xz
 }
 
 termux_step_host_build() {
