@@ -65,7 +65,7 @@ termux_step_host_build() {
 	local PROTOBUF_SRCURL=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SRCURL)
 	local PROTOBUF_SHA256=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SHA256)
 	termux_download ${PROTOBUF_SRCURL} ${TERMUX_PKG_BUILDER_DIR}/cache/protobuf-${PROTOBUF_VERSION}.tar.gz ${PROTOBUF_SHA256}
-	tar -xvf ${TERMMUX_PKG_CACHEDIR}/protobuf-${PROTOBUF_VERSION}.tar.gz
+	tar -xvf ${TERMMUX_PKG_BUILDER_DIR}/cache/protobuf-${PROTOBUF_VERSION}.tar.gz
 	pushd protobuf-${PROTOBUF_VERSION}
 	mkdir -p build
 	cmake -G Ninja -B build -DCMAKE_INSTALL_PREFIX=${TERMUX_PKG_HOSTBUILD_DIR}/prefix
