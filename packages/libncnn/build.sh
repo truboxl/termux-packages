@@ -3,15 +3,24 @@ TERMUX_PKG_DESCRIPTION="High-performance neural network inference framework"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="20240410"
-TERMUX_PKG_SRCURL=git+https://github.com/Tencent/ncnn
+_PROTOBUF_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo ${TERMUX_PKG_VERSION#*:})
+_PROTOBUF_SRCURL=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SRCURL)
+_PROTOBUF_SHA256=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SHA256)
+TERMUX_PKG_SRCURL=(
+	git+https://github.com/Tencent/ncnn
+	${PROTOBUF_SRCURL}
+)
 TERMUX_PKG_GIT_BRANCH=${TERMUX_PKG_VERSION}
-TERMUX_PKG_SHA256=8805a6a7c9201779e04f64000f8b501e66e4c7aaf2756a8e5f217031ece70012
+TERMUX_PKG_SHA256=(
+	8805a6a7c9201779e04f64000f8b501e66e4c7aaf2756a8e5f217031ece70012
+	${PROTOBUF_SHA256}
+)
 TERMUX_PKG_DEPENDS="abseil-cpp, libc++"
 TERMUX_PKG_BUILD_DEPENDS="protobuf-static, python"
 TERMUX_PKG_PYTHON_COMMON_DEPS="wheel, pybind11"
 TERMUX_PKG_HOSTBUILD=true
 TERMUX_PKG_BUILD_IN_SRC=true
-TERMUX_PKG_AUTO_UPDATE=true
+TERMUX_PKG_AUTO_UPDATE=false
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DNCNN_BUILD_BENCHMARK=OFF
 -DNCNN_BUILD_EXAMPLES=OFF
@@ -58,18 +67,16 @@ termux_step_host_build() {
 	termux_setup_cmake
 	termux_setup_ninja
 
-	# termux_step_host_build does not populate TERMUX_PKG_CACHEDIR
-	mkdir -p ${TERMUX_PKG_BUILDER_DIR}/cache
-
-	local PROTOBUF_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo ${TERMUX_PKG_VERSION#*:})
-	local PROTOBUF_SRCURL=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SRCURL)
-	local PROTOBUF_SHA256=$(. $TERMUX_SCRIPTDIR/packages/libprotobuf/build.sh; echo $TERMUX_PKG_SHA256)
-	termux_download ${PROTOBUF_SRCURL} ${TERMUX_PKG_BUILDER_DIR}/cache/protobuf-${PROTOBUF_VERSION}.tar.gz ${PROTOBUF_SHA256}
-	tar -xvf ${TERMMUX_PKG_BUILDER_DIR}/cache/protobuf-${PROTOBUF_VERSION}.tar.gz
-	pushd protobuf-${PROTOBUF_VERSION}
 	mkdir -p build
-	cmake -G Ninja -B build -DCMAKE_INSTALL_PREFIX=${TERMUX_PKG_HOSTBUILD_DIR}/prefix
-	ninja -C build -j ${TERMUX_MAKE_PROCESSES} install
+	cmake \
+		-G Ninja \
+		-S ${TERMUX_PKG_SRCDIR}/protobuf-${PROTOBUF_VERSION} \
+		-B build \
+		-DCMAKE_INSTALL_PREFIX=${TERMUX_PKG_HOSTBUILD_DIR}/prefix
+	ninja \
+		-C build \
+		-j ${TERMUX_MAKE_PROCESSES} \
+		install
 	popd
 }
 
