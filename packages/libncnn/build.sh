@@ -69,7 +69,8 @@ termux_step_host_build() {
 		-G Ninja \
 		-S ${TERMUX_PKG_SRCDIR}/protobuf-${_PROTOBUF_VERSION} \
 		-B build \
-		-DCMAKE_INSTALL_PREFIX=${TERMUX_PKG_HOSTBUILD_DIR}/prefix
+		-DCMAKE_INSTALL_PREFIX=${TERMUX_PKG_HOSTBUILD_DIR}/prefix \
+		-Dprotobuf_BUILD_TESTS=OFF
 	ninja \
 		-C build \
 		-j ${TERMUX_MAKE_PROCESSES} \
