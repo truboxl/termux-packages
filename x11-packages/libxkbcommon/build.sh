@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="Keymap handling library for toolkits and window systems"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="1.7.0"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/xkbcommon/libxkbcommon/archive/xkbcommon-${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=20d5e40dabd927f7a7f4342bebb1e8c7a59241283c978b800ae3bf60394eabc4
 TERMUX_PKG_DEPENDS="libxcb, libxml2, libwayland, xkeyboard-config"

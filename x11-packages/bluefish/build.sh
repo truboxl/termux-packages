@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="A powerful editor targeted towards programmers and webde
 TERMUX_PKG_LICENSE="GPL-3.0"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="2.2.15"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://www.bennewitz.com/bluefish/stable/source/bluefish-${TERMUX_PKG_VERSION}.tar.bz2
 TERMUX_PKG_SHA256=6143e51c6b5579d596f3a9a85e0f0d8580c9f58f828575b119880e0ca1d941bc
 TERMUX_PKG_AUTO_UPDATE=true
