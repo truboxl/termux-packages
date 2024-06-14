@@ -149,9 +149,9 @@ PACKAGES+=" composer"
 
 # Needed by package rust.
 PACKAGES+=" libssl-dev" # Needed to build Rust
-PACKAGES+=" llvm-16-dev"
-PACKAGES+=" llvm-16-tools"
-PACKAGES+=" clang-16"
+PACKAGES+=" llvm-17-dev"
+PACKAGES+=" llvm-17-tools"
+PACKAGES+=" clang-17"
 
 # Needed for package smalltalk.
 PACKAGES+=" libsigsegv-dev"
