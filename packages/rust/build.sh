@@ -165,6 +165,12 @@ termux_step_configure() {
 	# NDK r26
 	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-lc++_shared"
 
+	# rust 1.79.0
+	# note: ld.lld: error: undefined reference due to --no-allow-shlib-undefined: syncfs
+	"${CC}" ${CPPFLAGS} -c "${TERMUX_PKG_BUILDER_DIR}/syncfs.c"
+	"${AR}" rcu "${RUST_LIBDIR}/libsyncfs.a" syncfs.o
+	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-l:libsyncfs.a"
+
 	export X86_64_UNKNOWN_LINUX_GNU_OPENSSL_LIB_DIR=/usr/lib/x86_64-linux-gnu
 	export X86_64_UNKNOWN_LINUX_GNU_OPENSSL_INCLUDE_DIR=/usr/include
 	export PKG_CONFIG_ALLOW_CROSS=1
