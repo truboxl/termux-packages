@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="Provides a standard for creating app stores across distr
 TERMUX_PKG_LICENSE="LGPL-2.1"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="1.0.3"
+TERMYX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/ximion/appstream/archive/refs/tags/v${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=dd7222519b5d855124fa803ce82a7cbf090ac6b2e44a5bc515e729b1f20a63ae
 TERMUX_PKG_AUTO_UPDATE=true

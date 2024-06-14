@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="One-time password components"
 TERMUX_PKG_LICENSE="GPL-3.0, LGPL-2.1"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=2.6.11
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=http://download.savannah.nongnu.org/releases/oath-toolkit/oath-toolkit-$TERMUX_PKG_VERSION.tar.gz
 TERMUX_PKG_SHA256=fc512a4a5b46f4c43ab0586c3189fece4d54f7e649397d6fa1e23428431e2cb4
 TERMUX_PKG_DEPENDS="libxml2, xmlsec"

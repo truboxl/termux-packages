@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="A straightforward binding of libsass for Python"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="5.2.2"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/lxml/lxml/releases/download/lxml-$TERMUX_PKG_VERSION/lxml-$TERMUX_PKG_VERSION.tar.gz
 TERMUX_PKG_SHA256=bb2dc4898180bea79863d5487e5f9c7c34297414bad54bcd0f0852aee9cfdb87
 TERMUX_PKG_DEPENDS="libxml2, libxslt, python, python-pip"
