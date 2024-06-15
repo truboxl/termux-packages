@@ -39,7 +39,7 @@ termux_step_post_massage() {
 	if [[ -z "$(find /proc/sys/fs/binfmt_misc -type f -name 'qemu-*')" ]]; then return; fi
 	# self test
 	pushd "${TERMUX_PKG_TMPDIR}"
-	"${TERMUX_PKG_MASSAGEDIR}/bin/zig" version
-	"${TERMUX_PKG_MASSAGEDIR}/bin/zig" init
+	"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX_CLASSICAL/bin/zig" version
+	"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX_CLASSICAL/bin/zig" init
 	popd
 }
