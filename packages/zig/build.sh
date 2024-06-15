@@ -38,9 +38,8 @@ termux_step_post_massage() {
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then return; fi
 	if [[ -z "$(find /proc/sys/fs/binfmt_misc -type f -name 'qemu-*')" ]]; then return; fi
 	# self test
-	local MASSAGE_DIR="$PWD"
-	pushd ${TERMUX_PKG_TMPDIR}
-	$MASSAGE_DIR/bin/zig version
-	$MASSAGE_DIR/bin/zig init
+	pushd "${TERMUX_PKG_TMPDIR}"
+	"${TERMUX_PKG_MASSAGEDIR}/bin/zig" version
+	"${TERMUX_PKG_MASSAGEDIR}/bin/zig" init
 	popd
 }
