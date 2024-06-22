@@ -6,7 +6,7 @@ TERMUX_PKG_VERSION="2.16.0"
 TERMUX_PKG_SRCURL=https://github.com/fastfetch-cli/fastfetch/archive/refs/tags/${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=8c5d137e0439d70189fc267176840feaba5f3e06177d57c4be9a866595651803
 TERMUX_PKG_DEPENDS="vulkan-loader"
-TERMUX_PKG_BUILD_DEPENDS="freetype, libandroid-wordexp-static, vulkan-headers, vulkan-loader-android"
+TERMUX_PKG_BUILD_DEPENDS="freetype, libandroid-wordexp-static, vulkan-headers"
 TERMUX_PKG_ANTI_BUILD_DEPENDS="vulkan-loader"
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
@@ -14,3 +14,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DTARGET_DIR_ROOT=${TERMUX_PREFIX}
 -DTARGET_DIR_USR=${TERMUX_PREFIX}
 "
+
+termux_pkg_pre_configure() {
+	LDFLAGS+=" ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot/usr/lib/${TERMUX_HOST_PLATFORM}/${TERMUX_PKG_API_LEVEL}/libvulkan.so"
+}
