@@ -32,6 +32,7 @@ PACKAGES+=" libtool"
 PACKAGES+=" m4"
 PACKAGES+=" make"			# Used for all Makefile-based projects.
 PACKAGES+=" ninja"			# Used by default to build all CMake projects.
+PACKAGES+=" ndk-multilib"		# Needed by rust
 PACKAGES+=" perl"
 PACKAGES+=" pkg-config"
 PACKAGES+=" protobuf"
