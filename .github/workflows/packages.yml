@@ -324,10 +324,11 @@ jobs:
       with:
         path: ./
     - name: Download Termux APK
+      env: ARCH: ${{ matrix.arch }}
       run: |
         TERMUX_APK_URL=$(curl -s https://api.github.com/repos/termux/termux-app/releases/latest | grep browser_download_url | sed -e 's|.*: ||' -e 's|"||g')
-        case "${{ matrix.arch }}" in
-        aarc64) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep arm64) ;;
+        case "$ARCH" in
+        aarch64) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep arm64) ;;
         arm) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep armeabi) ;;
         i686) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep x86 | grep -v x86_64) ;;
         x86_64) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep x86_64) ;;
