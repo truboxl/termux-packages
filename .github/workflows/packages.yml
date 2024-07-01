@@ -31,6 +31,7 @@ jobs:
     strategy:
       matrix:
         target_arch: [aarch64, arm, i686, x86_64]
+        build: [ndk, on_device]
       fail-fast: false
     steps:
     - name: Setup arm and aarch64 CPU emulators
@@ -170,7 +171,6 @@ jobs:
             cd ..
           fi
         fi
-
     - name: Lint packages
       run: |
         declare -a package_recipes
@@ -184,7 +184,6 @@ jobs:
         if [ -n "$package_recipes" ]; then
           ./scripts/lint-packages.sh $package_recipes
         fi
-
     - name: Free additional disk space (if needed)
       run: |
         declare -a packages
@@ -206,7 +205,6 @@ jobs:
             sudo rm -fr /opt/ghc /opt/hostedtoolcache /usr/lib/node_modules /usr/local/share/boost /usr/share/dotnet /usr/share/swift
           fi
         fi
-
     - name: Build packages
       run: |
         declare -a packages
@@ -221,10 +219,15 @@ jobs:
           if grep -qP "(^|\\s)${packages// /($|\\s)|(^|\\s)}($|\\s)" ./scripts/big-pkgs.list; then
             NDK=$ANDROID_NDK_LATEST_HOME ANDROID_HOME=$ANDROID_SDK_ROOT ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
           else
-            ./scripts/run-docker.sh ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
+            if [ ${{ matrix.build }} = "on_device" ]; then
+              docker run -i --name termux-docker-${{ matrix.target_arch }} --unprivileged --volume $PWD:/data/data/com.termux/files/home/termux-packages \
+                --workdir /data/data/com.termux/files/home/termux-packages termux/termux-docker:${{ matrix.target_arch }} \
+                ./scripts/setup-termux.sh && ./build-package.sh -I -f $packages
+            else
+              ./scripts/run-docker.sh ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
+            fi
           fi
         fi
-
     - name: Generate build artifacts
       if: always()
       run: |
@@ -265,6 +268,76 @@ jobs:
       with:
         name: debs-${{ matrix.target_arch }}-${{ github.sha }}
         path: ./artifacts
+
+  test-termux-docker:
+    permissions:
+      contents: read
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target_arch: [aarch64, arm, i686, x86_64]
+      fail-fast: false
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v4
+    - name: Get *.deb files
+      uses: actions/download-artifact@v4
+      with:
+        path: ./
+    - name: Run Termux Docker
+      run: |
+        docker run -i --name termux-docker-${{ matrix.target_arch }} \
+          --volume $PWD:/data/data/com.termux/files/usr/home \
+        termux/termux-docker:${{ matrix.target_arch }}
+        yes | pkg upgrade
+        ls -a
+        dpkg -i *_all.deb *_${{ matrix.target_arch }}.deb
+        exit
+
+  test-android-emulator:
+    permissions:
+      contents: read
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target_arch: [aarch64, arm, i686, x86_64]
+      fail-fast: false
+    steps:
+    - name: Enable KVM group permission
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+    - name: Clone repository
+      uses: actions/checkout@v4
+    - name: Get *.deb files
+      uses: actions/download-artifact@v4
+      with:
+        path: ./
+    - name: Download Termux APK
+      run: |
+        TERMUX_APK_URL=$(curl -s https://api.github.com/repos/termux/termux-app/releases/latest | grep browser_download_url | sed -e 's|.*: ||' -e 's|"||g')
+        case "${{ matrix.arch }}" in
+        aarc64) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep arm64) ;;
+        arm) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep armeabi) ;;
+        i686) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep x86 | grep -v x86_64) ;;
+        x86_64) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep x86_64) ;;
+        esac
+        echo "Downloading $TERMUX_APK_URL"
+        curl -L $TERMUX_APK_URL -o termux-${{ matrix.target_arch }}.apk
+    - name: Run tests on Android emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: 24
+        arch: ${{ (matrix.target_arch == 'aarch64' && 'arm64-v8a') || (matrix.target_arch == 'arm' && 'armeabi-v7a') || (matrix.target_arch == 'i686' && 'x86') || matrix.target_arch }}
+        script: |
+          adb install termux-${{ matrix.target_arch }}.apk
+          adb push *.deb /data/local/tmp
+
+          adb shell "run-as com.termux yes | pkg upgrade"
+          adb shell "run-as com.termux dpkg -i /data/local/tmp/*_all.deb /data/local/tmp/*_${{ matrix.target_arch }}.deb"
 
   upload:
     concurrency: ${{ github.workflow }}
