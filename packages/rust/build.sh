@@ -207,7 +207,7 @@ termux_step_make() {
 	fi
 
 	local job1=install
-	local job2=install
+	local job2=dist
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
 		job1=dist
 		job2=dist
