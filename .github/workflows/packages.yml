@@ -324,7 +324,7 @@ jobs:
       with:
         path: ./
     - name: Download Termux APK
-      env: ARCH: ${{ matrix.arch }}
+      env: ARCH: ${{ matrix.target_arch }}
       run: |
         TERMUX_APK_URL=$(curl -s https://api.github.com/repos/termux/termux-app/releases/latest | grep browser_download_url | sed -e 's|.*: ||' -e 's|"||g')
         case "$ARCH" in
