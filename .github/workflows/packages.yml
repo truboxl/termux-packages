@@ -281,6 +281,11 @@ jobs:
         target_arch: [aarch64, arm, i686, x86_64]
       fail-fast: false
     steps:
+    - name: Setup arm and aarch64 CPU emulators
+      if: ${{ matrix.target_arch == 'aarch64' || matrix.target_arch == 'arm' }}
+      uses: dbhi/qus/action@main
+      with:
+        targets: ${{ matrix.target_arch }}
     - name: Clone repository
       uses: actions/checkout@v4
     - name: Get *.deb files
@@ -289,7 +294,7 @@ jobs:
         path: ./
     - name: Run Termux Docker
       run: |
-        docker run -i --name termux-docker-${{ matrix.target_arch }} \
+        docker run -i --name termux-docker-${{ matrix.target_arch }} --unprivileged \
           --volume $PWD:/data/data/com.termux/files/usr/home \
         termux/termux-docker:${{ matrix.target_arch }}
         yes | pkg upgrade
