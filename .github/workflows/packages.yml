@@ -198,7 +198,6 @@ jobs:
         if [ -n "$packages" ]; then
           if grep -qP "(^|\\s)${packages// /($|\\s)|(^|\\s)}($|\\s)" ./scripts/big-pkgs.list; then
             ./scripts/setup-ubuntu.sh
-            sudo apt install ninja-build
             sudo apt purge -yq $(dpkg -l | grep '^ii' | awk '{ print $2 }' | grep -P '(aspnetcore|cabal-|dotnet-|ghc-|libmono|mongodb-|mysql-|php)') \
               firefox google-chrome-stable google-cloud-cli microsoft-edge-stable mono-devel mono-runtime-common monodoc-manual powershell ruby
             sudo apt autoremove -yq
@@ -217,13 +216,13 @@ jobs:
         done
 
         if [ -n "$packages" ]; then
-          if grep -qP "(^|\\s)${packages// /($|\\s)|(^|\\s)}($|\\s)" ./scripts/big-pkgs.list; then
-            NDK=$ANDROID_NDK_LATEST_HOME ANDROID_HOME=$ANDROID_SDK_ROOT ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
-          else
-            if [ "${{ matrix.build_type }}" = "native" ]; then
+          if [ "${{ matrix.build_type }}" = "native" ]; then
               docker run -i --name termux-docker-${{ matrix.target_arch }} --unprivileged --volume $PWD:/data/data/com.termux/files/home/termux-packages \
                 --workdir /data/data/com.termux/files/home/termux-packages termux/termux-docker:${{ matrix.target_arch }} \
                 ./scripts/setup-termux.sh && ./build-package.sh -I -f $packages
+          else
+            if grep -qP "(^|\\s)${packages// /($|\\s)|(^|\\s)}($|\\s)" ./scripts/big-pkgs.list; then
+              NDK=$ANDROID_NDK_LATEST_HOME ANDROID_HOME=$ANDROID_SDK_ROOT ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
             else
               ./scripts/run-docker.sh ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
             fi
@@ -338,7 +337,7 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 24
-        arch: ${{ (matrix.target_arch == 'aarch64' && 'arm64-v8a') || (matrix.target_arch == 'arm' && 'armeabi-v7a') || (matrix.target_arch == 'i686' && 'x86') || matrix.target_arch }}
+        arch: ${{ (matrix.target_arch == 'aarch64' && 'arm64-v8a') || (matrix.target_arch == 'arm' && 'arm64-v8a') || (matrix.target_arch == 'i686' && 'x86') || matrix.target_arch }}
         script: |
           adb install termux-${{ matrix.target_arch }}.apk
           adb push *.deb /data/local/tmp
