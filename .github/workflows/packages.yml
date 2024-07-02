@@ -206,7 +206,6 @@ jobs:
           fi
         fi
     - name: Build packages
-      env:
       run: |
         declare -a packages
         for repo_path in $(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json); do
