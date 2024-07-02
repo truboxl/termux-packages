@@ -207,16 +207,14 @@ termux_step_make() {
 	fi
 
 	local job1=install
-	local job2=dist
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
 		job1=dist
-		job2=dist
 	fi
 
 	if :; then
 		# speed up building rust for testing
 		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 --target ${CARGO_TARGET_NAME}
-		${TERMUX_PKG_SRCDIR}/x.py ${job2} rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target ${CARGO_TARGET_NAME}
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target ${CARGO_TARGET_NAME}
 	else
 		# otherwise always build all the supported targets
 		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 --target aarch64-linux-android
@@ -228,14 +226,14 @@ termux_step_make() {
 		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 std --target wasm32-wasip1
 		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 std --target wasm32-wasip2
 
-		${TERMUX_PKG_SRCDIR}/x.py ${job2} rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target aarch64-linux-android
-		${TERMUX_PKG_SRCDIR}/x.py ${job2} rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target armv7-linux-androideabi
-		${TERMUX_PKG_SRCDIR}/x.py ${job2} rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target i686-linux-android
-		${TERMUX_PKG_SRCDIR}/x.py ${job2} rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target x86_64-linux-android
-		${TERMUX_PKG_SRCDIR}/x.py ${job2} rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-unknown-unknown
-		${TERMUX_PKG_SRCDIR}/x.py ${job2} rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-wasi
-		${TERMUX_PKG_SRCDIR}/x.py ${job2} rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-wasip1
-		${TERMUX_PKG_SRCDIR}/x.py ${job2} rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-wasip2
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target aarch64-linux-android
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target armv7-linux-androideabi
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target i686-linux-android
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target x86_64-linux-android
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-unknown-unknown
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-wasi
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-wasip1
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-wasip2
 	fi
 }
 
@@ -244,10 +242,8 @@ termux_step_make_install() {
 	local TERMUX_PKG_VERSION=${TERMUX_PKG_VERSION//~*}
 
 	ls -la build/dist
-	if [[ "$job2" == "dist" ]]; then
-		tar -xvf build/dist/rustc-dev-${TERMUX_PKG_VERSION}-${CARGO_TARGET_NAME}.tar.gz
-		./rustc-dev-${TERMUX_PKG_VERSION}-${CARGO_TARGET_NAME}/install.sh --prefix=${TERMUX_PREFIX}
-	fi
+	tar -xvf build/dist/rustc-dev-${TERMUX_PKG_VERSION}-${CARGO_TARGET_NAME}.tar.gz
+	./rustc-dev-${TERMUX_PKG_VERSION}-${CARGO_TARGET_NAME}/install.sh --prefix=${TERMUX_PREFIX}
 
 	cd "$TERMUX_PREFIX/lib"
 	rm -f libc.so libdl.so
