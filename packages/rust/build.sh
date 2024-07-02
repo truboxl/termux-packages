@@ -115,6 +115,7 @@ termux_step_pre_configure() {
 	# rust checks libs in PREFIX/lib. It then can't find libc.so and libdl.so because rust program doesn't
 	# know where those are. Putting them temporarly in $PREFIX/lib prevents that failure
 	# https://github.com/termux/termux-packages/issues/11427
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then return; fi
 	mv $TERMUX_PREFIX/lib/liblzma.a{,.tmp} || :
 	mv $TERMUX_PREFIX/lib/liblzma.so{,.tmp} || :
 	mv $TERMUX_PREFIX/lib/liblzma.so.${_LZMA_VERSION}{,.tmp} || :
@@ -132,17 +133,30 @@ termux_step_configure() {
 
 	# upstream tests build using versions N and N-1
 	local BOOTSTRAP_VERSION=1.78.0
-	if rustup install $BOOTSTRAP_VERSION; then
-	rustup default $BOOTSTRAP_VERSION-x86_64-unknown-linux-gnu
-	export PATH=$HOME/.rustup/toolchains/$BOOTSTRAP_VERSION-x86_64-unknown-linux-gnu/bin:$PATH
-	else
-	echo "WARN: $BOOTSTRAP_VERSION is unavailable, fallback to stable version!"
-	rustup install stable
-	rustup default stable-x86_64-unknown-linux-gnu
-	export PATH=$HOME/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:$PATH
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
+		if rustup install ${BOOTSTRAP_VERSION}; then
+			rustup default ${BOOTSTRAP_VERSION}-x86_64-unknown-linux-gnu
+			export PATH=${HOME}/.rustup/toolchains/${BOOTSTRAP_VERSION}-x86_64-unknown-linux-gnu/bin:${PATH}
+		else
+			echo "WARN: ${BOOTSTRAP_VERSION} is unavailable, fallback to stable version!"
+			rustup install stable
+			rustup default stable-x86_64-unknown-linux-gnu
+			export PATH=${HOME}/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin:${PATH}
+		fi
 	fi
 	local RUSTC=$(command -v rustc)
 	local CARGO=$(command -v cargo)
+
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
+		mkdir -p ${TERMUX_STANDALONE_TOOLCHAIN}/toolchains/llvm/prebuilt/linux-x86_64/bin
+		pushd ${TERMUX_STANDALONE_TOOLCHAIN}/toolchains/llvm/prebuilt/linux-x86_64/bin
+		local target
+		for target in aarch64-linux-android armv7a-linux-androideabi i686-linux-android x86_64-linux-android; do
+			ln -fsv ${TERMUX_PREFIX}/bin/clang ${target}${TERMUX_PKG_API_LEVEL}-clang
+			ln -fsv ${TERMUX_PREFIX}/bin/clang++ ${target}${TERMUX_PKG_API_LEVEL}-clang++
+		done
+		popd
+	fi
 
 	sed \
 		-e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" \
@@ -181,51 +195,55 @@ termux_step_configure() {
 }
 
 termux_step_make() {
-	:
-}
-
-termux_step_make_install() {
 	unset CC CFLAGS CPP CPPFLAGS CXX CXXFLAGS LD LDFLAGS PKG_CONFIG RANLIB
-
-	# remove version suffix: beta, nightly
-	local TERMUX_PKG_VERSION=${TERMUX_PKG_VERSION//~*}
 
 	# needed to workaround build issue that only happens on x86_64
 	# /home/runner/.termux-build/rust/build/build/bootstrap/debug/bootstrap: error while loading shared libraries: /lib/x86_64-linux-gnu/libc.so: invalid ELF header
-	if [[ "$TERMUX_ARCH" == "x86_64" ]]; then
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]] && [[ "${TERMUX_ARCH}" == "x86_64" ]]; then
 		mv ${TERMUX_PREFIX}{,.tmp}
-		$TERMUX_PKG_SRCDIR/x.py build --host x86_64-unknown-linux-gnu --stage 1 cargo
+		$TERMUX_PKG_SRCDIR/x.py build -j ${TERMUX_PKG_MAKE_PROCESSES} --host x86_64-unknown-linux-gnu --stage 1 cargo
 		[[ -d "${TERMUX_PREFIX}" ]] && termux_error_exit "Contaminated PREFIX found:\n$(find ${TERMUX_PREFIX} | sort)"
 		mv ${TERMUX_PREFIX}{.tmp,}
 	fi
 
-	if ! :; then
-	# speed up building rust for testing
-	$TERMUX_PKG_SRCDIR/x.py install --stage 1 --target $CARGO_TARGET_NAME
-	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target $CARGO_TARGET_NAME
-	else
-	# otherwise always build all the supported targets
-	$TERMUX_PKG_SRCDIR/x.py install --stage 1 --target aarch64-linux-android
-	$TERMUX_PKG_SRCDIR/x.py install --stage 1 --target armv7-linux-androideabi
-	$TERMUX_PKG_SRCDIR/x.py install --stage 1 --target i686-linux-android
-	$TERMUX_PKG_SRCDIR/x.py install --stage 1 --target x86_64-linux-android
-	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target wasm32-unknown-unknown
-	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target wasm32-wasi
-	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target wasm32-wasip1
-	$TERMUX_PKG_SRCDIR/x.py install --stage 1 std --target wasm32-wasip2
-
-	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target aarch64-linux-android
-	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target armv7-linux-androideabi
-	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target i686-linux-android
-	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target x86_64-linux-android
-	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target wasm32-unknown-unknown
-	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target wasm32-wasi
-	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target wasm32-wasip1
-	$TERMUX_PKG_SRCDIR/x.py dist rustc-dev --host $CARGO_TARGET_NAME --target wasm32-wasip2
+	local job1=install
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
+		job1=dist
 	fi
 
-	tar -xvf build/dist/rustc-dev-$TERMUX_PKG_VERSION-$CARGO_TARGET_NAME.tar.gz
-	./rustc-dev-$TERMUX_PKG_VERSION-$CARGO_TARGET_NAME/install.sh --prefix=$TERMUX_PREFIX
+	if :; then
+		# speed up building rust for testing
+		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 --target ${CARGO_TARGET_NAME}
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target ${CARGO_TARGET_NAME}
+	else
+		# otherwise always build all the supported targets
+		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 --target aarch64-linux-android
+		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 --target armv7-linux-androideabi
+		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 --target i686-linux-android
+		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 --target x86_64-linux-android
+		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 std --target wasm32-unknown-unknown
+		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 std --target wasm32-wasi
+		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 std --target wasm32-wasip1
+		${TERMUX_PKG_SRCDIR}/x.py ${job1} -j ${TERMUX_PKG_MAKE_PROCESSES} --stage 1 std --target wasm32-wasip2
+
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target aarch64-linux-android
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target armv7-linux-androideabi
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target i686-linux-android
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target x86_64-linux-android
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-unknown-unknown
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-wasi
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-wasip1
+		${TERMUX_PKG_SRCDIR}/x.py dist rustc-dev -j ${TERMUX_PKG_MAKE_PROCESSES} --host ${CARGO_TARGET_NAME} --target wasm32-wasip2
+	fi
+}
+
+termux_step_make_install() {
+	# remove version suffix: beta, nightly
+	local TERMUX_PKG_VERSION=${TERMUX_PKG_VERSION//~*}
+
+	ls -la build/dist
+	tar -xvf build/dist/rustc-dev-${TERMUX_PKG_VERSION}-${CARGO_TARGET_NAME}.tar.gz
+	./rustc-dev-${TERMUX_PKG_VERSION}-${CARGO_TARGET_NAME}/install.sh --prefix=${TERMUX_PREFIX}
 
 	cd "$TERMUX_PREFIX/lib"
 	rm -f libc.so libdl.so
