@@ -34,6 +34,7 @@ android-ndk = "@TERMUX_STANDALONE_TOOLCHAIN@"
 [install]
 prefix = "@TERMUX_PREFIX@"
 sysconfdir = "etc"
+docdir = "share/doc/rust"
 
 [rust]
 optimize = true
