@@ -17,6 +17,7 @@ TERMUX_PKG_AUTO_UPDATE=false
 termux_step_pre_configure() {
 	CPPFLAGS+=" -D__USE_GNU"
 	CFLAGS+=" -fPIC"
+	LDFLAGS+=" -lm"
 }
 
 termux_step_make() {
