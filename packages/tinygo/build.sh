@@ -22,6 +22,7 @@ _LLVM_OPTION="
 "
 _LLVM_EXTRA_BUILD_TARGETS="
 lib/libLLVMDWARFLinker.a
+lib/libLLVMDWARFLinkerClassic.a
 lib/libLLVMDWARFLinkerParallel.a
 lib/libLLVMDWP.a
 lib/libLLVMDebugInfoGSYM.a
@@ -36,7 +37,9 @@ lib/libLLVMLineEditor.a
 lib/libLLVMMIRParser.a
 lib/libLLVMObjCopy.a
 lib/libLLVMObjectYAML.a
+lib/libLLVMOrcDebugging.a
 lib/libLLVMOrcJIT.a
+lib/libLLVMTextAPIBinaryReader.a
 lib/libLLVMXRay.a
 "
 
