@@ -143,7 +143,7 @@ termux_step_pre_configure() {
 	# this is a workaround for build-all.sh issue
 	TERMUX_PKG_DEPENDS+=", tinygo-common"
 
-	export LDFLAGS=${LDFLAGS/ -fopenmp/}
+	export CGO_LDFLAGS=${CGO_LDFLAGS/ -fopenmp/}
 
 	# https://github.com/termux/termux-packages/issues/16358
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
