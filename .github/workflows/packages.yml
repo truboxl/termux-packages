@@ -7,14 +7,18 @@ on:
     - dev
     - 'dev/**'
     paths:
+    - '.github/workflows/**'
     - 'packages/**'
     - 'root-packages/**'
     - 'x11-packages/**'
+    - 'scripts/**'
   pull_request:
     paths:
+    - '.github/workflows/**'
     - 'packages/**'
     - 'root-packages/**'
     - 'x11-packages/**'
+    - 'scripts/**'
   workflow_dispatch:
     inputs:
       packages:
@@ -30,13 +34,59 @@ concurrency:
   cancel-in-progress: ${{ github.repository == 'termux/termux-packages' && github.event_name == 'pull_request' }}
 
 jobs:
+  build-all:
+    # dont waste public repo resouces, use your own fork
+    if: github.repository != 'termux/termux-packages'
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v4
+    - name: List all packages
+      id: list
+      # max 256 at a time, divide by 4 archs = 64 packages
+      run: |
+        partition=64
+        list_number=1
+        list_of_packages=$(ls packages)
+        list_of_root_packages=$(ls root-packages)
+        list_of_x11_packages=$(ls x11-packages)
+        total_packages=$(echo "$list_of_packages" | wc -l)
+        total_root_packages=$(echo "$list_of_root_packages" | wc -l)
+        total_x11_packages=$(echo "$list_of_x11_packages" | wc -l)
+        [ -z "$list_of_packages" ] && total_packages=0
+        [ -z "$list_of_root_packages" ] && total_root_packages=0
+        [ -z "$list_of_x11_packages" ] && total_x11_packages=0
+        full_total_packages=$((total_packages+total_root_packages+total_x11_packages))
+        [ "$full_total_packages" = 0 ] && echo "ERROR!" && exit 1
+        last_list_remainder=$((full_total_packages%partition))
+        last_list_number=$((full_total_packages/partition))
+        [ "$last_list_remainder" != 0 ] && last_list_number=$((last_list_number+1))
+        second_last_list_number=$((last_list_number-1))
+        combined_list=$(echo -e "${list_of_packages}\n${list_of_root_packages}\n${list_of_x11_packages}")
+        last_list=$(echo "$combined_list" | head -n $((partition*last_list_number)) | tail -n "$partition" | head -n "$partition")
+        if [ "$last_list_remainder" != 0 ]; then
+          second_last_list=$(echo "$combined_list" | head -n $((partition*second_last_list_number)) | tail -n "$partition" | head -n "$partition")
+          diff_second_last=$(diff -uN <(echo "$second_last_list") <(echo "$last_list") || :)
+          last_list=$(echo "$diff_second_last" | grep -v "^++" | grep "^+" | cut -d+ -f2-)
+        fi
+        pkg=$(echo "$combined_list" | head -n $((partition*list_number)) | tail -n "$partition")
+        if (( list_number >= last_list_number )); then
+          pkg="$last_list"
+        fi
+        echo "matrix=$(echo "$pkg" | python3 -c "import json,sys;line = [line.rstrip() for line in sys.stdin.readlines()];print(json.dumps(line))")" >> "$GITHUB_OUTPUT"
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
   build:
+    needs: build-all
     permissions:
       contents: read # actions/upload-artifact doesn't need contents: write
     runs-on: ubuntu-24.04
     strategy:
       matrix:
         target_arch: [aarch64, arm, i686, x86_64]
+        packages: ${{ fromJson(needs.build-all.outputs.matrix) }}
       fail-fast: false
     steps:
     - name: Clone repository
@@ -92,13 +142,13 @@ jobs:
 
         OLD_COMMIT="$OLD_COMMIT" HEAD_COMMIT="$HEAD_COMMIT" GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" scripts/utils/termux_reuse_pr_build_artifacts.sh "${{ github.event_name }}" "${{ matrix.target_arch }}" || true
 
-        if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+        if [ "${{ github.event_name }}" != "workflow_dispatch" ] && [ -z "${{ matrix.packages }}" ]; then
           # GitHub sometimes add merge commits at the end
           # To prevent user confusion, filter them with --no-merges
           # Process tag '%ci:no-build' that may be added as line to commit message.
           # Forces CI to cancel current build with status 'passed'
           if grep -qiP '^\s*%ci:no-build\s*$' <(git log --format="%B" -n 1 --no-merges "HEAD"); then
-            tar cf artifacts/debs-${{ matrix.target_arch }}.tar debs
+            tar cf artifacts/debs-${{ matrix.target_arch }}-${{ matrix.packages }}.tar debs
             echo "docker-build=true" >> $GITHUB_OUTPUT
             echo "[!] Force exiting as tag '%ci:no-build' was applied to HEAD commit message."
             exit 0
@@ -140,6 +190,11 @@ jobs:
         else
           # Ensure MANUAL_INPUT_PACKAGES is newline free, and put it
           # into an array
+          if [ -n "${MANUAL_INPUT_PACKAGES}" ]; then
+            :
+          elif [ -n "${{ matrix.packages }}" ]; then
+            MANUAL_INPUT_PACKAGES="${{ matrix.packages }}"
+          fi
           read -a PACKAGES <<< "${MANUAL_INPUT_PACKAGES//$'\n'/ }"
           for pkg in "${PACKAGES[@]}"; do
             repo_paths=$(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json)
@@ -301,22 +356,22 @@ jobs:
 
         # Files containing certain symbols (e.g. ":") will cause failure in actions/upload-artifact.
         # Archiving *.deb files in a tarball to avoid issues with uploading.
-        tar cf artifacts/debs-${{ matrix.target_arch }}-${{ github.sha }}.tar debs
+        tar cf artifacts/debs-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}.tar debs
     - name: Checksums for built *.deb files
       if: always()
       run: |
-        find debs -type f -name "*.deb" -exec sha256sum "{}" \; | sort -k2 | tee checksum-${{ matrix.target_arch }}-${{ github.sha }}.txt
+        find debs -type f -name "*.deb" -exec sha256sum "{}" \; | sort -k2 | tee checksum-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}.txt
     - name: Store checksums for built *.deb files
       if: always()
       uses: actions/upload-artifact@v6
       with:
-        name: checksum-${{ matrix.target_arch }}-${{ github.sha }}
-        path: checksum-${{ matrix.target_arch }}-${{ github.sha }}.txt
+        name: checksum-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}
+        path: checksum-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}.txt
     - name: Store *.deb files
       if: always()
       uses: actions/upload-artifact@v6
       with:
-        name: debs-${{ matrix.target_arch }}-${{ github.sha }}
+        name: debs-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}
         path: ./artifacts
 
   test-buildorder-random:
