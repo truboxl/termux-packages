@@ -124,11 +124,11 @@ termux_step_host_build() {
 		-j "${TERMUX_PKG_MAKE_PROCESSES}" \
 		${_LLVM_EXTRA_BUILD_TARGETS}
 
-	echo "===== llvm-config ====="
+	echo "INFO: ========== llvm-config =========="
 	file "${TERMUX_PKG_HOSTBUILD_DIR}/bin/llvm-config"
 	"${TERMUX_PKG_HOSTBUILD_DIR}/bin/llvm-config" --cppflags
 	"${TERMUX_PKG_HOSTBUILD_DIR}/bin/llvm-config" --ldflags --libs --system-libs
-	echo "===== llvm-config ====="
+	echo "INFO: ========== llvm-config =========="
 
 	make build/release \
 		LLVM_BUILDDIR="${TERMUX_PKG_HOSTBUILD_DIR}" \
@@ -142,6 +142,8 @@ termux_step_host_build() {
 termux_step_pre_configure() {
 	# this is a workaround for build-all.sh issue
 	TERMUX_PKG_DEPENDS+=", tinygo-common"
+
+	export LDFLAGS=${LDFLAGS/ -fopenmp/}
 
 	# https://github.com/termux/termux-packages/issues/16358
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
