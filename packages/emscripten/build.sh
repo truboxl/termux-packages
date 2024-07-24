@@ -351,7 +351,9 @@ termux_step_post_massage() {
 	local llvm_bin=$(ls "${TERMUX_TOPDIR}/emscripten/subpackages/emscripten-llvm/massage/${TERMUX_PREFIX_CLASSICAL}/opt/emscripten-llvm/bin")
 	local binaryen_bin=$(ls "${TERMUX_TOPDIR}/emscripten/subpackages/emscripten-binaryen/massage/${TERMUX_PREFIX_CLASSICAL}/opt/emscripten-binaryen/bin")
 	local df=$(diff -u <(echo "${upstream_bin}") <(echo -e "${llvm_bin}\n${binaryen_bin}" | sort))
-	[[ -n "${df}" ]] && termux_error_exit "Mismatch list of binaries with upstream:\n${df}"
+	if [[ -n "${df}" ]]; then
+		termux_error_exit "Mismatch list of binaries with upstream:\n${df}"
+	fi
 }
 
 termux_step_create_debscripts() {
