@@ -310,10 +310,9 @@ PACKAGES+=" patchelf"
 PACKAGES+=" swig"
 
 # Do not require sudo if already running as root.
+SUDO="sudo"
 if [ "$(id -u)" = "0" ]; then
 	SUDO=""
-else
-	SUDO="sudo"
 fi
 
 # Allow 32-bit packages.
