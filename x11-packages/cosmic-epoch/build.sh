@@ -1,6 +1,6 @@
 TERMUX_PKG_HOMEPAGE=https://github.com/pop-os/cosmic-epoch
 TERMUX_PKG_DESCRIPTION="Next generation Cosmic desktop environment"
-TERMUX_PKG_LICENSE="GPLv3"
+TERMUX_PKG_LICENSE="GPL-3.0"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION=0.0
 TERMUX_PKG_SRCURL=git+https://github.com/pop-os/cosmic-epoch
