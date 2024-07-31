@@ -16,10 +16,10 @@ termux_step_pre_configure() {
 	export CARGO_HOME
 
 	local justfiles=$(find . -type f -name "justfile" | sort)
-	echo "${justfiles}" | tee | xargs -P${TERMUX_PKG_MAKE_PROCESSES} -i -r sed \
+	echo "${justfiles}" | xargs -P${TERMUX_PKG_MAKE_PROCESSES} -i -r sed \
 		-e "s|/usr/local|${TERMUX_PREFIX}|g" \
 		-e "s|/usr|${TERMUX_PREFIX}|g" \
-		-e "s|cargo build|rustup target add ${CARGO_TARGET_NAME}; cargo fetch --target ${CARGO_TARGET_NAME}; cargo build --target ${CARGO_TARGET_NAME}|g" \
+		-e "s|cargo build|rustup target add ${CARGO_TARGET_NAME}; rm -fr ${CARGO_HOME}/registry/src/*/rustix-*; cargo fetch --target ${CARGO_TARGET_NAME}; for a in ${CARGO_HOME}/registry/src/*/rustix-*; do patch -p1 -i ${TERMUX_PKG_BUILDER_DIR}/rustix.patch -d \$a; done; cargo build --target ${CARGO_TARGET_NAME}; ln -fsv target/${CARGO_TARGET_NAME}/release target/release|g" \
 		-i "{}"
 }
 
