@@ -4,7 +4,7 @@ termux_setup_just() {
 
 	local JUST_TGZ_SHA256
 	case "${TERMUX_JUST_VERSION}" in
-	1.33.0) JUST_TGZ_SHA256=be8da632c1d3273f766b69244d80669fe4f5e27798654681d77c992f17c237d7 ;;
+	1.33.0) JUST_TGZ_SHA256=7e6480ee1c1b1c906f7f1933cc1a1b9f281812341f997b78dcd166430f5ea500 ;;
 	*) termux_error_exit "Please add ${TERMUX_JUST_VERSION} archive checksum to termux_setup_just" ;;
 	esac
 
