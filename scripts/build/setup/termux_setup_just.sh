@@ -32,6 +32,8 @@ termux_setup_just() {
 		mkdir -p "${JUST_FOLDER}"
 		termux_download "${JUST_TGZ_URL}" "${JUST_TGZ_FILE}" "${JUST_TGZ_SHA256}"
 		tar -xf "${JUST_TGZ_FILE}" -C "${JUST_FOLDER}" --strip-components=1
+		echo "${JUST_FOLDER}"
+		ls -l "${JUST_FOLDER}"
 	fi
 
 	export PATH="${JUST_FOLDER}:${PATH}"
