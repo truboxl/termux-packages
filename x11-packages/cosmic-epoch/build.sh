@@ -12,11 +12,14 @@ termux_step_pre_configure() {
 	termux_setup_just
 	termux_setup_rust
 
+	: "${CARGO_HOME:=${HOME}/.cargo}"
+	export CARGO_HOME
+
 	local justfiles=$(find . -type f -name "justfile" | sort)
 	echo "${justfiles}" | tee | xargs -P${TERMUX_PKG_MAKE_PROCESSES} -i -r sed \
 		-e "s|/usr/local|${TERMUX_PREFIX}|g" \
 		-e "s|/usr|${TERMUX_PREFIX}|g" \
-		-e "s|cargo build|command -v cargo; rustup target add ${CARGO_TARGET_NAME}; cargo build --target ${CARGO_TARGET_NAME}|g" \
+		-e "s|cargo build|rustup target add ${CARGO_TARGET_NAME}; cargo fetch --target ${CARGO_TARGET_NAME}; cargo build --target ${CARGO_TARGET_NAME}|g" \
 		-i "{}"
 }
 
