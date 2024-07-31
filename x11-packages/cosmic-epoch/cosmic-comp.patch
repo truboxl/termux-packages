@@ -1,0 +1,11 @@
+--- a/cosmic-comp/Cargo.toml
++++ b/cosmic-comp/Cargo.toml
+@@ -73,7 +73,7 @@ features = [
+   "backend_libinput",
+   "backend_session_libseat",
+   "backend_udev",
+-  "backend_winit",
++  #"backend_winit",
+   "backend_vulkan",
+   "backend_x11",
+   "desktop",

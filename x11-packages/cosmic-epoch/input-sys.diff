@@ -1,0 +1,9 @@
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -15,5 +15,5 @@
+     ".rs"
+ ));
+ 
+-#[link(name = "input")]
++//#[link(name = "input")]
+ extern "C" {}
