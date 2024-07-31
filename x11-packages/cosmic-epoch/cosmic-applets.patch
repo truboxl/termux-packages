@@ -1,0 +1,52 @@
+--- a/cosmic-applets/Cargo.toml
++++ b/cosmic-applets/Cargo.toml
+@@ -6,7 +6,7 @@ members = [
+     "cosmic-applets",
+     "cosmic-applet-audio",
+     "cosmic-applet-battery",
+-    "cosmic-applet-bluetooth",
++    #"cosmic-applet-bluetooth",
+     "cosmic-applet-minimize",
+     "cosmic-applet-network",
+     "cosmic-applet-notifications",
+--- a/cosmic-applets/cosmic-applets/Cargo.toml
++++ b/cosmic-applets/cosmic-applets/Cargo.toml
+@@ -8,7 +8,7 @@ license = "GPL-3.0"
+ cosmic-app-list = { path = "../cosmic-app-list" }
+ cosmic-applet-audio = { path = "../cosmic-applet-audio" }
+ cosmic-applet-battery = { path = "../cosmic-applet-battery" }
+-cosmic-applet-bluetooth = { path = "../cosmic-applet-bluetooth" }
++#cosmic-applet-bluetooth = { path = "../cosmic-applet-bluetooth" }
+ cosmic-applet-minimize = { path = "../cosmic-applet-minimize" }
+ cosmic-applet-network = { path = "../cosmic-applet-network" }
+ cosmic-applet-notifications = { path = "../cosmic-applet-notifications" }
+--- a/cosmic-applets/cosmic-applets/src/main.rs
++++ b/cosmic-applets/cosmic-applets/src/main.rs
+@@ -20,7 +20,7 @@ fn main() -> cosmic::iced::Result {
+         "cosmic-app-list" => cosmic_app_list::run(),
+         "cosmic-applet-audio" => cosmic_applet_audio::run(),
+         "cosmic-applet-battery" => cosmic_applet_battery::run(),
+-        "cosmic-applet-bluetooth" => cosmic_applet_bluetooth::run(),
++        //"cosmic-applet-bluetooth" => cosmic_applet_bluetooth::run(),
+         "cosmic-applet-minimize" => cosmic_applet_minimize::run(),
+         "cosmic-applet-network" => cosmic_applet_network::run(),
+         "cosmic-applet-notifications" => cosmic_applet_notifications::run(),
+--- a/cosmic-applets/justfile
++++ b/cosmic-applets/justfile
+@@ -65,4 +65,4 @@ vendor:
+ [private]
+ vendor-extract:
+     rm -rf vendor
+-    tar pxf vendor.tar
+\ No newline at end of file
++    tar pxf vendor.tar
+--- a/cosmic-applets/cosmic-applet-audio/src/lib.rs
++++ b/cosmic-applets/cosmic-applet-audio/src/lib.rs
+@@ -617,6 +617,7 @@ impl cosmic::Application for Audio {
+                         input.mute = value;
+                     }
+                 }
++                cosmic_settings_subscriptions::pulse::Event::CardInfo(_) | cosmic_settings_subscriptions::pulse::Event::DefaultSink(_) | cosmic_settings_subscriptions::pulse::Event::DefaultSource(_) => todo!()
+             },
+         };
+ 

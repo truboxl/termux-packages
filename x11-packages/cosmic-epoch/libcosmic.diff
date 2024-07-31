@@ -1,0 +1,65 @@
+--- a/iced/core/src/window/settings.rs
++++ b/iced/core/src/window/settings.rs
+@@ -7,7 +7,7 @@
+ #[path = "settings/macos.rs"]
+ mod platform;
+ 
+-#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ #[path = "settings/linux.rs"]
+ mod platform;
+ 
+@@ -19,6 +19,7 @@
+     target_os = "windows",
+     target_os = "macos",
+     target_os = "linux",
++    target_os = "android",
+     target_arch = "wasm32"
+ )))]
+ #[path = "settings/other.rs"]
+--- a/iced/graphics/src/text/editor.rs
++++ b/iced/graphics/src/text/editor.rs
+@@ -170,8 +170,8 @@
+                         .get(cursor.line)
+                         .expect("Cursor line should be present");
+ 
+-                    let layout = line
+-                        .layout_opt()
++                    let binding = line.layout_opt();
++                    let layout = binding
+                         .as_ref()
+                         .expect("Line layout should be cached");
+ 
+@@ -604,8 +604,8 @@
+                 .enumerate()
+                 .skip(scroll.line)
+                 .find_map(|(i, line)| {
+-                    let layout = line
+-                        .layout_opt()
++                    let binding = line.layout_opt();
++                    let layout = binding
+                         .as_ref()
+                         .expect("Line layout should be cached");
+ 
+@@ -750,8 +750,8 @@
+     from: usize,
+     to: usize,
+ ) -> impl Iterator<Item = (f32, f32)> + '_ {
+-    let layout = line
+-        .layout_opt()
++    let binding = line.layout_opt();
++    let layout = binding
+         .as_ref()
+         .expect("Line layout should be cached");
+ 
+@@ -806,8 +806,8 @@
+         .skip(scroll.line)
+         .take(line)
+         .map(|line| {
+-            let layout = line
+-                .layout_opt()
++            let binding = line.layout_opt();
++            let layout = binding
+                 .as_ref()
+                 .expect("Line layout should be cached");
+             for layout_line in layout.iter() {

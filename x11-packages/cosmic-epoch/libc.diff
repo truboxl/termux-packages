@@ -1,0 +1,11 @@
+--- a/src/unix/linux_like/android/mod.rs
++++ b/src/unix/linux_like/android/mod.rs
+@@ -3962,6 +3962,8 @@
+     pub fn getgrnam(name: *const c_char) -> *mut crate::group;
+     pub fn pthread_kill(thread: crate::pthread_t, sig: c_int) -> c_int;
+     pub fn sem_unlink(name: *const c_char) -> c_int;
++    pub fn shm_open(name: *const c_char, oflag: c_int, mode: mode_t) -> c_int;
++    pub fn shm_unlink(name: *const c_char) -> c_int;
+     pub fn daemon(nochdir: c_int, noclose: c_int) -> c_int;
+     pub fn getpwnam_r(
+         name: *const c_char,
