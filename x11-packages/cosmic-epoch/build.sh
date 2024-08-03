@@ -19,7 +19,7 @@ termux_step_pre_configure() {
 	echo "${justfiles}" | xargs -P${TERMUX_PKG_MAKE_PROCESSES} -i -r sed \
 		-e "s|/usr/local|${TERMUX_PREFIX}|g" \
 		-e "s|/usr|${TERMUX_PREFIX}|g" \
-		-e "s|cargo build|rustup target add ${CARGO_TARGET_NAME}; rm -fr ${CARGO_HOME}/registry/src/*/rustix-*; cargo fetch --target ${CARGO_TARGET_NAME}; for a in ${CARGO_HOME}/registry/src/*/rustix-*; do echo \"\$(patch -p1 -i ${TERMUX_PKG_BUILDER_DIR}/rustix.diff -d \$a) in \$a\" ; done; cargo build --target ${CARGO_TARGET_NAME}; ln -fsv target/${CARGO_TARGET_NAME}/release target/release|g" \
+		-e "s|cargo build|rustup target add ${CARGO_TARGET_NAME}; rm -fr ${CARGO_HOME}/registry/src/*/{libc,rustix}-*; cargo fetch --target ${CARGO_TARGET_NAME}; for a in ${CARGO_HOME}/registry/src/*/rustix-*; do echo \"\$(patch -p1 -i ${TERMUX_PKG_BUILDER_DIR}/rustix.diff -d \$a) in \$a\"; done; for b in ${CARGO_HOME}/registry/src/*/libc-*; do echo \"\$(patch -p1 -i ${TERMUX_PKG_BUILDER_DIR}/libc.diff -d \$b) in \$b\"; done; cargo build --target ${CARGO_TARGET_NAME}; ln -fsv target/${CARGO_TARGET_NAME}/release target/release|g" \
 		-i "{}"
 }
 
