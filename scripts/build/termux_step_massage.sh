@@ -187,10 +187,25 @@ termux_step_massage() {
 		SYMBOLS+=" $(grep "^    [_a-zA-Z0-9]*;" ${TERMUX_SCRIPTDIR}/scripts/lib{c,dl,m}.map.txt | cut -d":" -f2 | sed -e "s/^    //" -e "s/;.*//")"
 		SYMBOLS+=" ${TERMUX_PKG_EXTRA_UNDEF_SYMBOLS_TO_CHECK}"
 		SYMBOLS=$(echo $SYMBOLS | tr " " "\n" | sort | uniq)
-		create_grep_pattern ${SYMBOLS} > "${pattern_file}"
+		create_grep_pattern_undef ${SYMBOLS} > "${pattern_file}"
 		local t1=$(get_epoch)
 		echo "INFO: Done ... $((t1-t0))s"
 		echo "INFO: Total symbols $(echo ${SYMBOLS} | wc -w)"
+		export pattern_file_omp=$(mktemp)
+		echo "INFO: Generating OpemMP symbols regex to ${pattern_file_omp}"
+		local t0=$(get_epoch)
+		local LIBOMP_SO=$(${TERMUX_HOST_PLATFORM}-clang -print-file-name=libomp.so)
+		local LIBOMP_A=$(${TERMUX_HOST_PLATFORM}-clang -print-file-name=libomp.a)
+		[[ "${LIBOMP_SO}" == "libomp.so" ]] && echo "WARN: LIBOMP_SO=${LIBOMP_SO}" && LIBOMP_SO=""
+		[[ "${LIBOMP_A}" == "libomp.a" ]] && echo "WARN: LIBOMP_A=${LIBOMP_A}" && LIBOMP_A=""
+		local LIBOMP_SO_SYMBOLS LIBOMP_A_SYMBOLS LIBOMP_SYMBOLS
+		[[ -n "${LIBOMP_SO}" ]] && LIBOMP_SO_SYMBOLS=$(${READELF} -s ${LIBOMP_SO} | grep -E "FUNC[[:space:]]+GLOBAL[[:space:]]+DEFAULT" | grep -vE "[[:space:]]UND[[:space:]]" | awk '{ print $8 }')
+		[[ -n "${LIBOMP_A}" ]] && LIBOMP_A_SYMBOLS=$(${READELF} -s ${LIBOMP_A} | grep -E "FUNC[[:space:]]+GLOBAL" | grep -vE "[[:space:]]UND[[:space:]]" | awk '{ print $8 }')
+		LIBOMP_SYMBOLS=$(echo -e "${LIBOMP_SO_SYMBOLS}\n${LIBOMP_A_SYMBOLS}" | sort | uniq)
+		create_grep_pattern_openmp ${LIBOMP_SYMBOLS} > "${pattern_file_omp}"
+		local t1=$(get_epoch)
+		echo "INFO: Done ... $((t1-t0))s"
+		echo "INFO: Total OpenMP symbols $(echo ${LIBOMP_SYMBOLS} | wc -w)"
 
 		local nproc=$(nproc)
 		echo "INFO: Identifying files with nproc=${nproc}"
@@ -211,6 +226,8 @@ termux_step_massage() {
 		echo "INFO: Running symbol checks on ${numberOfValid} files with nproc=${nproc}"
 		local t0=$(get_epoch)
 		local undef=$(echo "${valid}" | xargs -P"${nproc}" -i sh -c '${READELF} -s "{}" | grep -Ef "${pattern_file}"')
+		local openmp=$(echo "${valid}" | xargs -P"${nproc}" -i sh -c '${READELF} -s "{}" | grep -Ef "${pattern_file_omp}"')
+		local depend_libomp_so=$(echo "${valid}" | xargs -P$(nproc) -n1 ${READELF} -d 2>/dev/null | sed -ne "s|.*NEEDED.*\[\(.*\)\].*|\1|p" | grep libomp.so)
 		local t1=$(get_epoch)
 		echo "INFO: Done ... $((t1-t0))s"
 
@@ -242,29 +259,75 @@ termux_step_massage() {
 				done < <(echo "${TERMUX_PKG_UNDEF_SYMBOLS_FILES}")
 				[[ "${TERMUX_PKG_UNDEF_SYMBOLS_FILES}" == "error" ]] && (( e |= 1 )) || :
 				[[ $(( e & 1 )) == 0 ]] && echo "SKIP: ${f}" && continue
-				local undef_s=$(${READELF} -s "${f}" | grep -Ef "${pattern_file}")
-				if [[ -n "${undef_s}" ]]; then
+				local undef_sym=$(${READELF} -s "${f}" | grep -Ef "${pattern_file}")
+				if [[ -n "${undef_sym}" ]]; then
 					((c++)) || :
 					if [[ $(( e & 1 )) != 0 ]]; then
-						echo -e "ERROR: ${f} contains undefined symbols:\n${undef_s}" >&2
+						echo -e "ERROR: ${f} contains undefined symbols:\n${undef_sym}" >&2
 						(( e |= 2 )) || :
 					else
-						local undef_su=$(echo "${undef_s}" | awk '{ print $8 }' | sort | uniq)
-						local undef_su_len=$(echo ${undef_su} | wc -w)
-						echo "SKIP: ${f} contains undefined symbols: ${undef_su_len}" >&2
+						local undef_symu=$(echo "${undef_sym}" | awk '{ print $8 }' | sort | uniq)
+						local undef_symu_len=$(echo ${undef_symu} | wc -w)
+						echo "SKIP: ${f} contains undefined symbols: ${undef_symu_len}" >&2
 					fi
 				fi
 			done < <(echo "${valid_s}")
 			local t1=$(get_epoch)
 			echo "INFO: Done ... $((t1-t0))s"
 			echo "INFO: Found ${c} files with undefined symbols after exclusion"
-			if [[ "${c}" -gt "${numberOfValid}" ]]; then
-				termux_error_exit "${c} > ${numberOfValid}"
-			fi
+			[[ "${c}" -gt "${numberOfValid}" ]] && termux_error_exit "${c} > ${numberOfValid}"
 			[[ $(( e & 2 )) != 0 ]] && termux_error_exit "Refer above"
 		fi
-		rm -f "${pattern_file}"
-		unset pattern_file
+
+		if [[ -n "${openmp}" ]]; then
+			echo "INFO: Found files with OpenMP symbols"
+			echo "INFO: Showing result"
+			local t0=$(get_epoch)
+			local e=0
+			local c=0
+			local valid_s=$(echo "${valid}" | sort)
+			local f
+			while IFS= read -r f; do
+				# exclude object, static files
+				case "${f}" in
+				*.a) (( e &= ~1 )) || : ;;
+				*.o) (( e &= ~1 )) || : ;;
+				*.obj) (( e &= ~1 )) || : ;;
+				*.rlib) (( e &= ~1 )) || : ;;
+				*.syso) (( e &= ~1 )) || : ;;
+				*) (( e |= 1 )) || : ;;
+				esac
+				[[ $(( e & 1 )) == 0 ]] && echo "SKIP: ${f}" && continue
+				local openmp_sym=$(${READELF} -s "${f}" | grep -Ef "${pattern_file_omp}")
+				if [[ -n "${openmp_sym}" ]]; then
+					((c++)) || :
+					echo -e "INFO: ${f} contains OpenMP symbols:\n${openmp_sym}" >&2
+				fi
+			done < <(echo "${valid_s}")
+			local t1=$(get_epoch)
+			echo "INFO: Done ... $((t1-t0))s"
+			echo "INFO: Found ${c} files with OpenMP symbols after exclusion"
+			[[ "${c}" -gt "${numberOfValid}" ]] && termux_error_exit "${c} > ${numberOfValid}"
+		fi
+		if [[ -n "${depend_libomp_so}" ]]; then
+			echo "ERROR: Found files depend on libomp.so" >&2
+			echo "INFO: Showing result"
+			local t0=$(get_epoch)
+			local valid_s=$(echo "${valid}" | sort)
+			local f
+			{
+				while IFS= read -r f; do
+					local f_needed=$(${READELF} -d "${f}" 2>/dev/null | sed -ne "s|.*NEEDED.*\[\(.*\)\].*|\1|p" | sort | uniq | tr "\n" " " | sed -e "s/ /, /g")
+					echo "ERROR: ${f}: ${f_needed%, }"
+				done < <(echo "${valid_s}")
+			} | grep libomp.so >&2
+			local t1=$(get_epoch)
+			echo "INFO: Done ... $((t1-t0))s"
+			termux_error_exit "Refer above"
+		fi
+
+		rm -f "${pattern_file}" "${pattern_file_omp}"
+		unset pattern_file pattern_file_omp
 	fi
 
 	if [ "$TERMUX_PACKAGE_FORMAT" = "debian" ]; then
@@ -283,13 +346,23 @@ termux_step_massage() {
 }
 
 # Local function called by termux_step_massage
-create_grep_pattern() {
+create_grep_pattern_undef() {
 	local symbol_type='NOTYPE[[:space:]]+GLOBAL[[:space:]]+DEFAULT[[:space:]]+UND[[:space:]]+'
 	echo -n "$symbol_type$1"'$'
 	shift 1
 	local arg
 	for arg in "$@"; do
 		echo -n "|$symbol_type$arg"'$'
+	done
+}
+
+create_grep_pattern_openmp() {
+	local symbol_type='[[:space:]]'
+	echo -n "$symbol_type$1"'$|'"$symbol_type$1"'@VERSION$'
+	shift 1
+	local arg
+	for arg in "$@"; do
+		echo -n "|$symbol_type$arg"'|'"$symbol_type$arg"'@VERSION$'
 	done
 }
 
