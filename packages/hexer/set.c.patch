@@ -1,11 +1,26 @@
---- a/set.c
-+++ b/set.c
-@@ -67,7 +67,7 @@
-   } u;
-   enum s_option_e type;
-   struct option_s *next;
--  set_fn action;
-+  set_fn action(long);
- };
- 
- static const char *true_strings[] = { "true", "t", "yes", "y", "on", 0 };
+diff -uNr a/set.c b/set.c
+--- a/set.c	2020-04-24 21:06:48.000000000 +0800
++++ b/set.c	2024-08-13 14:16:19.351000722 +0800
+@@ -283,11 +283,11 @@
+   switch (i->type) {
+     case S_STRING:
+       strcpy(i->u.sval, value_string);
+-      if (i->action && !no_action) i->action(value_string);
++      if (i->action && !no_action) i->action = value_string;
+       break;
+     case S_INTEGER:
+       i->u.ival = atol(value_string);
+-      if (i->action && !no_action) i->action(i->u.ival);
++      if (i->action && !no_action) i->action = i->u.ival;
+       break;
+     case S_BOOL:
+       i->u.bval = 0;
+@@ -296,7 +296,7 @@
+ 	  i->u.bval = 1;
+ 	  break;
+ 	}
+-      if (i->action && !no_action) i->action(i->u.bval);
++      if (i->action && !no_action) i->action = i->u.bval;
+       break;
+     default:
+       abort();
