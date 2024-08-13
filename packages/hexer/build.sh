@@ -16,6 +16,9 @@ INSTALLBIN=install
 "
 
 termux_step_post_configure() {
+	# error: passing arguments to a function without a prototype is deprecated in all versions of C and is not supported in C23 [-Werror,-Wdeprecated-non-prototype]
+	CFLAGS+=" -std=c17"
+
 	cat >> config.h <<-EOF
 		#if defined __ANDROID__ && __ANDROID_API__ < 26
 		#define getpwent() (NULL)
