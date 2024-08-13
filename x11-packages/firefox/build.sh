@@ -93,9 +93,10 @@ END
 	fi
 
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
-		[[ -z "$(llvm-config --libdir)" ]] && termux_error_exit "$(command -v llvm-config) --libdir is empty"
+		local llvm_lib_dir=/usr/lib/llvm-17/lib
+		[[ -z "${llvm_lib_dir}" ]] && termux_error_exit "${llvm_lib_dir} --libdir is empty"
 		cat >>.mozconfig <<- EOL
-		ac_add_options --with-libclang-path="$(llvm-config --libdir)"
+		ac_add_options --with-libclang-path="${llvm_lib_dir}"
 		EOL
 	fi
 
