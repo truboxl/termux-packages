@@ -1,0 +1,11 @@
+--- a/set.h
++++ b/set.h
+@@ -51,7 +51,7 @@
+ #ifdef __GNUC__
+ #pragma GCC diagnostic ignored "-Wstrict-prototypes"
+ #endif
+-typedef void (*set_fn)();
++typedef void (*set_fn)(long);
+ #ifdef __GNUC__
+ #pragma GCC diagnostic error "-Wstrict-prototypes"
+ #endif
