@@ -92,6 +92,13 @@ ac_add_options --disable-install-strip
 END
 	fi
 
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
+		[[ -z "$(llvm-config --libdir)" ]] && termux_error_exit "$(command -v llvm-config) --libdir is empty"
+		cat >>.mozconfig <<- EOL
+		ac_add_options --with-libclang-path="$(llvm-config --libdir)"
+		EOL
+	fi
+
 	./mach configure
 }
 
