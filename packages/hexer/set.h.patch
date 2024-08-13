@@ -1,14 +1,12 @@
 diff -uNr a/set.h b/set.h
 --- a/set.h	2020-04-24 21:06:48.000000000 +0800
-+++ b/set.h	2024-08-13 14:47:49.551000835 +0800
-@@ -51,7 +51,9 @@
++++ b/set.h	2024-08-13 15:26:51.343000974 +0800
+@@ -51,7 +51,7 @@
  #ifdef __GNUC__
  #pragma GCC diagnostic ignored "-Wstrict-prototypes"
  #endif
 -typedef void (*set_fn)();
-+typedef void (*set_fnl)(long);
-+typedef void (*set_fnc)(char *);
-+#define set_fn(x) _Generic((x), long: set_fnl, char *: set_fnc)(x)
++typedef void (*set_fn)(void);
  #ifdef __GNUC__
  #pragma GCC diagnostic error "-Wstrict-prototypes"
  #endif
