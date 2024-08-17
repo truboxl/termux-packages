@@ -12,7 +12,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--with-rmt=$TERMUX_PREFIX/libexec/rmt"
 termux_step_post_get_source() {
 	termux_download https://android.googlesource.com/platform/bionic/+archive/refs/heads/main/libc/tzcode.tar.gz tzcode.tar.gz SKIP_CHECKSUM
 	mkdir -p ${TERMUX_PKG_SRCDIR}/tzcode
-	tar -xf tzcode.tar.gz
+	tar -xf tzcode.tar.gz -C ${TERMUX_PKG_SRCDIR}/tzcode
 }
 
 termux_step_pre_configure() {
