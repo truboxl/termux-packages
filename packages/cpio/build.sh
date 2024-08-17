@@ -12,6 +12,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--with-rmt=$TERMUX_PREFIX/libexec/rmt"
 termux_step_pre_configure() {
 	pushd ${TERMUX_PKG_TMPDIR}
 	${CC} ${CPPFLAGS} ${CFLAGS} -I${TERMUX_PKG_BUILDER_DIR}/tzcode ${TERMUX_PKG_BUILDER_DIR}/tzcode/localtime.c -c
+	${CXX} ${CPPFLAGS} ${CXXFLAGS} -I${TERMUX_PKG_BUILDER_DIR}/tzcode ${TERMUX_PKG_BUILDER_DIR}/tzcode/bionic.cpp -c
 	${AR} rcu libtzcode.a *.o
 	popd
 	LDFLAGS+=" -L${TERMUX_PKG_TMPDIR} -l:libtzcode.a"
