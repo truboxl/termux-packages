@@ -10,7 +10,7 @@ TERMUX_PKG_DEPENDS="libandroid-tzcode, tar"
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--with-rmt=$TERMUX_PREFIX/libexec/rmt"
 
 termux_step_pre_configure() {
-	LDFLAGS+=" -landroid-tzcode"
+	#LDFLAGS+=" -landroid-tzcode"
 
 	autoreconf -fi
 }
