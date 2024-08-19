@@ -6,16 +6,11 @@ TERMUX_PKG_VERSION="2.15"
 TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://mirrors.kernel.org/gnu/cpio/cpio-$TERMUX_PKG_VERSION.tar.bz2
 TERMUX_PKG_SHA256=937610b97c329a1ec9268553fb780037bcfff0dcffe9725ebc4fd9c1aa9075db
-TERMUX_PKG_DEPENDS="tar"
+TERMUX_PKG_DEPENDS="libandroid-tzcode, tar"
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--with-rmt=$TERMUX_PREFIX/libexec/rmt"
 
 termux_step_pre_configure() {
-	pushd ${TERMUX_PKG_TMPDIR}
-	${CC} ${CPPFLAGS} ${CFLAGS} -I${TERMUX_PKG_BUILDER_DIR}/tzcode ${TERMUX_PKG_BUILDER_DIR}/tzcode/localtime.c -c
-	${CXX} ${CPPFLAGS} ${CXXFLAGS} -I${TERMUX_PKG_BUILDER_DIR}/tzcode ${TERMUX_PKG_BUILDER_DIR}/tzcode/bionic.cpp -c
-	${AR} rcu libtzcode.a *.o
-	popd
-	LDFLAGS+=" -L${TERMUX_PKG_TMPDIR} -l:libtzcode.a"
+	LDFLAGS+=" -landroid-tzcode"
 
 	autoreconf -fi
 }
