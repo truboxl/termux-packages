@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="A shared library providing tzcode"
 TERMUX_PKG_LICENSE="BSD 2-Clause, Public Domain"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="0.1"
+TERMUX_PKG_DEPENDS="libc++"
 TERMUX_PKG_SKIP_SRC_EXTRACT=true
 TERMUX_PKG_AUTO_UPDATE=false
 
@@ -14,8 +15,9 @@ termux_step_pre_configure() {
 }
 
 termux_step_make() {
-	${CC} ${CPPFLAGS} ${CFLAGS} -I${TERMUX_PKG_BUILDER_DIR}/tzcode -c ${TERMUX_PKG_BUILDER_DIR}/tzcode/localtime.c
-	${CC} ${CFLAGS} -shared ${LDFLAGS} -o libandroid-tzcode.so *.o
+	${CC} ${CPPFLAGS} ${CFLAGS} -I${TERMUX_PKG_BUILDER_DIR}/tzcode -c ${TERMUX_PKG_BUILDER_DIR}/tzcode/*.c
+	${CXX} ${CPPFLAGS} ${CXXFLAGS} -I${TERMUX_PKG_BUILDER_DIR}/tzcode -c ${TERMUX_PKG_BUILDER_DIR}/tzcode/*.cpp
+	${LD} ${LDFLAGS} -shared -o libandroid-tzcode.so *.o
 	${AR} cru libandroid-tzcode.a *.o
 	cp -f ${TERMUX_PKG_BUILDER_DIR}/LICENSE ${TERMUX_PKG_SRCDIR}/
 }
