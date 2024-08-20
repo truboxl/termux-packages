@@ -1,6 +1,5 @@
-diff -uNr libbsd-0.10.0/include/bsd/sys/endian.h libbsd-0.10.0.mod/include/bsd/sys/endian.h
---- libbsd-0.10.0/include/bsd/sys/endian.h	2019-08-08 01:00:44.000000000 +0300
-+++ libbsd-0.10.0.mod/include/bsd/sys/endian.h	2019-08-11 20:23:57.120370524 +0300
+--- a/include/bsd/sys/endian.h
++++ b/include/bsd/sys/endian.h
 @@ -28,12 +28,12 @@
  
  #ifdef LIBBSD_OVERLAY
