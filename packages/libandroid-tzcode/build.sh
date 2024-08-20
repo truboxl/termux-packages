@@ -10,13 +10,13 @@ TERMUX_PKG_AUTO_UPDATE=false
 # https://android.googlesource.com/platform/bionic/+/main/libc/libc.map.txt
 # https://android.googlesource.com/platform/bionic/+/main/docs/status.md#libc
 
-termux_step_pre_configure() {
-	: #CFLAGS+=" -fPIC"
-}
-
 termux_step_make() {
-	${CC} ${CPPFLAGS} ${CFLAGS} -I${TERMUX_PKG_BUILDER_DIR}/tzcode -c ${TERMUX_PKG_BUILDER_DIR}/tzcode/*.c
-	${CXX} ${CPPFLAGS} ${CXXFLAGS} -I${TERMUX_PKG_BUILDER_DIR}/tzcode -c ${TERMUX_PKG_BUILDER_DIR}/tzcode/*.cpp
+	${CC} ${CPPFLAGS} ${CFLAGS} \
+		-I${TERMUX_PKG_BUILDER_DIR}/tzcode -c \
+		${TERMUX_PKG_BUILDER_DIR}/tzcode/*.c
+	${CXX} ${CPPFLAGS} ${CXXFLAGS} \
+		-I${TERMUX_PKG_BUILDER_DIR} -I${TERMUX_PKG_BUILDER_DIR}/tzcode -c \
+		${TERMUX_PKG_BUILDER_DIR}/tzcode/*.cpp
 	${LD} ${LDFLAGS} -shared -o libandroid-tzcode.so *.o
 	${AR} cru libandroid-tzcode.a *.o
 	cp -f ${TERMUX_PKG_BUILDER_DIR}/LICENSE ${TERMUX_PKG_SRCDIR}/
