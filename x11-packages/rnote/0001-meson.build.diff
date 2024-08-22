@@ -1,0 +1,10 @@
+--- a/meson.build
++++ b/meson.build
+@@ -186,6 +186,7 @@
+ 
+     ui_cargo_options = ['--manifest-path', cargo_manifest_path]
+     ui_cargo_options += ['--target-dir', cargo_target_dir]
++    ui_cargo_options += ['--target', '@CARGO_TARGET_NAME@']
+     ui_cargo_options += ['-p', 'rnote']
+ 
+     if profile == 'default'
