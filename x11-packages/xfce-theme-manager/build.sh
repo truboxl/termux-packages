@@ -15,7 +15,6 @@ termux_step_pre_configure() {
 	autoupdate
 	aclocal
 	autoheader
-	touch NEWS README AUTHORS ChangeLog
 	automake --add-missing --copy
 	autoconf
 }
