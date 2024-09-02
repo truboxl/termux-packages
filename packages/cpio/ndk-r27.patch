@@ -1,0 +1,29 @@
+--- a/gnu/nstrftime.c
++++ b/gnu/nstrftime.c
+@@ -35,6 +35,10 @@
+ #include <errno.h>
+ #include <time.h>
+ 
++#if defined(__ANDROID_API__) && __ANDROID_API__ < 35
++time_t mktime_z(timezone_t _Nonnull __tz, struct tm* _Nonnull __tm);
++#endif
++
+ #if HAVE_TZNAME && !HAVE_DECL_TZNAME
+ extern char *tzname[];
+ #endif
+--- a/gnu/parse-datetime.y
++++ b/gnu/parse-datetime.y
+@@ -91,6 +91,13 @@
+ 
+ #define STREQ(a, b) (strcmp (a, b) == 0)
+ 
++#if defined(__ANDROID_API__) && __ANDROID_API__ < 35
++struct tm* _Nullable localtime_rz(timezone_t _Nonnull __tz, const time_t* _Nonnull __t, struct tm* _Nonnull __tm);
++time_t mktime_z(timezone_t _Nonnull __tz, struct tm* _Nonnull __tm);
++timezone_t _Nullable tzalloc(const char* _Nullable __id);
++void tzfree(timezone_t _Nullable __tz);
++#endif
++
+ /* Verify that time_t is an integer as POSIX requires, and that every
+    time_t value fits in intmax_t.  Please file a bug report if these
+    assumptions are false on your platform.  */
