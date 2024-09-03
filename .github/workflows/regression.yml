@@ -1,0 +1,162 @@
+name: Regression
+
+on:
+  push:
+    branches:
+    - dev
+    - 'dev/**'
+  pull_request:
+    paths:
+    - 'packages/**'
+    - 'root-packages/**'
+    - 'scripts/build/setup/**'
+    - 'x11-packages/**'
+
+permissions: {} # none
+
+jobs:
+  prepare:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 1000
+    - name: Generate test packages list
+      id: list
+      run: |
+        # Process tag '%ci:no-test' that may be added as line to commit message.
+        # Forces CI to cancel current build with status 'passed'
+        if grep -qiP '^\s*%ci:no-test\s*$' <(git log --format="%B" -n 1 "HEAD"); then
+          echo "[!] Force exiting as tag '%ci:no-test' was applied to HEAD commit message."
+          echo "matrix=''" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        BASE_COMMIT=$(jq --raw-output .pull_request.base.sha "$GITHUB_EVENT_PATH")
+        echo "Processing pull request #$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH"): ${BASE_COMMIT}..HEAD"
+        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "${BASE_COMMIT}" "HEAD")
+        echo -e "List of changed files:\n${CHANGED_FILES}"
+        repos=$(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json)
+        pkg=""
+
+        # ffmpeg
+        if [[ -n "$(echo "$CHANGED_FILES" | grep packages/ffmpeg/)" ]]; then
+          for repo in $repos; do
+            for p in $(grep _DEPENDS -nHR "$repo" | grep ffmpeg | cut -d":" -f1 | sort | uniq); do
+              pkg+=" $(echo "$p" | cut -d"/" -f2)"
+            done
+          done
+        fi
+
+        # nodejs
+        if [[ -n "$(echo "$CHANGED_FILES" | grep scripts/build/setup/termux_setup_nodejs.sh)" ]]; then
+          for repo in $repos; do
+            for p in $(grep termux_setup_nodejs -nHR "$repo" | cut -d":" -f1 | sort | uniq); do
+              pkg+=" $(echo "$p" | cut -d"/" -f2)"
+            done
+          done
+        fi
+
+        # rust
+        if [[ -n "$(echo "$CHANGED_FILES" | grep packages/rust/)" ]] || \
+           [[ -n "$(echo "$CHANGED_FILES" | grep scripts/build/setup/termux_setup_rust.sh)" ]]; then
+          for repo in $repos; do
+            for p in $(grep termux_setup_rust -nHR "$repo" | cut -d":" -f1 | sort | uniq); do
+              [[ "$(echo "$p" | cut -d"/" -f2)" == "rust" ]] && [[ -n "$(echo "$CHANGED_FILES" | grep packages/rust/)" ]] && continue
+              pkg+=" $(echo "$p" | cut -d"/" -f2)"
+            done
+          done
+        fi
+
+        # zig
+        if [[ -n "$(echo "$CHANGED_FILES" | grep packages/zig/)" ]] || \
+           [[ -n "$(echo "$CHANGED_FILES" | grep scripts/build/setup/termux_setup_zig.sh)" ]]; then
+          for repo in $repos; do
+            for p in $(grep termux_setup_zig -nHR "$repo" | cut -d":" -f1 | sort | uniq); do
+              [[ "$(echo "$p" | cut -d"/" -f2)" == "zig" ]] && [[ -n "$(echo "$CHANGED_FILES" | grep packages/zig/)" ]] && continue
+              pkg+=" $(echo "$p" | cut -d"/" -f2)"
+            done
+          done
+        fi
+
+        # python
+        pkg+=" $(grep DEPENDS -nHR {packages,root-packages,x11-packages}/*/*{build,subpackage}.sh | grep python | cut -d"/" -f2 | sort | uniq | grep -v '^python$')"
+
+        pkg=$(echo "$pkg" | cat -n | sort -uk2 | sort -n | cut -f2- | xargs | tr " " "\n")
+        echo -e "List of packages:\n${pkg}"
+        # max jobs 256, divide the jobs if build more than one arch, iterate accordingly
+        echo "matrix=$(echo "$pkg" | head -n $((256*1)) | tail -n 256 | python3 -c "import json,sys;line = [line.rstrip() for line in sys.stdin.readlines()];print(json.dumps(line))")" >> "$GITHUB_OUTPUT"
+    outputs:
+      matrix: ${{ steps.list.outputs.matrix }}
+
+  test:
+    needs: prepare
+    if: ${{ ! contains(toJSON(needs.prepare.outputs.matrix), '"[\"\"]"') }}
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        target_arch: [aarch64]
+        packages: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+      fail-fast: false
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v4
+    - name: Free additional disk space (if needed)
+      run: |
+        clean=false
+        for p in ${{ matrix.packages }}; do
+          if [[ -n "$(grep -E "^$p$" ./scripts/big-pkgs.list)" ]]; then
+            clean=true
+          fi
+        done
+        if [[ "$clean" == "true" ]]; then
+          ./scripts/setup-ubuntu.sh
+          sudo apt purge -yq $(dpkg -l | grep '^ii' | awk '{ print $2 }' | grep -P '(aspnetcore|cabal-|dotnet-|ghc-|libmono|mongodb-|mysql-|php)') \
+            firefox google-chrome-stable microsoft-edge-stable mono-devel mono-runtime-common monodoc-manual ruby
+          sudo apt autoremove -yq
+          sudo apt clean
+          sudo rm -fr /opt/ghc /opt/hostedtoolcache /usr/lib/node_modules /usr/local/share/boost /usr/share/dotnet /usr/share/swift
+        fi
+    - name: Build packages
+      run: |
+        docker=true
+        for p in ${{ matrix.packages }}; do
+          if [[ -n "$(grep -E "^$p$" ./scripts/big-pkgs.list)" ]]; then
+            docker=false
+          fi
+        done
+        if [[ "$docker" == "false" ]]; then
+          NDK=$ANDROID_NDK ANDROID_HOME=$ANDROID_SDK_ROOT ./build-package.sh -I -a ${{ matrix.target_arch }} ${{ matrix.packages }}
+        else
+          ./scripts/run-docker.sh ./build-package.sh -I -a ${{ matrix.target_arch }} ${{ matrix.packages }}
+        fi
+    - name: Generate build artifacts
+      if: always()
+      run: |
+        mkdir -p artifacts debs
+        find output \( -name "*.deb" \) -type f -print0 | xargs -0r mv -t debs/
+
+        # Files containing certain symbols (e.g. ":") will cause failure in actions/upload-artifact.
+        # Archiving *.deb files in a tarball to avoid issues with uploading.
+        tar cf artifacts/debs-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}.tar debs
+    - name: Checksums for built *.deb files
+      if: always()
+      run: |
+        find debs -type f -name "*.deb" -exec sha256sum "{}" \; | sort -k2 | tee checksum-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}.txt
+    - name: Store checksums for built *.deb files
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: checksum-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}
+        path: checksum-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}.txt
+    - name: Store *.deb files
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: debs-${{ matrix.target_arch }}-${{ matrix.packages }}-${{ github.sha }}
+        path: ./artifacts
