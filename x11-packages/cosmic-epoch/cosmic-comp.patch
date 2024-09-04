@@ -9,3 +9,12 @@
    "backend_vulkan",
    "backend_x11",
    "desktop",
+@@ -95,7 +95,7 @@ rev = "cdc652e0"
+ 
+ [features]
+ debug = ["egui", "egui_plot", "smithay-egui", "anyhow/backtrace"]
+-default = ["systemd"]
++default = [""]
+ systemd = ["libsystemd"]
+ profile-with-tracy = ["profiling/profile-with-tracy"]
+ 
