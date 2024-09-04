@@ -87,6 +87,11 @@ termux_step_pre_configure() {
 		echo "In $winit"
 		echo "$(patch -p1 -i ${TERMUX_PKG_BUILDER_DIR}/winit.diff -d $winit)"
 	done
+	local smithay
+	for smithay in ${CARGO_HOME}/git/checkouts/smithay-*/*; do
+		echo "In $smithay"
+		echo "$(patch -p1 -i ${TERMUX_PKG_BUILDER_DIR}/smithay.diff -d $smithay)"
+	done
 
 	local justfiles=$(find . -type f -name "justfile" | sort)
 	local justfile
