@@ -14,7 +14,7 @@
  [features]
  debug = ["egui", "egui_plot", "smithay-egui", "anyhow/backtrace"]
 -default = ["systemd"]
-+default = [""]
++default = []
  systemd = ["libsystemd"]
  profile-with-tracy = ["profiling/profile-with-tracy"]
  
