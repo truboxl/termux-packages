@@ -1,0 +1,11 @@
+--- a/src/backend/drm/node/mod.rs
++++ b/src/backend/drm/node/mod.rs
+@@ -253,7 +253,7 @@
+ }
+ 
+ /// Returns the path of a specific type of node from the DRM device described by major and minor device numbers.
+-#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ pub fn dev_path(dev: dev_t, ty: NodeType) -> io::Result<PathBuf> {
+     use std::fs;
+     use std::io::ErrorKind;
