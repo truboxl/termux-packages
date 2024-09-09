@@ -58,18 +58,17 @@ termux_step_host_build() {
 	mkdir -p "${TERMUX_PREFIX}/share/wasi-sysroot"
 	mv -v "${TERMUX_PREFIX}/VERSION" "${TERMUX_PREFIX}/share/wasi-sysroot"
 	echo "INFO: ${TERMUX_PREFIX}/share/wasi-sysroot/VERSION"
-	cat "${TERMUX_PREFIX}/share/wasi-sysropt//VERSION"
+	cat "${TERMUX_PREFIX}/share/wasi-sysroot/VERSION"
 	echo
+
+	mv -v "${TERMUX_PKG_HOSTBUILD_DIR}/install/share/cmake" "${TERMUX_PREFIX}/share"
+	mv -v "${TERMUX_PKG_HOSTBUILD_DIR}/install/share/misc" "${TERMUX_PREFIX}/share"
 
 	local llvm_major_version=$(grep llvm-version "${TERMUX_PREFIX}/share/wasi-sysroot/VERSION" | cut -d" " -f2 | cut -d"." -f1)
 
 	mkdir -p "${TERMUX_PREFIX}/lib/clang/${llvm_major_version}/lib"
 	mv -v "${TERMUX_PREFIX}/clang-resource-dir/lib" "${TERMUX_PREFIX}/lib/clang/${llvm_major_version}"
 	rm -frv "${TERMUX_PREFIX}/clang-resource-dir"
-
-	mkdir -p "${TERMUX_PREFIX}/share"
-	mv -v "${TERMUX_PKG_HOSTBUILD_DIR}/install/share/cmake" "${TERMUX_PREFIX}/share"
-	mv -v "${TERMUX_PKG_HOSTBUILD_DIR}/install/share/misc" "${TERMUX_PREFIX}/share"
 }
 
 termux_step_make() {
