@@ -3,9 +3,9 @@ TERMUX_PKG_DESCRIPTION="Tools and libraries to manipulate a wide range of multim
 TERMUX_PKG_LICENSE="GPL-3.0"
 TERMUX_PKG_MAINTAINER="@termux"
 # Please align version with `ffplay` package.
-TERMUX_PKG_VERSION="6.1.2"
+TERMUX_PKG_VERSION="7.0.2"
 TERMUX_PKG_SRCURL=https://www.ffmpeg.org/releases/ffmpeg-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=3b624649725ecdc565c903ca6643d41f33bd49239922e45c9b1442c63dca4e38
+TERMUX_PKG_SHA256=8646515b638a3ad303e23af6a3587734447cb8fc0a0c064ecdb8e95c4fd8b389
 TERMUX_PKG_DEPENDS="fontconfig, freetype, fribidi, game-music-emu, harfbuzz, libaom, libandroid-glob, libass, libbluray, libbz2, libdav1d, libgnutls, libiconv, liblzma, libmp3lame, libopencore-amr, libopenmpt, libopus, librav1e, libsoxr, libsrt, libssh, libtheora, libv4l, libvidstab, libvmaf, libvo-amrwbenc, libvorbis, libvpx, libwebp, libx264, libx265, libxml2, libzimg, littlecms, ocl-icd, svt-av1, xvidcore, zlib"
 TERMUX_PKG_BUILD_DEPENDS="opencl-headers"
 TERMUX_PKG_CONFLICTS="libav"
@@ -15,9 +15,9 @@ TERMUX_PKG_REPLACES="ffmpeg-dev"
 termux_step_pre_configure() {
 	# Do not forget to bump revision of reverse dependencies and rebuild them
 	# after SOVERSION is changed. (These variables are also used afterwards.)
-	_FFMPEG_SOVER_avutil=58
-	_FFMPEG_SOVER_avcodec=60
-	_FFMPEG_SOVER_avformat=60
+	_FFMPEG_SOVER_avutil=59
+	_FFMPEG_SOVER_avcodec=61
+	_FFMPEG_SOVER_avformat=61
 
 	local f
 	for f in util codec format; do
@@ -25,7 +25,7 @@ termux_step_pre_configure() {
 				libav${f}/version.h libav${f}/version_major.h \
 				| sed -En 's/^libav'"${f}"'_VERSION_MAJOR=([0-9]+)$/\1/p')
 		if [ ! "${v}" ] || [ "$(eval echo \$_FFMPEG_SOVER_av${f})" != "${v}" ]; then
-			termux_error_exit "SOVERSION guard check failed for libav${f}.so."
+			termux_error_exit "SOVERSION guard check failed for libav${f}.so. Expected: ${v}"
 		fi
 	done
 }
