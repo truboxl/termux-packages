@@ -23,9 +23,6 @@ CCAUX=gcc
 --with-system-libtiff
 "
 TERMUX_PKG_MAKE_INSTALL_TARGET="install-so install"
-# Use `make -j1` otherwise build may fail with error
-# about missing 'arch.h'.
-TERMUX_PKG_MAKE_PROCESSES=1
 
 termux_step_post_get_source() {
 	rm -rdf $TERMUX_PKG_SRCDIR/{expat,freetype,jbig2dec,jpeg,lcms2mt,libpng,openjpeg,tiff,zlib}
