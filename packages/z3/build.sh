@@ -10,10 +10,9 @@ TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_UPDATE_VERSION_REGEXP="\d+\.\d+\.\d+"
 TERMUX_PKG_DEPENDS="libc++"
 TERMUX_PKG_BUILD_IN_SRC=true
-TERMUX_PKG_EXTRA_MAKE_ARGS=" FPMATH_ENABLED=false"
 
 termux_step_configure() {
-	CXX="$CXX" CC="$CC" python3 scripts/mk_make.py --prefix=$TERMUX_PREFIX --build=$TERMUX_PKG_BUILDDIR
+	CXX="$CXX" CC="$CC" FPMATH_ENABLE=False python3 scripts/mk_make.py --prefix=$TERMUX_PREFIX --build=$TERMUX_PKG_BUILDDIR
 	if $TERMUX_ON_DEVICE_BUILD; then
 		sed 's%../../../../../../../../%%g' -i Makefile
 	else
