@@ -12,7 +12,7 @@ TERMUX_PKG_DEPENDS="libc++"
 TERMUX_PKG_BUILD_IN_SRC=true
 
 termux_step_configure() {
-	CXX="$CXX" CC="$CC" FPMATH_ENABLE=False python3 scripts/mk_make.py --prefix=$TERMUX_PREFIX --build=$TERMUX_PKG_BUILDDIR
+	CXX="$CXX" CC="$CC" FPMATH_ENABLED=False python3 scripts/mk_make.py --prefix=$TERMUX_PREFIX --build=$TERMUX_PKG_BUILDDIR
 	if $TERMUX_ON_DEVICE_BUILD; then
 		sed 's%../../../../../../../../%%g' -i Makefile
 	else
