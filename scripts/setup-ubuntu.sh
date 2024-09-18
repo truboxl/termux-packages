@@ -73,6 +73,9 @@ PACKAGES+=" python-wheel-common"
 PACKAGES+=" python3.10-venv"
 PACKAGES+=" python3.11-venv"
 
+# Needed by meson 1.5.0+ for tomli
+PACKAGES+=" python3-tomli"
+
 # Needed by package bc.
 PACKAGES+=" ed"
 
