@@ -5,7 +5,7 @@ TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="0.11.0"
 TERMUX_PKG_SRCURL=https://github.com/flxzt/rnote/releases/download/v${TERMUX_PKG_VERSION}/rnote-${TERMUX_PKG_VERSION}.tar.xz
 TERMUX_PKG_SHA256=567d30523ef672a18ca33b16442af7b4a93910b47f416d09968dbc0e1d689cc3
-TERMUX_PKG_DEPENDS="appstream, glib, gtk4, libadwaita, libcairo, poppler"
+TERMUX_PKG_DEPENDS="appstream, gettext, glib, gtk4, libadwaita, libcairo, poppler"
 TERMUX_PKG_AUTO_UPDATE=true
 
 termux_step_pre_configure() {
