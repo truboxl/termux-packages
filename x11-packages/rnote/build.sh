@@ -26,6 +26,8 @@ termux_step_pre_configure() {
 
 	local p="${TERMUX_PKG_BUILDER_DIR}/0001-meson.build.diff"
 	echo "Applying patch: $(basename "${p}")"
-	sed "s|@CARGO_TARGET_NAME@|${CARGO_TARGET_NAME}|" "${p}" \
-		| patch --silent -p1
+	sed \
+		-e "s|@CARGO_TARGET_NAME@|${CARGO_TARGET_NAME}|" \
+		-e "s|@CC@|${CC}|" \
+		"${p}" | patch --silent -p1
 }
