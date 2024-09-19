@@ -28,6 +28,10 @@ termux_step_pre_configure() {
 	echo "Applying patch: $(basename "${p}")"
 	sed \
 		-e "s|@CARGO_TARGET_NAME@|${CARGO_TARGET_NAME}|" \
-		-e "s|@CC@|${CC}|" \
+		"${p}" | patch --silent -p1
+	local p="${TERMUX_PKG_BUILDER_DIR}/0003-build-aux-cargo_build.py.diff"
+	echo "Applying patch: $(basename "${p}")"
+	sed \
+		-e "s|@CARGO_TARGET_NAME@|${CARGO_TARGET_NAME}|" \
 		"${p}" | patch --silent -p1
 }
