@@ -33,5 +33,8 @@ termux_step_pre_configure() {
 	echo "Applying patch: $(basename "${p}")"
 	sed \
 		-e "s|@CARGO_TARGET_NAME@|${CARGO_TARGET_NAME}|" \
+		-e "s|@CARGO_TARGET_NAME_U@|${CARGO_TARGET_NAME^^}|" \
+		-e "s|@CC@|${CC}|" \
+		-e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|" \
 		"${p}" | patch --silent -p1
 }
