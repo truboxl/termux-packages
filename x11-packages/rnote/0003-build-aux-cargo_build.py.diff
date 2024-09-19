@@ -6,7 +6,7 @@ diff -uNr a/build-aux/cargo_build.py b/build-aux/cargo_build.py
  """, file=sys.stderr)
  
 -cargo_call = f"env {cargo_env} {cargo_cmd} build {cargo_options}"
-+cargo_call = f"env {cargo_env} GETTEXT_SYSYEM=1 GETTEXT_DIR=@TERMUX_PREFIX@ GETTEXT_BIN_DIR=@TERMUX_PREFIX@/bin GETTEXT_LIB_DIR=@TERMUX_PREFIX@/lib GETTEXT_INCLUDE_DIR=@TERMUX_PREFIX@/include CARGO_TARGET_@CARGO_TARGET_NAME_U@_LINKER=@CC@ {cargo_cmd} build {cargo_options}"
++cargo_call = f"env {cargo_env} GETTEXT_SYSYEM=1 GETTEXT_DIR=@TERMUX_PREFIX@ GETTEXT_BIN_DIR=@TERMUX_PREFIX@/bin GETTEXT_LIB_DIR=@TERMUX_PREFIX@/lib GETTEXT_INCLUDE_DIR=@TERMUX_PREFIX@/include RUSTFLAGS=' -C linker=@CC@' {cargo_cmd} build {cargo_options}"
  cp_call = f"cp {bin_output} {output_file}"
  
  print(cargo_call, file=sys.stderr)
