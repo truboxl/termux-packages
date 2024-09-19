@@ -1,5 +1,14 @@
 --- a/meson.build
 +++ b/meson.build
+@@ -82,7 +82,7 @@
+ cargo_build_script = find_program('build-aux/cargo_build.py', required: true)
+ inno_build_script = find_program('build-aux/inno_build.py', required: true)
+ 
+-cargo_env = ['CARGO_HOME=' + meson.project_build_root() / 'cargo-home']
++cargo_env = ['CARGO_HOME=' + meson.project_build_root() / 'cargo-home', 'GETTEXT_SYSTEM=1']
+ cargo_manifest_path = meson.project_source_root() / 'Cargo.toml'
+ cargo_target_dir = meson.project_build_root() / 'target'
+ 
 @@ -186,6 +186,7 @@
  
      ui_cargo_options = ['--manifest-path', cargo_manifest_path]

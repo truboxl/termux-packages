@@ -13,10 +13,9 @@ termux_step_pre_configure() {
 	termux_setup_rust
 
 	export CFLAGS=""
-	export GETTEXT_SYSTEM=1
 
 	# remove rodio -> cpal -> alsa
-	# dependencies that cannot be built
+	# dependencies that cannot be built or missing
 	pushd crates/rnote-engine
 	cargo remove rodio
 	popd
