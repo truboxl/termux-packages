@@ -13,6 +13,10 @@ termux_step_pre_configure() {
 	termux_setup_rust
 
 	export CFLAGS=""
+	export GETTEXT_DIR=${TERMUX_PREFIX}
+	export GETTEXT_BIN_DIR=${TERMUX_PREFIX}/bin
+	export GETTEXT_LIB_DIR=${TERMUX_PREFIX}/lib
+	export GETTEXT_INCLUDE_DIR=${TERMUX_PREFIX}/include
 
 	# remove rodio -> cpal -> alsa
 	# dependencies that cannot be built or missing
