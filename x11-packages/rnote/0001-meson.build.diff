@@ -1,15 +1,6 @@
-diff -uNr a/meson.build b/meson.build
---- a/meson.build	2024-07-26 17:43:32.000000000 +0800
-+++ b/meson.build	2024-09-19 13:28:08.396016763 +0800
-@@ -83,6 +83,7 @@
- inno_build_script = find_program('build-aux/inno_build.py', required: true)
- 
- cargo_env = ['CARGO_HOME=' + meson.project_build_root() / 'cargo-home']
-+cargo_env += ['GETTEXT_SYSTEM=1']
- cargo_manifest_path = meson.project_source_root() / 'Cargo.toml'
- cargo_target_dir = meson.project_build_root() / 'target'
- 
-@@ -186,6 +187,7 @@
+--- a/meson.build
++++ b/meson.build
+@@ -186,6 +186,7 @@
  
      ui_cargo_options = ['--manifest-path', cargo_manifest_path]
      ui_cargo_options += ['--target-dir', cargo_target_dir]
