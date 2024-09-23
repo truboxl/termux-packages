@@ -2,11 +2,12 @@ TERMUX_PKG_HOMEPAGE=https://busybox.net/
 TERMUX_PKG_DESCRIPTION="Tiny versions of many common UNIX utilities into a single small executable"
 TERMUX_PKG_LICENSE="GPL-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION=1.36.1
-TERMUX_PKG_REVISION=1
+TERMUX_PKG_VERSION="1.36.1"
+TERMUX_PKG_REVISION=2
 TERMUX_PKG_SRCURL=https://busybox.net/downloads/busybox-${TERMUX_PKG_VERSION}.tar.bz2
 TERMUX_PKG_SHA256=b8cc24c9574d809e7279c3be349795c5d5ceb6fdf19ca709f80cde50e47de314
 TERMUX_PKG_BUILD_IN_SRC=true
+TERMUX_DEBUG_BUILD=true
 
 TERMUX_PKG_SERVICE_SCRIPT=(
 	"telnetd" 'exec busybox telnetd -F'
