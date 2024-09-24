@@ -26,8 +26,6 @@ termux_step_pre_configure() {
 termux_step_configure() {
 	# Prevent spamming logs with useless warnings to make them more readable.
 	CFLAGS+=" -Wno-ignored-optimization-argument -Wno-unused-command-line-argument"
-	# Segmentation fault in traceroute.c INIT_G()
-	CFLAGS+=" -fPIC"
 
 	sed -e "s|@TERMUX_PREFIX@|$TERMUX_PREFIX|g" \
 		-e "s|@TERMUX_SYSROOT@|$TERMUX_STANDALONE_TOOLCHAIN/sysroot|g" \
