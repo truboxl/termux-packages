@@ -10,7 +10,7 @@ TERMUX_PKG_BUILD_IN_SRC=true
 
 termux_step_post_get_source() {
 	# set up dotnet cli and override source files
-	./prep.sh
+	./prep-source-build.sh
 }
 
 termux_step_pre_configure() {
