@@ -25,6 +25,9 @@ termux_step_pre_configure() {
 	: "${CARGO_HOME:=$HOME/.cargo}"
 	export CARGO_HOME
 
+	# not sure what changed in rust 1.82.0
+	export RUSTFLAGS+=" -L ${TERMUX_PREFIX}/lib"
+
 	cargo fetch --target $CARGO_TARGET_NAME
 
 	local d p
