@@ -33,3 +33,4 @@ Vagrant.configure("2") do |config|
   # Tell the user how to use the VM
   config.vm.post_up_message = "Box has been provisioned! Use 'vagrant ssh' to enter the box. The repository root is available under '~/termux-packages'."
 end
+
