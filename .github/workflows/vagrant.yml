@@ -32,7 +32,7 @@ jobs:
     - name: Configure vagrant
       run: vagrant plugin install vagrant-disksize
     - name: Set config.disksize.size under CI limit
-      run: sed "s/config.disksize.size = */configu.disksize.size = '9GB'/" -i scripts/Vagrantfile
+      run: sed "s/config.disksize.size = .*/config.disksize.size = '9GB'/" -i scripts/Vagrantfile
     - name: Run "vagrant up" in scripts directory
       run: pushd scripts && vagrant up && popd
     - name: git status && git diff
