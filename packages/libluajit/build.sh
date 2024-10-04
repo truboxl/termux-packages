@@ -21,6 +21,7 @@ termux_step_post_get_source() {
 	# Find the commit made at the exact timestamp specified in the version:
 	local commit_hash=$(git log --date=unix --before=$commit_ts --after=$commit_ts --pretty=format:"%H")
 	git checkout $commit_hash
+	git log --oneline --pretty=%H | head -n1
 }
 
 termux_step_pre_configure() {
