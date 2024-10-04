@@ -5,6 +5,7 @@ TERMUX_PKG_MAINTAINER="@termux"
 _COMMIT=4613ac3c15fd75cebc4b9f65b7fb95e70a3acce1
 TERMUX_PKG_VERSION="1:0.164.3191"
 TERMUX_PKG_SRCURL=git+https://code.videolan.org/videolan/x264
+TERMUX_PKG_GIT_BRANCH="master"
 TERMUX_PKG_BREAKS="libx264-dev"
 TERMUX_PKG_REPLACES="libx264-dev"
 # Avoid linking against ffmpeg libraries to avoid circular dependency:
