@@ -14,6 +14,8 @@ TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_LUAJIT_JIT_FOLDER_RELATIVE=share/luajit-${TERMUX_PKG_VERSION:2:3}/jit
 
 termux_step_post_get_source() {
+	git fetch --unshallow
+
 	# Do the same as e.g. arch linux is doing:
 	# The patch version is the timestamp of the above git commit, obtain via `git show -s --format=%ct`
 	local commit_ts=${TERMUX_PKG_VERSION:6}
