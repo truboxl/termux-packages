@@ -3,10 +3,8 @@ TERMUX_PKG_DESCRIPTION="Library for encoding video streams into the H.264/MPEG-4
 TERMUX_PKG_LICENSE="GPL-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
 _COMMIT=4613ac3c15fd75cebc4b9f65b7fb95e70a3acce1
-# X264_BUILD from x264.h; commit count using "git rev-list --count HEAD" on x264 git repo
 TERMUX_PKG_VERSION="1:0.164.3191"
-TERMUX_PKG_SRCURL=https://code.videolan.org/videolan/x264/-/archive/$_COMMIT/x264-$_COMMIT.tar.bz2
-TERMUX_PKG_SHA256=2a1b197fd1fbc85045794f18c9353648a9ae3cbe194b7b92d523d096f9445464
+TERMUX_PKG_SRCURL=git+https://code.videolan.org/videolan/x264
 TERMUX_PKG_BREAKS="libx264-dev"
 TERMUX_PKG_REPLACES="libx264-dev"
 # Avoid linking against ffmpeg libraries to avoid circular dependency:
@@ -14,6 +12,22 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --disable-lavf
 --disable-swscale
 "
+
+termux_step_post_get_source() {
+	git fetch --unshallow
+	git checkout "${_COMMIT}"
+	git clean -ffxd
+
+	# X264_BUILD from x264.h; commit count using "git rev-list --count HEAD" on x264 git repo
+	local revcount=$(git rev-list --count HEAD)
+	if [[ "${TERMUX_PKG_VERSION##*.}" != "${revcount}" ]]; then
+		termux_error_exit "
+		Mismatch revcount
+		TERMUX_PKG_VERSION = ${TERMUX_PKG_VERSION}
+		revcount           = ${revcount}
+		"
+	fi
+}
 
 termux_step_pre_configure() {
 	if [ $TERMUX_ARCH = "i686" ]; then
