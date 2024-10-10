@@ -143,7 +143,7 @@ termux_step_make() {
 	pushd src/aspnetcore
 	rm -fr .dotnet
 	ln -fsv ../../.dotnet .dotnet
-	DotNetBuildFromSource=true ./eng/build.sh --pack --arch "${arch}" --no-build-nodejs --warnaserror false /p:TargetOS=linux-bionic
+	DotNetBuildFromSource=true ./eng/build.sh --pack --arch "${arch}" --no-build-nodejs /p:TargetOS=linux-bionic /p:TreatWarningsAsErrors=false
 	popd
 
 	pushd src/installer
