@@ -132,7 +132,7 @@ jobs:
         fi
 
         # max jobs 256, divide the jobs if build more than one arch, iterate accordingly
-        echo "matrix=$(echo "${pkg_s}" | head -n $((64*1)) | tail -n 64 | python3 -c "import json,sys;line = [line.rstrip() for line in sys.stdin.readlines()];print(json.dumps(line))")" >> "${GITHUB_OUTPUT}"
+        echo "matrix=$(echo "${pkg_s}" | head -n $((256*1)) | tail -n 256 | python3 -c "import json,sys;line = [line.rstrip() for line in sys.stdin.readlines()];print(json.dumps(line))")" >> "${GITHUB_OUTPUT}"
     outputs:
       matrix: ${{ steps.list.outputs.matrix }}
 
