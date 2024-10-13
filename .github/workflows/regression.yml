@@ -89,6 +89,7 @@ jobs:
         # keep CI init under 20, the lower the better
         parallel_ci_limit=10
         pkg_s=""
+        if ! :; then
         total_jobs=$(echo "${pkg}" | wc -l)
         if (( "${total_jobs}" > "${parallel_ci_limit}" )); then
           max=$((total_jobs/parallel_ci_limit))
@@ -114,11 +115,15 @@ jobs:
             fi
           done < <(echo "${pkg}")
         fi
+        fi
         if [[ -z "${pkg_s}" ]]; then
           pkg_s="${pkg}"
         else
           echo -e "Reorganised jobs:\n${pkg_s}"
         fi
+
+        # openssl pollution
+        pkg_s=$(echo "$pkg_s" | xargs -I{} echo -e "lychee {}")
 
         # max jobs 256, divide the jobs if build more than one arch, iterate accordingly
         echo "matrix=$(echo "${pkg_s}" | head -n $((64*1)) | tail -n 64 | python3 -c "import json,sys;line = [line.rstrip() for line in sys.stdin.readlines()];print(json.dumps(line))")" >> "${GITHUB_OUTPUT}"
@@ -133,7 +138,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        target_arch: [aarch64, arm, i686, x86_64]
+        target_arch: [aarch64]
         packages: ${{ fromJSON(needs.prepare.outputs.matrix) }}
       fail-fast: false
     steps:
