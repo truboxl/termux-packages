@@ -27,7 +27,8 @@ termux_step_host_build() {
 	# the issue)
 	cd $TERMUX_PKG_SRCDIR
 	#make core-linux-x86_64 ${TERMUX_PKG_EXTRA_MAKE_ARGS}
-	./configure
+	find / -name "pyconfig.h"
+	exit 1
 	make ${TERMUX_PKG_EXTRA_MAKE_ARGS}
 	cp build/tmp-linux-x86_64/frida-core/tools/frida-resource-compiler \
 		$TERMUX_PKG_HOSTBUILD_DIR/
