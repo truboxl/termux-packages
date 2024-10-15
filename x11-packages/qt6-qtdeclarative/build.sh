@@ -53,11 +53,6 @@ termux_step_host_build() {
 termux_step_pre_configure() {
 	termux_setup_cmake
 	termux_setup_ninja
-
-	# The -flto flag seems to be used only when compiling and not linking,
-	# which breaks the NDK clang fallback to emulated TLS - see
-	# https://github.com/termux/termux-packages/issues/21733:
-	LDFLAGS+=" -flto"
 }
 
 termux_step_make_install() {
