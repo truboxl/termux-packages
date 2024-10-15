@@ -9,6 +9,9 @@ TERMUX_PKG_DEPENDS="freetype, ghostscript, libandroid-complex-math, libandroid-e
 TERMUX_PKG_BUILD_DEPENDS="qt6-qtbase-cross-tools"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
+TERMUX_PKG_RM_AFTER_INSTALL="
+lib/libcurl.so
+"
 
 termux_pkg_auto_update() {
 	local api_url="https://api.github.com/repos/XmacsLabs/mogan/git/refs/tags"
