@@ -3,9 +3,6 @@ TERMUX_PKG_DESCRIPTION="Dynamic instrumentation toolkit for developers, reverse-
 TERMUX_PKG_LICENSE="wxWindows"
 TERMUX_PKG_MAINTAINER="Henrik Grimler @Grimler91"
 TERMUX_PKG_VERSION="16.5.6"
-_MAJOR_VERSION=$(echo "${TERMUX_PKG_VERSION}" | cut -d. -f1)
-_MINOR_VERSION=$(echo "${TERMUX_PKG_VERSION}" | cut -d. -f2)
-_MICRO_VERSION=$(echo "${TERMUX_PKG_VERSION}" | cut -d. -f3)
 TERMUX_PKG_SRCURL=git+https://github.com/frida/frida
 TERMUX_PKG_GIT_BRANCH="${TERMUX_PKG_VERSION}"
 TERMUX_PKG_AUTO_UPDATE=false
@@ -29,7 +26,8 @@ termux_step_host_build() {
 	# dir that causes it, removing our bin/ dir from PATH fixes
 	# the issue)
 	cd $TERMUX_PKG_SRCDIR
-	make core-linux-x86_64 ${TERMUX_PKG_EXTRA_MAKE_ARGS}
+	#make core-linux-x86_64 ${TERMUX_PKG_EXTRA_MAKE_ARGS}
+	make ${TERMUX_PKG_EXTRA_MAKE_ARGS}
 	cp build/tmp-linux-x86_64/frida-core/tools/frida-resource-compiler \
 		$TERMUX_PKG_HOSTBUILD_DIR/
 }
@@ -45,13 +43,11 @@ termux_step_pre_configure () {
 }
 
 termux_step_make () {
-	if [[ ${TERMUX_ARCH} == "aarch64" ]]; then
-		arch=arm64
-	elif [[ ${TERMUX_ARCH} == "i686" ]]; then
-		arch=x86
-	else
-		arch=${TERMUX_ARCH}
-	fi
+	arch="${TERMUX_ARCH}"
+	case "${TERMUX_ARCH}" in
+	aarch64) arch="arm64" ;;
+	i686) arch="x86" ;;
+	esac
 
 	export PATH=$TERMUX_PKG_HOSTBUILD_DIR:$PATH
 
