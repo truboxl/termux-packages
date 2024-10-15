@@ -47,14 +47,15 @@ termux_step_pre_configure() {
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
 		#install -Dm755 "${TERMUX_PKG_BUILDER_DIR}/qmake.sh" "${TERMUX_PKG_TMPDIR}/qmake"
 		#sed -e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" -i "${TERMUX_PKG_TMPDIR}/qmake"
-		ln -fsv "${TERMUX_PREFIX}/lib/qt6/bin/host-qmake" "${TERMUX_PKG_TMPDIR}/qmake"
-		export PATH="${TERMUX_PKG_TMPDIR}:${TERMUX_PREFIX}/opt/qt6/cross/bin:${PATH}"
-		export PATH="${TERMUX_PKG_TMPDIR}:${PATH}"
 
+		ln -fsv "${TERMUX_PREFIX}/lib/qt6/bin/host-qmake" "${TERMUX_PKG_TMPDIR}/qmake"
+		ln -fsv "${TERMUX_PREFIX}/lib/qt6/bin/target_qt.conf" "${TERMUX_PKG_TMPDIR}/target_qt.conf"
+		export PATH="${TERMUX_PKG_TMPDIR}:${TERMUX_PREFIX}/opt/qt6/cross/bin:${PATH}"
 	fi
 
 	command -v qmake
 	qmake -query
+	exit 1
 }
 
 termux_step_make() {
