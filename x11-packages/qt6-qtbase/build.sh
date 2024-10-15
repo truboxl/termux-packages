@@ -4,6 +4,7 @@ TERMUX_PKG_LICENSE="GPL-3.0"
 TERMUX_PKG_LICENSE_FILE="LICENSES/GPL-3.0-only.txt"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="6.8.0"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL="https://download.qt.io/official_releases/qt/${TERMUX_PKG_VERSION%.*}/${TERMUX_PKG_VERSION}/submodules/qtbase-everywhere-src-${TERMUX_PKG_VERSION}.tar.xz"
 TERMUX_PKG_SHA256=1bad481710aa27f872de6c9f72651f89a6107f0077003d0ebfcc9fd15cba3c75
 TERMUX_PKG_DEPENDS="brotli, double-conversion, freetype, glib, harfbuzz, libandroid-posix-semaphore, libandroid-shmem, libc++, libdrm, libice, libicu, libjpeg-turbo, libpng, libsm, libsqlite, libuuid, libx11, libxcb, libxi, libxkbcommon, libwayland, opengl, openssl, pcre2, vulkan-loader, xcb-util-cursor, xcb-util-image, xcb-util-keysyms, xcb-util-renderutil, xcb-util-wm, zlib, zstd"
@@ -13,7 +14,6 @@ TERMUX_PKG_FORCE_CMAKE=true
 TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
--DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON
 -DCMAKE_MESSAGE_LOG_LEVEL=STATUS
 -DCMAKE_SYSTEM_NAME=Linux
 -DFEATURE_journald=OFF
@@ -78,7 +78,6 @@ termux_step_host_build() {
 		-S ${TERMUX_PKG_SRCDIR} \
 		-DCMAKE_BUILD_TYPE=MinSizeRel \
 		-DCMAKE_INSTALL_PREFIX=${TERMUX_PREFIX}/opt/qt6/cross \
-		-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON \
 		-DCMAKE_MESSAGE_LOG_LEVEL=STATUS \
 		-DFEATURE_journald=OFF \
 		-DFEATURE_openssl_linked=ON \
@@ -111,6 +110,9 @@ termux_step_host_build() {
 	find ${TERMUX_PREFIX}/opt/qt6/cross -type f -name target_qt.conf \
 		-exec echo "{}" \; \
 		-exec cat "{}" \;
+
+	# check host built qmake6
+	"${TERMUX_PREFIX}/opt/qt6/cross/bin/qmake6" -query
 }
 
 termux_step_pre_configure() {
@@ -135,4 +137,9 @@ termux_step_post_make_install() {
 	find ${TERMUX_PREFIX}/lib/qt6 -type f -name target_qt.conf \
 		-exec echo "{}" \; \
 		-exec cat "{}" \;
+
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
+		# check wrapper that should still work
+		"${TERMUX_PREFIX}/opt/qt6/cross/lib/qt6/bin/qmake6" -query
+	fi
 }
