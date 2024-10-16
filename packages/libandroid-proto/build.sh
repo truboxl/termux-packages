@@ -9,7 +9,7 @@ TERMUX_PKG_AUTO_UPDATE=false
 
 termux_step_make() {
 	$CC $CPPFLAGS $CFLAGS -c $TERMUX_PKG_BUILDER_DIR/proto.c
-	$LD $LDFLAGS -shared proto.o -o libandroid-proto.so
+	$CC $LDFLAGS -shared proto.o -o libandroid-proto.so
 	$AR rcu libandroid-proto.a proto.o
 	cp -f $TERMUX_PKG_BUILDER_DIR/LICENSE $TERMUX_PKG_SRCDIR/
 }
