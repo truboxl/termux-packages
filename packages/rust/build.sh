@@ -2,17 +2,19 @@ TERMUX_PKG_HOMEPAGE=https://www.rust-lang.org/
 TERMUX_PKG_DESCRIPTION="Systems programming language focused on safety, speed and concurrency"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="1.81.0"
-TERMUX_PKG_REVISION=1
+TERMUX_PKG_VERSION="1.82.0~beta"
 TERMUX_PKG_SRCURL=https://static.rust-lang.org/dist/rustc-${TERMUX_PKG_VERSION}-src.tar.xz
-TERMUX_PKG_SHA256=36217ef7e32f40a180e3d79bd666b4dfdaed49dd381023a5fb765fd12d0092ce
+if [[ "${TERMUX_PKG_VERSION}" == *"~beta" ]]; then
+TERMUX_PKG_SRCURL=https://static.rust-lang.org/dist/rustc-beta-src.tar.xz
+fi
+TERMUX_PKG_SHA256=c4adc91be3f33cbd96c2e83153cf548add14f2fb6fe4e05971c8dce096a66b57
 _LLVM_MAJOR_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libllvm/build.sh; echo $LLVM_MAJOR_VERSION)
 _LLVM_MAJOR_VERSION_NEXT=$((_LLVM_MAJOR_VERSION + 1))
 _LZMA_VERSION=$(. $TERMUX_SCRIPTDIR/packages/liblzma/build.sh; echo $TERMUX_PKG_VERSION)
 TERMUX_PKG_DEPENDS="clang, libc++, libllvm (<< ${_LLVM_MAJOR_VERSION_NEXT}), lld, openssl, zlib"
 TERMUX_PKG_BUILD_DEPENDS="wasi-libc"
 TERMUX_PKG_NO_STATICSPLIT=true
-TERMUX_PKG_AUTO_UPDATE=true
+TERMUX_PKG_AUTO_UPDATE=false # TODO implement bot staging PR
 TERMUX_PKG_RM_AFTER_INSTALL="
 bin/llc
 bin/llvm-*
@@ -133,7 +135,7 @@ termux_step_configure() {
 	# like 30 to 40 + minutes ... so lets get it right
 
 	# upstream tests build using versions N and N-1
-	local BOOTSTRAP_VERSION=1.80.1
+	local BOOTSTRAP_VERSION=1.81.0
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
 		if ! rustup install "${BOOTSTRAP_VERSION}"; then
 			echo "WARN: ${BOOTSTRAP_VERSION} is unavailable, fallback to stable version!"

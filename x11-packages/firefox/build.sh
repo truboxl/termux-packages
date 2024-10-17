@@ -24,8 +24,8 @@ termux_pkg_auto_update() {
 	local uptime_s="${uptime_now//.*}"
 	local uptime_h_limit=2
 	local uptime_s_limit=$((uptime_h_limit*60*60))
-	[[ -z "${uptime_s}" ]] && e=1
-	[[ "${uptime_s}" == 0 ]] && e=1
+	[[ -z "${uptime_s}" ]] && [[ "$(uname -o)" != "Android" ]] && e=1
+	[[ "${uptime_s}" == 0 ]] && [[ "$(uname -o)" != "Android" ]] && e=1
 	[[ "${uptime_s}" -gt "${uptime_s_limit}" ]] && e=1
 
 	if [[ "${e}" != 0 ]]; then
