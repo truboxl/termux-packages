@@ -29,7 +29,7 @@ termux_step_pre_configure() {
 	#echo "./tools/install-powershell.sh"
 	#./tools/install-powershell.sh
 	curl -L https://packages.microsoft.com/ubuntu/24.04/prod/pool/main/p/powershell-preview/powershell-preview_7.5.0-preview.5-1.deb_amd64.deb -o powershell.deb
-	/usr/bin/sudo apt install -y powershell.deb
+	/usr/bin/sudo apt install -y ./powershell.deb
 	command -v pwsh
 
 	export DOTNET_TARGET_NAME="linux-bionic-${TERMUX_ARCH}"
