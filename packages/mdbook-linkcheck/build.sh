@@ -12,8 +12,7 @@ TERMUX_PKG_BUILD_IN_SRC=true
 termux_step_pre_configure() {
 	termux_setup_rust
 
-	export OPENSSL_INCLUDE_DIR="${TERMUX_PREFIX}/include"
-	export OPENSSL_LIB_DIR="${TERMUX_PREFIX}/lib"
+	export OPENSSL_DIR="${TERMUX_PREFIX}"
 }
 
 termux_step_make() {
@@ -22,4 +21,5 @@ termux_step_make() {
 
 termux_step_make_install() {
 	install -Dm700 -t $TERMUX_PREFIX/bin target/${CARGO_TARGET_NAME}/release/mdbook-linkcheck
+	$READELF -d $TERMUX_PREFIX/bin/mdbook-linkcheck
 }
