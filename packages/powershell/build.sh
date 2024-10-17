@@ -26,16 +26,16 @@ termux_pkg_auto_update() {
 }
 
 termux_step_pre_configure() {
-	echo "./tools/install-powershell.sh"
-	./tools/install-powershell.sh
+	#echo "./tools/install-powershell.sh"
+	#./tools/install-powershell.sh
+	sudo apt install -y https://packages.microsoft.com/ubuntu/24.04/prod/pool/main/p/powershell-preview/powershell-preview_7.5.0-preview.5-1.deb_amd64.deb
 	command -v pwsh
 
-	export DOTNET_TARGET_NAME="linux-bionic"
+	export DOTNET_TARGET_NAME="linux-bionic-${TERMUX_ARCH}"
 	case "${TERMUX_ARCH}" in
-	aarch64) DOTNET_TARGET_NAME+="-arm64" ;;
-	arm) DOTNET_TARGET_NAME+="-arm" ;;
-	i686) DOTNET_TARGET_NAME+="-x86" ;;
-	x86_64) DOTNET_TARGET_NAME+="-x64" ;;
+	aarch64) DOTNET_TARGET_NAME="linux-bionic-arm64" ;;
+	i686) DOTNET_TARGET_NAME="linux-bionic-x86" ;;
+	x86_64) DOTNET_TARGET_NAME="linux-bionic-x64" ;;
 	esac
 
 	export CONFIG="Release"
