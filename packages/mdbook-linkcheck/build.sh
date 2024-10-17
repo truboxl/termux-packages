@@ -12,7 +12,7 @@ TERMUX_PKG_BUILD_IN_SRC=true
 termux_step_pre_configure() {
 	termux_setup_rust
 
-	export OPENSSL_DIR="${TERMUX_PREFIX}"
+	export OPENSSL_STATIC=1
 }
 
 termux_step_make() {
