@@ -13,7 +13,8 @@ TERMUX_PKG_SHA256=(
 	e7d82eaae65081a1118a899751ff50ddf76a1cc0f056882eeaffcedb86c12aec
 	8684f4b00f94b85461884c3719382f1261f0d9eb3d59640a1f4ac0873616f968
 )
-TERMUX_PKG_DEPENDS="gdk-pixbuf, glib, gtk3, libc++, libexpat, libflac, libid3tag, libjpeg-turbo, libogg, libopus, libsndfile, libsoundtouch, libsoxr, libuuid, libvorbis, libwavpack, mpg123, opusfile, portaudio, portmidi, wxwidgets"
+TERMUX_PKG_DEPENDS="gdk-pixbuf, glib, gtk3, libc++, libexpat, libflac, libid3tag, libogg, libopus, libsndfile, libsoundtouch, libsoxr, libuuid, libvorbis, libwavpack, mpg123, opusfile, portaudio, portmidi, wxwidgets"
+TERMUX_PKG_BUILD_DEPENDS="libjpeg-turbo-static"
 # Support for FFmpeg 5.0 is not backported:
 # https://github.com/audacity/audacity/issues/2445
 TERMUX_PKG_SUGGESTS="audacity-ffmpeg"
