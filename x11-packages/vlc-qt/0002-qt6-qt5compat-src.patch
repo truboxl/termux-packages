@@ -1,0 +1,93 @@
+--- a/modules/gui/qt/components/controller.hpp
++++ b/modules/gui/qt/components/controller.hpp
+@@ -277,7 +277,7 @@
+     void mouseMoveEvent( QMouseEvent *event ) Q_DECL_OVERRIDE;
+     void mousePressEvent( QMouseEvent *event ) Q_DECL_OVERRIDE;
+     void mouseReleaseEvent( QMouseEvent *event ) Q_DECL_OVERRIDE;
+-    void enterEvent( QEvent *event ) Q_DECL_OVERRIDE;
++    void enterEvent( QEnterEvent *event ) Q_DECL_OVERRIDE;
+     void leaveEvent( QEvent *event ) Q_DECL_OVERRIDE;
+     void keyPressEvent( QKeyEvent *event ) Q_DECL_OVERRIDE;
+ 
+--- a/modules/gui/qt/components/interface_widgets.cpp
++++ b/modules/gui/qt/components/interface_widgets.cpp
+@@ -44,7 +44,7 @@
+ #include <QDate>
+ #include <QMenu>
+ #include <QWidgetAction>
+-#include <QDesktopWidget>
++#include <QScreen>
+ #include <QPainter>
+ #include <QTimer>
+ #include <QSlider>
+--- a/modules/gui/qt/components/interface_widgets.hpp
++++ b/modules/gui/qt/components/interface_widgets.hpp
+@@ -69,7 +69,7 @@
+         return NULL;
+     }
+ 
+-    bool nativeEvent(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE;
++    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) Q_DECL_OVERRIDE;
+     virtual void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;
+     void mousePressEvent(QMouseEvent *) Q_DECL_OVERRIDE;
+     void mouseMoveEvent(QMouseEvent *) Q_DECL_OVERRIDE;
+--- a/modules/gui/qt/components/playlist/playlist_model.hpp
++++ b/modules/gui/qt/components/playlist/playlist_model.hpp
+@@ -36,6 +36,7 @@
+ 
+ #include <QObject>
+ #include <QEvent>
++#include <QFont>
+ #include <QSignalMapper>
+ #include <QMimeData>
+ #include <QAbstractItemModel>
+--- a/modules/gui/qt/ui/podcast_configuration.ui
++++ b/modules/gui/qt/ui/podcast_configuration.ui
+@@ -1,6 +1,6 @@
+ <ui version="4.0" >
+  <class>PodcastConfiguration</class>
+- <widget class="QWidget" name="PodcastConfiguration" >
++ <widget class="QDialog" name="PodcastConfiguration" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+--- a/modules/gui/qt/util/qvlcframe.hpp
++++ b/modules/gui/qt/util/qvlcframe.hpp
+@@ -30,7 +30,7 @@
+ #include <QApplication>
+ #include <QMainWindow>
+ #include <QKeyEvent>
+-#include <QDesktopWidget>
++#include <QScreen>
+ #include <QSettings>
+ #include <QStyle>
+ 
+@@ -75,7 +75,7 @@
+             widget->resize(defSize);
+ 
+             if(defPos.x() == 0 && defPos.y()==0)
+-               widget->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, widget->size(), qApp->desktop()->availableGeometry()));
++               widget->setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, widget->size(), qApp->primaryScreen()->geometry()));
+             return true;
+           }
+           return false;
+--- a/modules/gui/qt/util/timetooltip.cpp
++++ b/modules/gui/qt/util/timetooltip.cpp
+@@ -25,7 +25,7 @@
+ #include <QPainter>
+ #include <QBitmap>
+ #include <QFontMetrics>
+-#include <QDesktopWidget>
++#include <QScreen>
+ 
+ #define TIP_HEIGHT 5
+ 
+@@ -76,7 +76,7 @@
+ #endif
+ 
+     // Keep the tooltip on the same screen if possible
+-    QRect screen = QApplication::desktop()->screenGeometry( mTarget );
++    QRect screen = QApplication::primaryScreen()->geometry( mTarget );
+     position.setX( qMax( screen.left(), qMin( position.x(),
+         screen.left() + screen.width() - size.width() ) ) );
+     position.setY( qMax( screen.top(), qMin( position.y(),

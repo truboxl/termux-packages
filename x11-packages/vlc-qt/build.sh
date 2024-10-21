@@ -3,11 +3,11 @@ TERMUX_PKG_DESCRIPTION="A popular libre and open source media player and multime
 TERMUX_PKG_LICENSE="GPL-2.0, LGPL-2.1"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="3.0.21"
-TERMUX_PKG_REVISION=3
+TERMUX_PKG_REVISION=4
 TERMUX_PKG_SRCURL=https://download.videolan.org/pub/videolan/vlc/${TERMUX_PKG_VERSION}/vlc-${TERMUX_PKG_VERSION}.tar.xz
 TERMUX_PKG_SHA256=24dbbe1d7dfaeea0994d5def0bbde200177347136dbfe573f5b6a4cee25afbb0
-TERMUX_PKG_DEPENDS="chromaprint, dbus, ffmpeg, fluidsynth, fontconfig, freetype, fribidi, glib, gst-plugins-base, gstreamer, harfbuzz, liba52, libandroid-shmem, libandroid-spawn, libaom, libarchive, libass, libbluray, libc++, libcaca, libcairo, libcddb, libdav1d, libdvbpsi, libdvdnav, libdvdread, libebml, libflac, libgcrypt, libgnutls, libgpg-error, libiconv, libidn, libjpeg-turbo, liblua52, libmad, libmatroska, libmpeg2, libnfs, libogg, libopus, libpng, librsvg, libsecret, libsoxr, libssh2, libtheora, libtwolame, libvorbis, libvpx, libx11, libx264, libx265, libxcb, libxml2, mpg123, ncurses, opengl, pulseaudio, qt5-qtbase, qt5-qtsvg, qt5-qtx11extras, samba, taglib, xcb-util-keysyms, zlib"
-TERMUX_PKG_BUILD_DEPENDS="qt5-qtbase-cross-tools, xorgproto"
+TERMUX_PKG_DEPENDS="chromaprint, dbus, ffmpeg, fluidsynth, fontconfig, freetype, fribidi, glib, gst-plugins-base, gstreamer, harfbuzz, liba52, libandroid-shmem, libandroid-spawn, libaom, libarchive, libass, libbluray, libc++, libcaca, libcairo, libcddb, libdav1d, libdvbpsi, libdvdnav, libdvdread, libebml, libflac, libgcrypt, libgnutls, libgpg-error, libiconv, libidn, libjpeg-turbo, liblua52, libmad, libmatroska, libmpeg2, libnfs, libogg, libopus, libpng, librsvg, libsecret, libsoxr, libssh2, libtheora, libtwolame, libvorbis, libvpx, libx11, libx264, libx265, libxcb, libxml2, mpg123, ncurses, opengl, pulseaudio, qt6-qt5compat, qt6-qtbase, qt6-qtsvg, samba, taglib, xcb-util-keysyms, zlib"
+TERMUX_PKG_BUILD_DEPENDS="qt6-qtbase-cross-tools, xorgproto"
 TERMUX_PKG_CONFLICTS="vlc"
 TERMUX_PKG_REPLACES="vlc"
 TERMUX_PKG_BUILD_IN_SRC=true
@@ -71,6 +71,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --disable-microdns
 --disable-notify
 --disable-libplacebo
+--enable-qt
 ac_cv_func_ffsll=yes
 ac_cv_func_swab=yes
 ac_cv_prog_LUAC=luac5.2
@@ -85,6 +86,13 @@ termux_step_pre_configure() {
 
 	local _libgcc="$($CC -print-libgcc-file-name)"
 	LDFLAGS+=" -L$(dirname $_libgcc) -l:$(basename $_libgcc)"
+
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
+		# qmake6
+		PATH="${TERMUX_PREFIX}/opt/qt6/cross/lib/qt6/bin:${PATH}"
+	fi
+
+	qmake6 -query QT_HOST_LIBEXECS
 }
 
 termux_step_post_configure() {
