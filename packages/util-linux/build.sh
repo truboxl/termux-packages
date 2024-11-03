@@ -29,6 +29,7 @@ ac_cv_func_setns=yes
 ac_cv_func_statx=no
 ac_cv_func_unshare=yes
 ac_cv_func_uselocale=no
+ac_cv_type_struct_statx=no
 --enable-setpriv
 --disable-agetty
 --disable-ctrlaltdel
