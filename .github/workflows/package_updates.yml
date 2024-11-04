@@ -1,6 +1,13 @@
 name: Package updates
 
 on:
+  push:
+    branches-ignore:
+    - master
+    paths:
+    - 'packages/**'
+    - 'root-packages/**'
+    - 'x11-packages/**'
   pull_request:
     paths:
     - 'packages/**'
@@ -21,7 +28,7 @@ jobs:
   update-packages-dry-run:
     permissions:
       contents: read
-    if: github.event_name == 'pull_request' && github.repository == 'termux/termux-packages'
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Clone repository
