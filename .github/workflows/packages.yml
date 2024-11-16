@@ -181,6 +181,7 @@ jobs:
             fi
           done
         fi
+        docker='false'
 
         echo "docker-build=$docker" >> $GITHUB_OUTPUT
         if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
