@@ -9,8 +9,4 @@ TERMUX_PKG_SHA256=6dc2b39aa7fa66c04e2e015bf47738b84e1c6b86b8987d57dd432d149d77ee
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_BREAKS="libuv-dev"
 TERMUX_PKG_REPLACES="libuv-dev"
-
-termux_step_pre_configure() {
-	export PLATFORM=android
-	sh autogen.sh
-}
+TERMUX_PKG_FORCE_CMAKE=true
