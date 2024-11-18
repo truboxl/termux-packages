@@ -1,0 +1,16 @@
+Firefox when running under Wayland segfaults at
+IsPrimarySelectionEnabled()
+Unable to root cause
+For now, match X11 always set to true (supportsSelectionClipboard)
+
+--- a/widget/gtk/nsClipboard.cpp
++++ b/widget/gtk/nsClipboard.cpp
+@@ -199,7 +199,7 @@
+ 
+ nsClipboard::nsClipboard()
+     : nsBaseClipboard(mozilla::dom::ClipboardCapabilities(
+-#ifdef MOZ_WAYLAND
++#if defined(MOZ_WAYLAND) && !defined(__TERMUX__)
+           widget::GdkIsWaylandDisplay()
+               ? widget::WaylandDisplayGet()->IsPrimarySelectionEnabled()
+               : true,
