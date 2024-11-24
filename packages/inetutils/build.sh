@@ -3,13 +3,17 @@ TERMUX_PKG_DESCRIPTION="Collection of common network programs"
 TERMUX_PKG_LICENSE="GPL-3.0"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="2.5"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://mirrors.kernel.org/gnu/inetutils/inetutils-${TERMUX_PKG_VERSION}.tar.xz
 TERMUX_PKG_SHA256=87697d60a31e10b5cb86a9f0651e1ec7bee98320d048c0739431aac3d5764fb6
 TERMUX_PKG_DEPENDS="readline"
-TERMUX_PKG_BUILD_DEPENDS="libandroid-glob"
+TERMUX_PKG_BUILD_DEPENDS="libandroid-glob, libandroid-proto"
 TERMUX_PKG_SUGGESTS="whois"
 TERMUX_PKG_HOSTBUILD=true
-TERMUX_PKG_RM_AFTER_INSTALL="bin/whois share/man/man1/whois.1"
+TERMUX_PKG_RM_AFTER_INSTALL="
+bin/whois
+share/man/man1/whois.1
+"
 # These are old cruft / not suited for android
 # (we --disable-traceroute as it requires root
 # in favour of tracepath, which sets up traceroute
@@ -54,10 +58,10 @@ termux_step_pre_configure() {
 	sed -i 's,@HOSTBUILD@,'"$TERMUX_PKG_HOSTBUILD_DIR"',' "$TERMUX_PKG_SRCDIR/man/Makefile.am"
 	CFLAGS+=" -DNO_INLINE_GETPASS=1"
 	CPPFLAGS+=" -DNO_INLINE_GETPASS=1 -DLOGIN_PROCESS=6 -DDEAD_PROCESS=8 -DLOG_NFACILITIES=24 -fcommon"
-	LDFLAGS+=" -landroid-glob -llog"
+	LDFLAGS+=" -landroid-glob -landroid-proto -llog"
 	touch -d "next hour" ./man/whois.1
 }
 
 termux_step_post_configure() {
-	cp $TERMUX_PKG_BUILDER_DIR/malloc.h $TERMUX_PKG_BUILDDIR/lib/
+	cp -f $TERMUX_PKG_BUILDER_DIR/malloc.h $TERMUX_PKG_BUILDDIR/lib/
 }
