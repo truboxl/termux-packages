@@ -24,14 +24,14 @@ termux_step_host_build() {
 	cmake \
 		-G Ninja \
 		-S "${TERMUX_PKG_SRCDIR}" \
-		-DCMAKE_INSTALL_PREFIX=${TERMUX_PREFIX}/opt/bun \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DLLVM_VERSION=ignore
 	ninja \
-		-j ${TERMUX_PKG_MAKE_PROCESSES} \
-		install
+		-j ${TERMUX_PKG_MAKE_PROCESSES}
 
 	ls -l
+	mkdir -p ${TERMUX_PREFIX}/opt/bun
+	cp -fr ${TERMUX_PKG_HOSTBUILD_DIR} ${TERMUX_PREFIX}/opt/bun
 }
 
 termux_step_configure() {
