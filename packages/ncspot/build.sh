@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="An ncurses Spotify client written in Rust"
 TERMUX_PKG_LICENSE="BSD 2-Clause"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="1.2.1"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/hrkfdn/ncspot/archive/v${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=6bd08609a56aa5854a1964c9a872fe58b69a768d7d94c874d40d7a8848241213
 TERMUX_PKG_DEPENDS="dbus, pulseaudio"
@@ -20,12 +21,9 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 # share_clipboard cannot be used due to 1Password/arboard#56.
 
 termux_step_pre_configure() {
-	# termux_setup_rust resets CFLAGS so doing that in subshell
-	( termux_setup_rust )
-	export PATH="${HOME}/.cargo/bin:${PATH}"
-
-	termux_setup_ninja
 	termux_setup_cmake
+	termux_setup_ninja
+	termux_setup_rust
 	[ -f ~/.cargo/bin/bindgen ] || cargo install --force --locked bindgen-cli
 
 	export TARGET_CMAKE_GENERATOR="Ninja"
