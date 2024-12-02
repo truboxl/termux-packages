@@ -5,6 +5,7 @@ dart
 firefox
 grafana
 libllvm
+librusty-v8
 python-torch
 qemu-system-x86-64
 rust
