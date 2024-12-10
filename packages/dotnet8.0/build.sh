@@ -37,6 +37,36 @@ termux_step_pre_configure() {
 		termux_error_exit "$(command -v node) $(node --version) != ${NODEJS_VERSION}"
 	fi
 
+	# build openssl with -Wl,--undefined-version
+	LDFLAGS+=" -Wl,--undefined-version"
+	local OPENSSL_VERSION=$(. ${TERMUX_SCRIPTDIR}/packages/openssl/build.sh; echo ${TERMUX_PKG_VERSION})
+	local OPENSSL_SRCURL=$(. ${TERMUX_SCRIPTDIR}/packages/openssl/build.sh; echo ${TERMUX_PKG_SRCURL})
+	local OPENSSL_SHA256=$(. ${TERMUX_SCRIPTDIR}/packages/openssl/build.sh; echo ${TERMUX_PKG_SHA256})
+	termux_download ${OPENSSL_SRCURL} ${TERMUX_PKG_CACHEDIR}/openssl.tar.gz ${OPENSSL_SHA256}
+	mkdir -p ${TERMUX_PKG_BUILDDIR}/openssl
+	tar -xf ${TERMUX_PKG_CACHEDIR}/openssl.tar.gz -C ${TERMUX_PKG_BUILDDIR}/openssl --strip-components=1
+	pushd ${TERMUX_PKG_BUILDDIR}/openssl
+	test $TERMUX_ARCH = "arm" && TERMUX_OPENSSL_PLATFORM="android-arm"
+	test $TERMUX_ARCH = "aarch64" && TERMUX_OPENSSL_PLATFORM="android-arm64"
+	test $TERMUX_ARCH = "i686" && TERMUX_OPENSSL_PLATFORM="android-x86"
+	test $TERMUX_ARCH = "x86_64" && TERMUX_OPENSSL_PLATFORM="android-x86_64"
+	./Configure $TERMUX_OPENSSL_PLATFORM \
+		--prefix=$TERMUX_PREFIX \
+		--openssldir=$TERMUX_PREFIX/etc/tls \
+		shared \
+		zlib-dynamic \
+		no-ssl \
+		no-hw \
+		no-srp \
+		no-tests \
+		enable-tls1_3
+	make depend
+	make -j $TERMUX_PKG_MAKE_PROCESSES all
+	make -j 1 install_sw INSTALL_PREFIX=${TERMUX_PKG_TMPDIR}
+	ls $TERMUX_PKG_TMPDIR
+	exit 1
+	popd
+
 	export DOTNET_INSTALL_DIR="${TERMUX_PKG_SRCDIR}/.dotnet"
 	export DotNetBuildFromSource=true
 	export _downloaddir="${TERMUX_PREFIX}/opt/dotnet8/local-downloads"
@@ -147,41 +177,11 @@ termux_step_configure() {
 	export EXTRA_CFLAGS="${CFLAGS}"
 	export EXTRA_CXXFLAGS="${CXXFLAGS}"
 	export EXTRA_LDFLAGS="${LDFLAGS}"
+
+	unset CC CFLAGS CXX CXXFLAGS LD LDFLAGS PKGCONFIG PKG_CONFIG PKG_CONFIG_DIR PKG_CONFIG_LIBDIR
 }
 
 termux_step_make() {
-	# build openssl with -Wl,--undefined-version
-	LDFLAGS+=" -Wl,--undefined-version"
-	local OPENSSL_VERSION=$(. ${TERMUX_SCRIPTDIR}/packages/openssl/build.sh; echo ${TERMUX_PKG_VERSION})
-	local OPENSSL_SRCURL=$(. ${TERMUX_SCRIPTDIR}/packages/openssl/build.sh; echo ${TERMUX_PKG_SRCURL})
-	local OPENSSL_SHA256=$(. ${TERMUX_SCRIPTDIR}/packages/openssl/build.sh; echo ${TERMUX_PKG_SHA256})
-	termux_download ${OPENSSL_SRCURL} ${TERMUX_PKG_CACHEDIR}/openssl.tar.gz ${OPENSSL_SHA256}
-	mkdir -p ${TERMUX_PKG_BUILDDIR}/openssl
-	tar -xf ${TERMUX_PKG_CACHEDIR}/openssl.tar.gz -C ${TERMUX_PKG_BUILDDIR}/openssl --strip-components=1
-	pushd ${TERMUX_PKG_BUILDDIR}/openssl
-	test $TERMUX_ARCH = "arm" && TERMUX_OPENSSL_PLATFORM="android-arm"
-	test $TERMUX_ARCH = "aarch64" && TERMUX_OPENSSL_PLATFORM="android-arm64"
-	test $TERMUX_ARCH = "i686" && TERMUX_OPENSSL_PLATFORM="android-x86"
-	test $TERMUX_ARCH = "x86_64" && TERMUX_OPENSSL_PLATFORM="android-x86_64"
-	./Configure $TERMUX_OPENSSL_PLATFORM \
-		--prefix=$TERMUX_PREFIX \
-		--openssldir=$TERMUX_PREFIX/etc/tls \
-		shared \
-		zlib-dynamic \
-		no-ssl \
-		no-hw \
-		no-srp \
-		no-tests \
-		enable-tls1_3
-	make depend
-	make -j $TERMUX_PKG_MAKE_PROCESSES all
-	make -j 1 install_sw INSTALL_PREFIX=${TERMUX_PKG_TMPDIR}
-	ls $TERMUX_PKG_TMPDIR
-	exit 1
-	popd
-
-	unset CC CFLAGS CXX CXXFLAGS LD LDFLAGS PKGCONFIG PKG_CONFIG PKG_CONFIG_DIR PKG_CONFIG_LIBDIR
-
 	#find /tmp -name "*.log" -exec echo "===== {} =====" \; -a -exec cat "{}" \; -a echo "===== {} =====" \;
 
 	"${DOTNET_INSTALL_DIR}"/dotnet build-server shutdown
