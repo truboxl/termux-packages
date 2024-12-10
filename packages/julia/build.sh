@@ -36,9 +36,9 @@ USE_SYSTEM_LIBWHICH=1
 USE_SYSTEM_ZLIB=1
 USE_SYSTEM_P7ZIP=1
 USE_SYSTEM_LLD=1
-NO_GIT=1
 LLVM_CONFIG=${TERMUX_PREFIX}/bin/llvm-config
 V=1
+prefix=${TERMUX_PREFIX}
 "
 
 termux_step_pre_configure() {
