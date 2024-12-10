@@ -10,5 +10,6 @@ TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_EXTRA_MAKE_ARGS=""
 
 termux_step_pre_configure() {
+	export XCHOST=${TERMUX_ARCH}-linux-android
 	LDFLAGS+=" -Wl,--undefined-version"
 }
