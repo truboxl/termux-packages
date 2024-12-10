@@ -8,3 +8,7 @@ TERMUX_PKG_SHA256=5d56c7163aefbf4dfb97d97388f93175826bcc3f4b0e885fa351694f84dc70
 TERMUX_PKG_DEPENDS="libc++"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_EXTRA_MAKE_ARGS=""
+
+termux_step_pre_configure() {
+	LDFLAGS+=" -Wl,--undefined-version"
+}
