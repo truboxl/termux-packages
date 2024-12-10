@@ -38,6 +38,8 @@ USE_SYSTEM_LLD=1
 "
 
 termux_step_pre_configure() {
+	termux_setup_cmake
+
 	if [[ "${TERMUX_ARCH}" == "arm" ]]; then
 		TERMUX_PKG_EXTRA_MAKE_ARGS+=" XCHOST=armv7a-linux-androideabi"
 	else
