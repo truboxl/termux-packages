@@ -156,7 +156,8 @@ termux_step_make() {
 	local OPENSSL_SRCURL=$(. ${TERMUX_SCRIPTDIR}/packages/openssl/build.sh; echo ${TERMUX_PKG_SRCURL})
 	local OPENSSL_SHA256=$(. ${TERMUX_SCRIPTDIR}/packages/openssl/build.sh; echo ${TERMUX_PKG_SHA256})
 	termux_download ${OPENSSL_SRCURL} ${TERMUX_PKG_CACHEDIR}/openssl.tar.gz ${OPENSSL_SHA256}
-	tar -xf ${TERMUX_PKG_CACHEDIR}/openssl.tar.gz ${TERMUX_PKG_BUILDDIR}/openssl
+	mkdir -p ${TERMUX_PKG_BUILDDIR}/openssl
+	tar -xf ${TERMUX_PKG_CACHEDIR}/openssl.tar.gz -C ${TERMUX_PKG_BUILDDIR}/openssl
 	pushd ${TERMUX_PKG_BUILDDIR}/openssl
 	test $TERMUX_ARCH = "arm" && TERMUX_OPENSSL_PLATFORM="android-arm"
 	test $TERMUX_ARCH = "aarch64" && TERMUX_OPENSSL_PLATFORM="android-arm64"
