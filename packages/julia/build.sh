@@ -39,6 +39,7 @@ USE_SYSTEM_LLD=1
 LLVM_CONFIG=${TERMUX_PREFIX}/bin/llvm-config
 V=1
 LOCALBASE=${TERMUX_PREFIX}
+7Z_PATH=${TERMUX_PREFIX}/bin/7z
 "
 
 termux_step_pre_configure() {
