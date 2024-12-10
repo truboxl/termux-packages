@@ -175,7 +175,7 @@ termux_step_make() {
 		enable-tls1_3
 	make depend
 	make -j $TERMUX_PKG_MAKE_PROCESSES all
-	make -j 1 install_sw DESTDIR=${TERMUX_PKG_TMPDIR}
+	make -j 1 install_sw INSTALL_PREFIX=${TERMUX_PKG_TMPDIR}
 	ls $TERMUX_PKG_TMPDIR
 	exit 1
 	popd
