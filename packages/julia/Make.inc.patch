@@ -6,7 +6,7 @@ diff -uNr --color a/Make.inc b/Make.inc
  endif
  
 -JCFLAGS_COMMON    := -std=gnu11 -pipe $(fPIC) -fno-strict-aliasing -D_FILE_OFFSET_BITS=64
-+JCFLAGS_COMMON    := -std=gnu11 -pipe $(fPIC) -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 -I@TERMUX_PREFIX@/include -v
++JCFLAGS_COMMON    := -std=gnu11 -pipe $(fPIC) -fno-strict-aliasing -D_FILE_OFFSET_BITS=64 --sysroot=@TERMUX_PREFIX@ -v
  JCFLAGS_CLANG     := $(JCFLAGS_COMMON)
  JCFLAGS_GCC       := $(JCFLAGS_COMMON) -fno-gnu-unique
  
@@ -15,7 +15,7 @@ diff -uNr --color a/Make.inc b/Make.inc
  JCPPFLAGS_GCC     := $(JCPPFLAGS_COMMON) -fno-tree-tail-merge
  
 -JCXXFLAGS_COMMON  := -pipe $(fPIC) -fno-rtti -std=c++17
-+JCXXFLAGS_COMMON  := -pipe $(fPIC) -fno-rtti -std=c++17 -I@TERMUX_PREFIX@/include -v
++JCXXFLAGS_COMMON  := -pipe $(fPIC) -fno-rtti -std=c++17 --sysroot=@TERMUX_PREFIX@ -v
  JCXXFLAGS_CLANG   := $(JCXXFLAGS_COMMON) -pedantic
  JCXXFLAGS_GCC     := $(JCXXFLAGS_COMMON) -fno-gnu-unique
  
