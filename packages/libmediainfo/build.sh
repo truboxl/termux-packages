@@ -4,16 +4,30 @@ TERMUX_PKG_LICENSE="BSD 2-Clause"
 TERMUX_PKG_LICENSE_FILE="../../../LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="24.12"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/MediaArea/MediaInfoLib/archive/refs/tags/v${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=d709c827eda33546cc10ff6c0579a10f2b5175c8fce2a44428f782676b271f2f
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="libc++, libcurl, libzen, zlib"
-TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--enable-shared --enable-static --with-libcurl"
+TERMUX_PKG_BUILD_DEPENDS="libandroid-support"
 
 termux_step_pre_configure() {
-	TERMUX_PKG_SRCDIR="${TERMUX_PKG_SRCDIR}/Project/GNU/Library"
+	TERMUX_PKG_SRCDIR="${TERMUX_TOPDIR}/${TERMUX_PKG_NAME}/src/Project/GNU/Library"
 	TERMUX_PKG_BUILDDIR="${TERMUX_PKG_SRCDIR}"
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS="--enable-shared --enable-static --with-libcurl"
 	cd "${TERMUX_PKG_SRCDIR}"
 	./autogen.sh
 	LDFLAGS+=" $($CC -print-libgcc-file-name)"
+}
+
+termux_step_post_make_install() {
+	# mediainfo subpackage
+	TERMUX_PKG_SRCDIR="${TERMUX_TOPDIR}/${TERMUX_PKG_NAME}/src/Project/GNU/CLI"
+	TERMUX_PKG_BUILDDIR="${TERMUX_PKG_SRCDIR}"
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS=""
+	cd "${TERMUX_PKG_SRCDIR}"
+	./autogen.sh
+	termux_step_configure
+	termux_step_make
+	termux_step_make_install
 }
