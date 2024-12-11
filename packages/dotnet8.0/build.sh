@@ -46,6 +46,9 @@ termux_step_pre_configure() {
 	mkdir -p ${TERMUX_PKG_BUILDDIR}/openssl
 	tar -xf ${TERMUX_PKG_CACHEDIR}/openssl.tar.gz -C ${TERMUX_PKG_BUILDDIR}/openssl --strip-components=1
 	pushd ${TERMUX_PKG_BUILDDIR}/openssl
+	for p in ${TERMUX_SCRIPTDIR}/openssl/*.patch; do
+		test -f "$p" && patch -p1 -i "$p"
+	done
 	test $TERMUX_ARCH = "arm" && TERMUX_OPENSSL_PLATFORM="android-arm"
 	test $TERMUX_ARCH = "aarch64" && TERMUX_OPENSSL_PLATFORM="android-arm64"
 	test $TERMUX_ARCH = "i686" && TERMUX_OPENSSL_PLATFORM="android-x86"
@@ -62,8 +65,8 @@ termux_step_pre_configure() {
 		enable-tls1_3
 	make depend
 	make -j $TERMUX_PKG_MAKE_PROCESSES all
-	make -j 1 install_sw INSTALL_PREFIX=${TERMUX_PKG_TMPDIR}
-	ls $TERMUX_PKG_TMPDIR
+	make -j 1 install_sw INSTALL_PREFIX=${TERMUX_PKG_BUILDDIR}/openssl-install
+	ls $TERMUX_PKG_BUILDDIR/openssl-install
 	exit 1
 	popd
 
