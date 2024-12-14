@@ -131,108 +131,24 @@ termux_step_configure() {
 }
 
 termux_step_make() {
-	#find /tmp -name "*.log" -exec echo "===== {} =====" \; -a -exec cat "{}" \; -a echo "===== {} =====" \;
-
-	"${DOTNET_INSTALL_DIR}"/dotnet build-server shutdown
-	pushd src/runtime
-	# https://github.com/dotnet/runtime/issues/4296
-	# CoreCLR on Android still broken, use mono instead of clr
-	# Error below will appear for clr:
-	# Could not resolve CoreCLR path. For more details, enable tracing by setting COREHOST_TRACE environment variable to 1
+	export DOTNET_LTTng=0
+	curl -LO https://github.com/dotnet/dotnet/releases/download/v${TERMUX_PKG_VERSION}/release.json
+	# ERROR: Source Link arguments cannot be used in a git repository
+	rm -fr .git
 	./build.sh \
-		--configuration Release \
-		--arch "${arch}" \
-		--subset mono+libs+host+packs \
-		--os linux-bionic \
-		--ninja \
-		/p:_toolsRID=linux-bionic-${arch} \
-		/p:OutputRid=linux-bionic-${arch}
-	local p=""
-	while IFS= read -r p; do
-		[[ ! -f "${p}" ]] && continue
-		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
-	done < <(find artifacts/packages -name "*.nupkg" | sort)
-	find artifacts -name "*.tar.gz" -o -name "*.zip"
-	mkdir -p "${_downloaddir}/Runtime"
-	cp -fv artifacts/packages/Release/Shipping/*.tar.gz "${_downloaddir}/Runtime/"
-	git status
-	rm -fr .dotnet
-	popd
-
-	"${DOTNET_INSTALL_DIR}"/dotnet build-server shutdown
-	pushd src/sdk
-	# set DotNetBuildFromSource=false for now due to:
-	# sdk/src/Layout/redist/targets/GenerateLayout.targets(196,5): error : Something moved around in Test CLI package, adjust code here accordingly. TFM change? [sdk/src/Layout/redist/redist.csproj]
-	DotNetBuildFromSource=false ./build.sh \
-		--configuration Release \
-		--pack \
-		/p:Projects=${PWD}/source-build.slnf \
-		/p:Architecture=${arch} \
-		/p:TargetOS=linux-bionic \
-		/p:TargetRid=linux-bionic-${arch}
-	local p=""
-	while IFS= read -r p; do
-		[[ ! -f "${p}" ]] && continue
-		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
-	done < <(find artifacts/packages -name "*.nupkg" | sort)
-	find artifacts -name "*.tar.gz" -o -name "*.zip"
-	mkdir -p "${_downloaddir}/Sdk"
-	cp -fv artifacts/packages/*/*/dotnet-toolset-internal-*.* "${_downloaddir}/Sdk/"
-	rm -fr .dotnet artifacts/obj
-	popd
-
-	# aspnetcore and installer builds using linux- instead of linux-bionic-
-	# quit for now
-	#return
-
-	"${DOTNET_INSTALL_DIR}"/dotnet build-server shutdown
-	# aspnetcore/eng/targets/ResolveReferences.targets(220,5): error MSB3245: Could not resolve this reference. Could not locate the package or project for "Microsoft.NETCore.App.Runtime.linux-x86". Did you update baselines and dependencies lists? See docs/ReferenceResolution.md for more details. [aspnetcore/src/Framework/App.Runtime/src/Microsoft.AspNetCore.App.Runtime.csproj]
-	if [[ "${arch}" != "x86" ]]; then
-	pushd src/aspnetcore
-	./eng/build.sh \
-		--configuration Release \
-		--ci \
-		--pack \
-		--arch "${arch}" \
-		/p:DotNetAssetRootUrl=file://${_downloaddir}/
-		#/p:TargetRuntimeIdentifier=linux-bionic-${arch}
-	local p=""
-	while IFS= read -r p; do
-		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
-	done < <(find artifacts/packages -name "*.nupkg" | sort)
-	find artifacts -name "*.tar.gz" -o -name "*.zip"
-	mkdir -p "${_downloaddir}/aspnetcore/Runtime"
-	cp -fv artifacts/installers/*/aspnetcore-runtime-*-linux-*.tar.gz "${_downloaddir}/aspnetcore/Runtime/"
-	cp -fv artifacts/installers/*/aspnetcore_base_runtime.version "${_downloaddir}/aspnetcore/Runtime/"
-	git status
-	rm -fr .dotnet artifacts/obj
-	popd
-	fi
-
-	"${DOTNET_INSTALL_DIR}"/dotnet build-server shutdown
-	# redist/targets/GenerateLayout.targets(397,5): error : Failed to download file using addresses in Uri and/or Uris. [installer/src/redist/redist.csproj]
-	if [[ "${arch}" != "x86" ]]; then
-	pushd src/installer
-	./build.sh \
-		--configuration Release \
-		--architecture "${arch}" \
-		--runtime-id "linux-bionic-${arch}" \
-		/p:CoreSetupBlobRootUrl=file://$_downloaddir/ \
-		/p:CoreSetupBlobRootUrl=file://$_downloaddir/ \
-		/p:DISABLE_CROSSGEN=true
-	local p=""
-	while IFS= read -r p; do
-		[[ ! -f "${p}" ]] && continue
-		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
-	done < <(find artifacts/packages -name "*.nupkg" | sort)
-	find artifacts -name "*.tar.gz" -o -name "*.zip"
-	mkdir -p "${_downloaddir}/installer"
-	find artifacts -name "*.tar.gz"
-	cp -fv artifacts/packages/*/*/dotnet-sdk-*.tar.gz "${_downloaddir}/installer/"
-	git status
-	rm -fr .dotnet artifacts/obj
-	popd
-	fi
+		--release-manifest "${TERMUX_PKG_BUILDDIR}/release.json" \
+		-- \
+		/v:minimal \
+		/p:LogVerbosity=minimal \
+		/p:MinimalConsoleLogOutput=true \
+		/p:CleanWhileBuilding=true \
+		/p:EnableSourceLink=false \
+		/p:PublishReadyToRun=false \
+		/p:TargetRid=linux-bionic-${arch} \
+		|| termux_error_exit "==============================
+		runtime.log:
+		$(cat artifacts/logs/runtime.log)
+		"
 }
 
 termux_step_make_install() {
