@@ -17,6 +17,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 
 termux_step_post_get_source() {
 	rm -f external/bdwgc/config.status
+	./autogen.sh
 }
 
 termux_step_host_build() {
