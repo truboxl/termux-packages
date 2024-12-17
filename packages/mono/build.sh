@@ -17,13 +17,15 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 
 termux_step_post_get_source() {
 	rm -f external/bdwgc/config.status
-	./autogen.sh
 }
 
 termux_step_host_build() {
+	termux_setup_cmake
+
 	local _PREFIX_FOR_BUILD=$TERMUX_PKG_HOSTBUILD_DIR/prefix
 	mkdir -p $_PREFIX_FOR_BUILD
 
+	$TERMUX_PKG_SRCDIR/autogen.sh
 	$TERMUX_PKG_SRCDIR/configure --prefix=$_PREFIX_FOR_BUILD \
 		$TERMUX_PKG_EXTRA_CONFIGURE_ARGS
 	make -j $TERMUX_PKG_MAKE_PROCESSES
@@ -35,6 +37,8 @@ termux_step_pre_configure() {
 		CFLAGS="${CFLAGS//-mthumb/}"
 	fi
 	LDFLAGS+=" -lgssapi_krb5"
+
+	./autogen.sh
 }
 
 termux_step_post_make_install() {
