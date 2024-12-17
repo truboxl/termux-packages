@@ -1,16 +1,15 @@
-TERMUX_PKG_HOMEPAGE=https://www.mono-project.com/
-TERMUX_PKG_DESCRIPTION="Cross platform, open source .NET framework"
+TERMUX_PKG_HOMEPAGE=https://gitlab.winehq.org/mono/mono
+TERMUX_PKG_DESCRIPTION="Framework Mono"
 TERMUX_PKG_LICENSE="custom"
 TERMUX_PKG_LICENSE_FILE="LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="6.12.0.199"
-TERMUX_PKG_REVISION=1
-TERMUX_PKG_SRCURL=https://download.mono-project.com/sources/mono/mono-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=c0850d545353a6ba2238d45f0914490c6a14a0017f151d3905b558f033478ef5
+TERMUX_PKG_VERSION="6.12.0.206"
+TERMUX_PKG_SRCURL=https://gitlab.winehq.org/mono/mono/-/archive/mono-${TERMUX_PKG_VERSION}/mono-${TERMUX_PKG_VERSION}.tar.gz
+TERMUX_PKG_SHA256=46a3a15193e7700b71edc3e1401733b28dcf05509b97954ab8bdedb937b02b2c
 TERMUX_PKG_DEPENDS="krb5, mono-libs, zlib"
 TERMUX_PKG_HOSTBUILD=true
 # https://github.com/mono/mono/issues/21796
-TERMUX_PKG_AUTO_UPDATE=false
+TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 --disable-btls
 --without-ikvm-native
