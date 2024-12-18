@@ -23,7 +23,7 @@ termux_step_host_build() {
 	termux_setup_cmake
 
 	pushd $TERMUX_PKG_SRCDIR
-	./autogen.sh
+	NOCONFIGURE=1 ./autogen.sh
 	popd
 
 	local _PREFIX_FOR_BUILD=$TERMUX_PKG_HOSTBUILD_DIR/prefix
@@ -41,7 +41,7 @@ termux_step_pre_configure() {
 	fi
 	LDFLAGS+=" -lgssapi_krb5"
 
-	./autogen.sh
+	NOCONFIGURE=1 ./autogen.sh
 }
 
 termux_step_post_make_install() {
