@@ -25,6 +25,7 @@ termux_step_host_build() {
 
 	pushd $TERMUX_PKG_SRCDIR
 	NOCONFIGURE=1 ./autogen.sh
+	rm -f external/bdwgc/config.status
 	popd
 
 	local _PREFIX_FOR_BUILD=$TERMUX_PKG_HOSTBUILD_DIR/prefix
@@ -43,6 +44,7 @@ termux_step_pre_configure() {
 	LDFLAGS+=" -lgssapi_krb5"
 
 	NOCONFIGURE=1 ./autogen.sh
+	rm -f external/bdwgc/config.status
 }
 
 termux_step_post_make_install() {
