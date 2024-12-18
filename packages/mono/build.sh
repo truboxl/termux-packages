@@ -4,8 +4,8 @@ TERMUX_PKG_LICENSE="custom"
 TERMUX_PKG_LICENSE_FILE="LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="6.12.0.206"
-TERMUX_PKG_SRCURL=https://gitlab.winehq.org/mono/mono/-/archive/mono-${TERMUX_PKG_VERSION}/mono-${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=46a3a15193e7700b71edc3e1401733b28dcf05509b97954ab8bdedb937b02b2c
+TERMUX_PKG_SRCURL=git+https://gitlab.winehq.org/mono/mono.git
+TERMUX_PKG_GIT_BRANCH=mono-${TERMUX_PKG_VERSION}
 TERMUX_PKG_DEPENDS="krb5, mono-libs, zlib"
 TERMUX_PKG_HOSTBUILD=true
 # https://github.com/mono/mono/issues/21796
@@ -25,7 +25,6 @@ termux_step_host_build() {
 
 	pushd $TERMUX_PKG_SRCDIR
 	NOCONFIGURE=1 ./autogen.sh
-	rm -f external/bdwgc/config.status
 	popd
 
 	local _PREFIX_FOR_BUILD=$TERMUX_PKG_HOSTBUILD_DIR/prefix
@@ -44,7 +43,6 @@ termux_step_pre_configure() {
 	LDFLAGS+=" -lgssapi_krb5"
 
 	NOCONFIGURE=1 ./autogen.sh
-	rm -f external/bdwgc/config.status
 }
 
 termux_step_post_make_install() {
