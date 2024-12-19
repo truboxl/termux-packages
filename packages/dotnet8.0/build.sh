@@ -23,7 +23,7 @@ termux_step_pre_configure() {
 	termux_setup_ninja
 
 	# aspnetcore needs nodejs <= 19, but nodejs 19.x is EOL
-	local NODEJS_VERSION=18.20.4
+	local NODEJS_VERSION=18.20.5
 	local NODEJS_SHA256=592eb35c352c7c0c8c4b2ecf9c19d615e78de68c20b660eb74bd85f8c8395063
 	local NODEJS_FOLDER="${TERMUX_PKG_CACHEDIR}/nodejs-${NODEJS_VERSION}"
 	local NODEJS_TAR_XZ="${TERMUX_PKG_CACHEDIR}/node.tar.xz"
