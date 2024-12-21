@@ -164,30 +164,7 @@ termux_step_make() {
 	rm -fr .dotnet artifacts/obj
 	popd
 
-	"${DOTNET_INSTALL_DIR}"/dotnet build-server shutdown
-	pushd src/sdk
-	# TODO set DotNetBuildFromSource=false for now due to:
-	# sdk/src/Layout/redist/targets/GenerateLayout.targets(196,5): error : Something moved around in Test CLI package, adjust code here accordingly. TFM change? [sdk/src/Layout/redist/redist.csproj]
-	# TODO fix this to make telemetry disabled by default
-	DotNetBuildFromSource=false ./build.sh \
-		--configuration Release \
-		--pack \
-		/p:Projects=${PWD}/source-build.slnf \
-		/p:Architecture=${arch} \
-		/p:TargetOS=linux-bionic \
-		/p:TargetRid=linux-bionic-${arch}
-	local p=""
-	while IFS= read -r p; do
-		[[ ! -f "${p}" ]] && continue
-		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
-	done < <(find artifacts/packages -name "*.nupkg" | sort)
-	mkdir -p "${_downloaddir}/Sdk"
-	find artifacts -name "*.tar.gz" -o -name "*.zip"
-	cp -fv artifacts/packages/*/*/dotnet-toolset-internal-*.* "${_downloaddir}/Sdk/"
-	rm -fr .dotnet artifacts/obj
-	popd
-
-	# TODO aspnetcore and installer generate linux- instead of linux-bionic-
+	# TODO aspnetcore generate linux- instead of linux-bionic-
 	#return
 
 	"${DOTNET_INSTALL_DIR}"/dotnet build-server shutdown
@@ -218,22 +195,24 @@ termux_step_make() {
 	fi
 
 	"${DOTNET_INSTALL_DIR}"/dotnet build-server shutdown
-	# redist/targets/GenerateLayout.targets(397,5): error : Failed to download file using addresses in Uri and/or Uris. [installer/src/redist/redist.csproj]
 	if [[ "${arch}" != "x86" ]]; then
-	pushd src/runtime/src/installer
+	pushd src/sdk
 	./build.sh \
+		--pack \
 		--configuration Release \
-		--architecture "${arch}" \
-		--runtime-id "linux-bionic-${arch}" \
+		/p:Projects=${TERMUX_PKG_BUILDDIR}/src/sdk/source-build.slnf \
+		/p:EnableSourceLink=false \
+		/p:OSName=linux-bionic \
+		/p:HostOSName=linux-bionic \
 		/p:CoreSetupBlobRootUrl=file://$_downloaddir/ \
 		/p:CoreSetupBlobRootUrl=file://$_downloaddir/ \
-		/p:DISABLE_CROSSGEN=true
+		/p:Architecture=$arch
 	local p=""
 	while IFS= read -r p; do
 		[[ ! -f "${p}" ]] && continue
 		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
 	done < <(find artifacts/packages -name "*.nupkg" | sort)
-	mkdir -p "${_downloaddir}/installer"
+	mkdir -p "${_downloaddir}/Sdk"
 	find artifacts -name "*.tar.gz" -o -name "*.zip"
 	cp -fv artifacts/packages/*/*/dotnet-sdk-*.tar.gz "${_downloaddir}/installer/"
 	git status
@@ -246,7 +225,7 @@ termux_step_make_install() {
 	# DEBUG copy all the artifacts use lots of space
 	if ! :; then
 	mkdir -p "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}"
-	for component in runtime sdk aspnetcore runtime/src/installer; do
+	for component in runtime aspnetcore sdk; do
 		echo "INFO: ${component}"
 		[[ ! -d "${TERMUX_PKG_BUILDDIR}/src/${component}/artifacts" ]] && echo "INFO: No artifacts folder" && continue
 		cp -fr "${TERMUX_PKG_BUILDDIR}/src/${component}/artifacts" "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}/${component}"
@@ -263,7 +242,7 @@ termux_step_make_install() {
 	# TODO investigate this as contains musl binaries
 	# likely downloaded from Microsoft and not built
 	local tgz
-	for tgz in ${TERMUX_PKG_BUILDDIR}/src/runtime/src/installer/artifacts/packages/*/*/dotnet-sdk-*.tar.gz; do
+	for tgz in ${TERMUX_PKG_BUILDDIR}/src/sdk/artifacts/packages/*/*/dotnet-sdk-*.tar.gz; do
 		test -f "$tgz" && echo "INFO: Extracting $tgz" && tar -xf "$tgz"
 	done
 	# remove musl binaries
