@@ -313,6 +313,12 @@ termux_step_make_install() {
 	find "${_DOTNET_ROOT}" -type f -name '*.xml' -exec chmod -x {} \;
 }
 
+termux_step_post_make_install() {
+	echo "INFO: Restoring sysroot"
+	rm -fr "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot"
+	mv -v "${TERMUX_STANDALONE_TOOLCHAIN}"/sysroot{.tmp,}
+}
+
 # References:
 # https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core
 # https://learn.microsoft.com/en-us/dotnet/core/distribution-packaging
