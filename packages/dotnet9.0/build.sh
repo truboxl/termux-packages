@@ -220,7 +220,7 @@ termux_step_make() {
 	"${DOTNET_INSTALL_DIR}"/dotnet build-server shutdown
 	# redist/targets/GenerateLayout.targets(397,5): error : Failed to download file using addresses in Uri and/or Uris. [installer/src/redist/redist.csproj]
 	if [[ "${arch}" != "x86" ]]; then
-	pushd src/installer
+	pushd src/runtime/src/installer
 	./build.sh \
 		--configuration Release \
 		--architecture "${arch}" \
@@ -246,7 +246,7 @@ termux_step_make_install() {
 	# DEBUG copy all the artifacts use lots of space
 	if ! :; then
 	mkdir -p "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}"
-	for component in runtime sdk aspnetcore installer; do
+	for component in runtime sdk aspnetcore runtime/src/installer; do
 		echo "INFO: ${component}"
 		[[ ! -d "${TERMUX_PKG_BUILDDIR}/src/${component}/artifacts" ]] && echo "INFO: No artifacts folder" && continue
 		cp -fr "${TERMUX_PKG_BUILDDIR}/src/${component}/artifacts" "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}/${component}"
@@ -263,7 +263,7 @@ termux_step_make_install() {
 	# TODO investigate this as contains musl binaries
 	# likely downloaded from Microsoft and not built
 	local tgz
-	for tgz in ${TERMUX_PKG_BUILDDIR}/src/installer/artifacts/packages/*/*/dotnet-sdk-*.tar.gz; do
+	for tgz in ${TERMUX_PKG_BUILDDIR}/src/runtime/src/installer/artifacts/packages/*/*/dotnet-sdk-*.tar.gz; do
 		test -f "$tgz" && echo "INFO: Extracting $tgz" && tar -xf "$tgz"
 	done
 	# remove musl binaries
