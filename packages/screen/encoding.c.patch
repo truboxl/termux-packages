@@ -1,0 +1,14 @@
+diff -uNr a/encoding.c b/encoding.c
+--- a/encoding.c	2024-08-29 03:55:03.000000000 +0800
++++ b/encoding.c	2024-12-27 22:44:24.515334775 +0800
+@@ -929,8 +929,8 @@
+ 
+ 	if (c >= 0xdf00 && c <= 0xdfff)
+ 		return 1;			/* dw combining sequence */
+-	return (wcwidth(c) == 2 ||
+-		(cjkwidth && bisearch(c, ambiguous, ARRAY_SIZE(ambiguous) - 1)));
++	return
++		(cjkwidth && bisearch(c, ambiguous, ARRAY_SIZE(ambiguous) - 1));
+ }
+ 
+ bool utf8_iscomb(uint32_t c)
