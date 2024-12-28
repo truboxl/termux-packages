@@ -20,6 +20,9 @@ termux_step_pre_configure() {
 	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=$(${CC} -print-libgcc-file-name)"
 	export WASMER_INSTALL_PREFIX="${TERMUX_PREFIX}"
 	termux_setup_rust
+
+	# clash with rust host build
+	unset CFLAGS
 }
 
 termux_step_make() {
