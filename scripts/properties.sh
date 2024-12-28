@@ -14,7 +14,7 @@ TERMUX_ANDROID_BUILD_TOOLS_VERSION=33.0.1
 TERMUX_NDK_VERSION=$TERMUX_NDK_VERSION_NUM$TERMUX_NDK_REVISION
 # when changing the above:
 # update version and hashsum in packages
-#   libandroid-stub, libc++, ndk-multilib, ndk-sysroot, vulkan-loader-android
+#   libandroid-stub, libc++, ndk-multilib, ndk-sysroot
 # and update SHA256 sums in scripts/setup-android-sdk.sh
 # check all packages build and run correctly and bump if needed
 
