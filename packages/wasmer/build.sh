@@ -4,14 +4,12 @@ TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="ATTRIBUTIONS, LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="5.0.4"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/wasmerio/wasmer/archive/refs/tags/v${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=e6f0df11dd4647fa3d9177ed298a6e3afd2b5be6ea4494c00c2074c90681ad27
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_AUTO_UPDATE=true
-
-# missing support in wasmer-emscripten, wasmer-vm
-TERMUX_PKG_BLACKLISTED_ARCHES="arm, i686"
 
 termux_step_pre_configure() {
 	# https://github.com/rust-lang/compiler-builtins#unimplemented-functions
@@ -128,20 +126,4 @@ termux_step_make_install() {
 	cp docs/ATTRIBUTIONS.md ATTRIBUTIONS
 
 	unset LLVM_SYS_140_PREFIX LLVM_VERSION WASMER_INSTALL_PREFIX
-}
-
-termux_step_create_debscripts() {
-	cat <<- EOL > postinst
-	#1${TERMUX_PREFIX}/bin/sh
-	if [ -n "\$(command -v wapm)" ]; then
-	echo "
-	===== Post-install notice =====
-
-	Upstream has deprecated 'wapm' package.
-	You may want to remove 'wapm' package.
-
-	===== Post-install notice =====
-	"
-	fi
-	EOL
 }
