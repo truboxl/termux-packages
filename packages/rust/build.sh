@@ -108,17 +108,6 @@ termux_step_pre_configure() {
 	#		$TERMUX_STANDALONE_TOOLCHAIN/sysroot/usr/lib/$TERMUX_HOST_PLATFORM/$TERMUX_PKG_API_LEVEL/lib{c,dl}.so
 	# but written in a future-proof manner.
 	ln -vfst $RUST_LIBDIR $(echo | $CC -x c - -Wl,-t -shared | grep '\.so$')
-
-	# rust checks libs in PREFIX/lib. It then can't find libc.so and libdl.so because rust program doesn't
-	# know where those are. Putting them temporarly in $PREFIX/lib prevents that failure
-	# https://github.com/termux/termux-packages/issues/11427
-	[[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]] && return
-	mv $TERMUX_PREFIX/lib/liblzma.a{,.tmp} || :
-	mv $TERMUX_PREFIX/lib/liblzma.so{,.tmp} || :
-	mv $TERMUX_PREFIX/lib/liblzma.so.${_LZMA_VERSION}{,.tmp} || :
-	mv $TERMUX_PREFIX/lib/libtinfo.so.6{,.tmp} || :
-	mv $TERMUX_PREFIX/lib/libz.so.1{,.tmp} || :
-	mv $TERMUX_PREFIX/lib/libz.so{,.tmp} || :
 }
 
 termux_step_configure() {
@@ -233,13 +222,7 @@ termux_step_make_install() {
 	done
 
 	cd "$TERMUX_PREFIX/lib"
-	rm -f libc.so libdl.so
-	mv liblzma.a{.tmp,} || :
-	mv liblzma.so{.tmp,} || :
-	mv liblzma.so.${_LZMA_VERSION}{.tmp,} || :
-	mv libtinfo.so.6{.tmp,} || :
-	mv libz.so.1{.tmp,} || :
-	mv libz.so{.tmp,} || :
+	rm -fv libc.so libdl.so
 
 	ln -vfs rustlib/${CARGO_TARGET_NAME}/lib/*.so .
 	ln -vfs lld ${TERMUX_PREFIX}/bin/rust-lld
