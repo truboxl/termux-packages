@@ -160,7 +160,7 @@ termux_step_make() {
 		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
 	done < <(find artifacts/packages -name "*.nupkg" | sort)
 	mkdir -p "${_downloaddir}/Runtime"
-	find artifacts -name "*.tar.gz" -o -name "*.zip" -exec cp -fv {} "${_downloaddir}/Runtime/" \;
+	find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp -fv "{}" "${_downloaddir}/Runtime/" \;
 	git status
 	rm -fr .dotnet artifacts/obj
 	popd
@@ -183,7 +183,7 @@ termux_step_make() {
 		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
 	done < <(find artifacts/packages -name "*.nupkg" | sort)
 	mkdir -p "${_downloaddir}/Sdk"
-	find artifacts -name "*.tar.gz" -o -name "*.zip" -exec cp -fv {} "${_downloaddir}/Sdk/" \;
+	find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp -fv {} "${_downloaddir}/Sdk/" \;
 	rm -fr .dotnet artifacts/obj
 	popd
 
@@ -206,7 +206,7 @@ termux_step_make() {
 		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
 	done < <(find artifacts/packages -name "*.nupkg" | sort)
 	mkdir -p "${_downloaddir}/aspnetcore/Runtime"
-	find artifacts -name "*.tar.gz" -o -name "*.zip" -exec cp -fv {} "${_downloaddir}/aspnetcore/Runtime/" \;
+	find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp -fv "{}" "${_downloaddir}/aspnetcore/Runtime/" \;
 	cp -fv artifacts/installers/*/aspnetcore_base_runtime.version "${_downloaddir}/aspnetcore/Runtime/"
 	git status
 	rm -fr .dotnet artifacts/obj
@@ -230,7 +230,7 @@ termux_step_make() {
 		"${DOTNET_INSTALL_DIR}"/dotnet nuget push "${p}" --source="${_packagesdir}"
 	done < <(find artifacts/packages -name "*.nupkg" | sort)
 	mkdir -p "${_downloaddir}/installer"
-	find artifacts -name "*.tar.gz" -o -name "*.zip" -exec cp -fv {} "${_downloaddir}/installer/" \;
+	find artifacts -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp -fv "{}" "${_downloaddir}/installer/" \;
 	git status
 	rm -fr .dotnet artifacts/obj
 	popd
@@ -278,7 +278,7 @@ termux_step_make_install() {
 		test -f "$tgz" && echo "INFO: Extracting $tgz" && tar -xf "$tgz"
 	done
 	# copy nupkg files
-	cp -fv ${_packagesdir}/*.nupkg templates/${TERMUX_PKG_VERSION}/
+	find "${_packagesdir}" -type f -name "*.nupkg" -exec cp -fv "{}" "templates/${TERMUX_PKG_VERSION}/" \;
 	popd
 
 	# TODO investigate if can remove libc++ and other deps
