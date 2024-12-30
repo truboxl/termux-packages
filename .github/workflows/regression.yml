@@ -96,7 +96,7 @@ jobs:
         echo -e "List of packages:\n${pkg}"
 
         # keep CI init under 20, the lower the better
-        parallel_ci_limit=10
+        parallel_ci_limit=256
         pkg_s=""
         total_jobs=$(echo "${pkg}" | wc -l)
         if (( "${total_jobs}" > "${parallel_ci_limit}" )); then
