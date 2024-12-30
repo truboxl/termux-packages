@@ -179,7 +179,7 @@ termux_step_configure() {
 	export CC_x86_64_unknown_linux_gnu=gcc
 	export CFLAGS_x86_64_unknown_linux_gnu="-O2"
 	export PKG_CONFIG_x86_64_unknown_linux_gnu="/usr/bin/pkg-config"
-	export PKG_CONFIG_LIBDIR="/usr/lib/pkgconfig"
+	export PKG_CONFIG_LIBDIR_x86_64_unknown_linux_gnu="/usr/lib/pkgconfig"
 	export RUST_BACKTRACE=full
 
 	unset CC CFLAGS CFLAGS_${env_host} CPP CPPFLAGS CXX CXXFLAGS LD LDFLAGS PKG_CONFIG RANLIB
