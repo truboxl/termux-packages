@@ -18,3 +18,14 @@
          set(NATIVECOMPRESSION_SOURCES ${NATIVECOMPRESSION_SOURCES} entrypoints.c)
      endif ()
  
+--- a/src/runtime/src/native/libs/System.IO.Compression.Native/extra_libs.cmake
++++ b/src/runtime/src/native/libs/System.IO.Compression.Native/extra_libs.cmake
+@@ -16,7 +16,7 @@ macro(append_extra_compression_libs NativeLibsExtra)
+     # 'zlib' represents our in-tree zlib, and is used in all other platforms
+     # that don't meet any of the previous special requirements, like most
+     # regular Unix and Windows builds.
+-    list(APPEND ZLIB_LIBRARIES $<IF:$<BOOL:${CLR_CMAKE_USE_SYSTEM_ZLIB}>,z,zlib>)
++    list(APPEND ZLIB_LIBRARIES $<IF:$<BOOL:${CLR_CMAKE_USE_SYSTEM_ZLIB}>,z,zlib> m)
+   endif ()
+   list(APPEND ${NativeLibsExtra} ${ZLIB_LIBRARIES})
+ 
