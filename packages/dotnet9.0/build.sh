@@ -135,6 +135,7 @@ termux_step_make() {
 		--use-mono-runtime \
 		--online \
 		-- \
+		/p:TargetArchitecture=${arch} \
 		/p:OverrideTargetRid=linux-bionic-${arch}
 }
 
