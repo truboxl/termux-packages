@@ -136,7 +136,6 @@ termux_step_make() {
 		--online \
 		--source-build \
 		-- \
-		/p:TargetArchitecture=${arch} \
 		/p:OverrideTargetRid=linux-bionic-${arch}
 }
 
@@ -145,8 +144,8 @@ termux_step_make_install() {
 	mkdir -p "${_DOTNET_ROOT}"
 
 	# DEBUG copy the artifacts
-	#mkdir -p "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}"
-	#find "${TERMUX_PKG_BUILDDIR}/artifacts/x64" -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp -fv "{}" "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}" \;
+	mkdir -p "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}"
+	find "${TERMUX_PKG_BUILDDIR}/artifacts/x64" -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp -fv "{}" "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}" \;
 
 	# TODO fix hardcode in source
 	# extract tarball
