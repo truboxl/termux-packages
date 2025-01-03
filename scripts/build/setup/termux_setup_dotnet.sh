@@ -40,7 +40,7 @@ termux_setup_dotnet() {
 
 	# https://github.com/dotnet/core/issues/9671
 	curl https://raw.githubusercontent.com/dotnet/install-scripts/refs/heads/main/src/dotnet-install.sh -sSfo "${TERMUX_PKG_TMPDIR}"/dotnet-install.sh
-	bash "${TERMUX_PKG_TMPDIR}"/dotnet-install.sh
+	bash "${TERMUX_PKG_TMPDIR}"/dotnet-install.sh --version net9.0
 
 	export PATH="${HOME}/.dotnet:${HOME}/.dotnet/tools:${PATH}"
 }
