@@ -1,5 +1,3 @@
-diff --git a/src/runtime/eng/common/cross/toolchain.cmake b/src/runtime/eng/common/cross/toolchain.cmake
-index 0998e875e5..9d4b594a8e 100644
 --- a/src/runtime/eng/common/cross/toolchain.cmake
 +++ b/src/runtime/eng/common/cross/toolchain.cmake
 @@ -36,6 +36,8 @@ if(TARGET_ARCH_NAME STREQUAL "arm")
