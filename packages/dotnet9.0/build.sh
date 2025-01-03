@@ -146,12 +146,12 @@ termux_step_make_install() {
 
 	# DEBUG copy the artifacts
 	mkdir -p "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}"
-	find "${TERMUX_PKG_BUILDDIR}/artifacts/x64" -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp -fv "{}" "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}" \;
+	find "${TERMUX_PKG_BUILDDIR}/artifacts" -type f \( -name "*.tar.gz" -o -name "*.zip" \) -exec cp -fv "{}" "${TERMUX_PREFIX}/opt/${TERMUX_PKG_NAME}" \;
 
 	# TODO fix hardcode in source
 	# extract tarball
-	tar -xf "${TERMUX_PKG_BUILDDIR}"/artifacts/x64/Release/dotnet-sdk-*.tar.gz -C "${_DOTNET_ROOT}"
-	tar -xf "${TERMUX_PKG_BUILDDIR}"/artifacts/x64/Release/dotnet-runtime-symbols-linux-bionic-${arch}-${TERMUX_PKG_VERSION}.tar.gz -C "${_DOTNET_ROOT}/shared/Microsoft.NETCore.App/${TERMUX_PKG_VERSION}"
+	tar -xf "${TERMUX_PKG_BUILDDIR}"/artifacts/assets/Release/dotnet-sdk-*.tar.gz -C "${_DOTNET_ROOT}"
+	tar -xf "${TERMUX_PKG_BUILDDIR}"/artifacts/assets/Release/dotnet-runtime-symbols-linux-bionic-${arch}-${TERMUX_PKG_VERSION}.tar.gz -C "${_DOTNET_ROOT}/shared/Microsoft.NETCore.App/${TERMUX_PKG_VERSION}"
 
 	# TODO fix hardcode in source
 	# needed to fix default build target
