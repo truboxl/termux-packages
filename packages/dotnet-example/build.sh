@@ -6,6 +6,9 @@ TERMUX_PKG_VERSION=1
 TERMUX_PKG_SKIP_SRC_EXTRACT=true
 TERMUX_PKG_BUILD_IN_SRC=true
 
+# termux-elf-cleaner causes zig Segmentation Fault
+TERMUX_PKG_NO_ELF_CLEANER=true
+
 termux_step_pre_configure() {
 	termux_setup_dotnet
 }
