@@ -31,7 +31,7 @@ termux_step_make() {
 }
 
 termux_step_make_install() {
-	pushd hellocs/bin/Release/net8.0/${DOTNET_TARGET_NAME}
+	pushd hellocs/bin/Release/net9.0/${DOTNET_TARGET_NAME}
 	ls -l
 	find publish -name "*.a" -exec chmod a-x "{}" \;
 	find publish -name "*.dll" -exec chmod a-x "{}" \;
