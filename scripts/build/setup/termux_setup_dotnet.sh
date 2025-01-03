@@ -34,13 +34,10 @@ termux_setup_dotnet() {
 	if [[ -z "${TERMUX_DOTNET_VERSION-}" ]]; then
 		TERMUX_DOTNET_VERSION=$(. "${TERMUX_SCRIPTDIR}"/packages/dotnet8.0/build.sh; echo ${TERMUX_PKG_VERSION})
 	fi
-	if [[ "${TERMUX_DOTNET_VERSION}" == *"~beta"* ]]; then
-		TERMUX_DOTNET_VERSION="beta"
-	fi
 
 	# https://github.com/dotnet/core/issues/9671
 	curl https://raw.githubusercontent.com/dotnet/install-scripts/refs/heads/main/src/dotnet-install.sh -sSfo "${TERMUX_PKG_TMPDIR}"/dotnet-install.sh
-	bash "${TERMUX_PKG_TMPDIR}"/dotnet-install.sh --version net9.0
+	bash "${TERMUX_PKG_TMPDIR}"/dotnet-install.sh --channel 9.0
 
 	export PATH="${HOME}/.dotnet:${HOME}/.dotnet/tools:${PATH}"
 }
