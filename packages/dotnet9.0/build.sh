@@ -9,6 +9,7 @@ TERMUX_PKG_DEPENDS="openssl, zlib"
 TERMUX_PKG_BUILD_DEPENDS="krb5"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_NO_STATICSPLIT=true
+TERMUX_DEBUG_BUILD=true
 # https://github.com/dotnet/runtime/issues/7335
 # linux-x86 is not officially supported
 
