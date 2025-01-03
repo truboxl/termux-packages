@@ -137,7 +137,7 @@ termux_step_make() {
 		--source-build \
 		-- \
 		/p:TargetArchitecture=${arch} \
-		/p:OverrideTargetRid=linux-bionic-${arch}
+		/p:TargetRid=linux-bionic-${arch}
 }
 
 termux_step_make_install() {
