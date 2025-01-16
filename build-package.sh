@@ -689,6 +689,7 @@ for ((i=0; i<${#PACKAGE_LIST[@]}; i++)); do
 		fi
 		termux_add_package_to_built_packages_list "$TERMUX_PKG_NAME"
 		termux_step_finish_build
+		exit 0
 	) 5< "$TERMUX_BUILD_LOCK_FILE"
 done
 
