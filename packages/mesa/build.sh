@@ -31,6 +31,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -Dshared-llvm=enabled
 -Dplatforms=x11,wayland
 -Dgallium-drivers=llvmpipe,softpipe,virgl,zink
+-Dgallium-rusticl=true
 -Dglvnd=enabled
 -Dxmlconfig=disabled
 "
@@ -47,6 +48,9 @@ termux_step_post_get_source() {
 
 termux_step_pre_configure() {
 	termux_setup_cmake
+	termux_setup_rust
+
+	cargo install --force --locked bindgen-cli
 
 	CPPFLAGS+=" -D__USE_GNU"
 	LDFLAGS+=" -landroid-shmem"
