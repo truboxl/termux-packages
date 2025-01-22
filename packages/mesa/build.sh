@@ -4,6 +4,7 @@ TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="docs/license.rst"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="24.3.4"
+TERMUX_PKG_REVISION=1
 _LLVM_MAJOR_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libllvm/build.sh; echo $LLVM_MAJOR_VERSION)
 _LLVM_MAJOR_VERSION_NEXT=$((_LLVM_MAJOR_VERSION + 1))
 TERMUX_PKG_SRCURL=https://archive.mesa3d.org/mesa-${TERMUX_PKG_VERSION}.tar.xz
@@ -30,6 +31,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -Dshared-llvm=enabled
 -Dplatforms=x11,wayland
 -Dgallium-drivers=swrast,virgl,zink
+-Dgallium-rusticl=true
 -Dosmesa=true
 -Dglvnd=enabled
 -Dxmlconfig=disabled
@@ -42,6 +44,9 @@ termux_step_post_get_source() {
 
 termux_step_pre_configure() {
 	termux_setup_cmake
+	termux_setup_rust
+
+	cargo install --force --locked bindgen-cli
 
 	CPPFLAGS+=" -D__USE_GNU"
 	LDFLAGS+=" -landroid-shmem"
