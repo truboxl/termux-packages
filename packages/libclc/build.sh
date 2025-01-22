@@ -24,13 +24,16 @@ termux_step_host_build() {
 		"${TERMUX_PKG_SRCDIR}/llvm"
 	ninja \
 		-j "${TERMUX_PKG_MAKE_PROCESSES}" \
-		opt
+		llvm-spirv opt
 }
 
 termux_step_pre_configure() {
 	TERMUX_PKG_SRCDIR=${TERMUX_PKG_SRCDIR}/libclc
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
-		find "${TERMUX_STANDALONE_TOOLCHAIN}/bin" -type f -exec ln -fsv "{}" "${TERMUX_PKG_HOSTBUILD_DIR}/bin" \;
+		local tool
+		for tool in clang llvm-as llvm-link; do
+			ln -fsv "${TERMUX_STANDALONE_TOOLCHAIN}/bin/${tool}" "${TERMUX_PKG_HOSTBUILD_DIR}/bin"
+		done
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLIBCLC_CUSTOM_LLVM_TOOLS_BINARY_DIR=${TERMUX_PKG_HOSTBUILD_DIR}/bin"
 	fi
 }
