@@ -7,6 +7,7 @@ TERMUX_PKG_SRCURL=https://github.com/llvm/llvm-project/releases/download/llvmorg
 TERMUX_PKG_SHA256=82401fea7b79d0078043f7598b835284d6650a75b93e64b6f761ea7b63097501
 TERMUX_PKG_DEPENDS="libc++, libllvm"
 TERMUX_PKG_BUILD_DEPENDS="libllvm-static"
+TERMUX_PKG_HOSTBUILD=true
 
 termux_step_host_build() {
 	termux_setup_cmake
