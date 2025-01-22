@@ -3,11 +3,29 @@ TERMUX_PKG_DESCRIPTION="Open source implementation of OpenCL 1.1 library"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="19.1.7"
-TERMUX_PKG_SRCURL=https://github.com/llvm/llvm-project/releases/download/llvmorg-${TERMUX_PKG_VERSION}/libclc-${TERMUX_PKG_VERSION}.src.tar.xz
-TERMUX_PKG_SHA256=77e2d71f5cea1d0b1014ba88186299d1a0848eb3dc20948baae649db9e7641cb
+TERMUX_PKG_SRCURL=https://github.com/llvm/llvm-project/releases/download/llvmorg-${TERMUX_PKG_VERSION}/llvm-project-${TERMUX_PKG_VERSION}.src.tar.xz
+TERMUX_PKG_SHA256=82401fea7b79d0078043f7598b835284d6650a75b93e64b6f761ea7b63097501
 TERMUX_PKG_DEPENDS="libc++, libllvm"
 TERMUX_PKG_BUILD_DEPENDS="libllvm-static"
 
+termux_step_host_build() {
+	termux_setup_cmake
+	termux_setup_ninja
+
+	cmake \
+		-G Ninja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DLLVM_ENABLE_PROJECTS='clang' \
+		"${TERMUX_PKG_SRCDIR}/llvm"
+	ninja \
+		-j "${TERMUX_PKG_MAKE_PROCESSES}" \
+		opt
+}
+
 termux_step_pre_configure() {
-	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLIBCLC_CUSTOM_LLVM_TOOLS_BINARY_DIR=${TERMUX_STANDALONE_TOOLCHAIN}/bin"
+	TERMUX_PKG_SRCDIR=${TERMUX_PKG_SRCDIR}/libclc
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
+		find "${TERMUX_STANDALONE_TOOLCHAIN}/bin" -type f -exec ln -fsv "{}" "${TERMUX_PKG_HOSTBUILD_DIR}/bin" \;
+		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLIBCLC_CUSTOM_LLVM_TOOLS_BINARY_DIR=${TERMUX_PKG_HOSTBUILD_DIR}/bin"
+	fi
 }
