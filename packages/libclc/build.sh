@@ -24,7 +24,7 @@ termux_step_host_build() {
 		"${TERMUX_PKG_SRCDIR}/llvm"
 	ninja \
 		-j "${TERMUX_PKG_MAKE_PROCESSES}" \
-		llvm-spirv opt
+		opt
 }
 
 termux_step_pre_configure() {
