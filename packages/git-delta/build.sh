@@ -13,7 +13,6 @@ TERMUX_PKG_BUILD_IN_SRC=true
 termux_step_pre_configure() {
 	export LIBGIT2_SYS_USE_PKG_CONFIG=1
 	export RUSTONIG_SYSTEM_LIBONIG=1
-	export PKG_CONFIG_ALLOW_CROSS=1
 
 	rm -f Makefile release.Makefile
 	export CC_x86_64_unknown_linux_gnu=gcc
