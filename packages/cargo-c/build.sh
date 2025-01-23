@@ -22,7 +22,6 @@ termux_pkg_auto_update() {
 termux_step_pre_configure() {
 	export LIBGIT2_SYS_USE_PKG_CONFIG=1
 	export LIBSSH2_SYS_USE_PKG_CONFIG=1
-	export PKG_CONFIG_ALLOW_CROSS=1
 
 	termux_setup_rust
 
