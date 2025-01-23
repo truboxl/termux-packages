@@ -16,7 +16,7 @@ termux_step_host_build() {
 	cmake \
 		-G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_ENABLE_PROJECTS=clang \
+		-DLLVM_ENABLE_PROJECTS='clang;libclc' \
 		-DLLVM_INCLUDE_BENCHMARKS=OFF \
 		-DLLVM_INCLUDE_EXAMPLES=OFF \
 		-DLLVM_INCLUDE_TESTS=OFF \
@@ -24,16 +24,16 @@ termux_step_host_build() {
 		"${TERMUX_PKG_SRCDIR}/llvm"
 	ninja \
 		-j "${TERMUX_PKG_MAKE_PROCESSES}" \
-		opt
+		clang llvm-as llvm-link opt prepare_builtins
 }
 
 termux_step_pre_configure() {
 	TERMUX_PKG_SRCDIR=${TERMUX_PKG_SRCDIR}/libclc
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
-		local tool
-		for tool in clang llvm-as llvm-link; do
-			ln -fsv "${TERMUX_STANDALONE_TOOLCHAIN}/bin/${tool}" "${TERMUX_PKG_HOSTBUILD_DIR}/bin"
-		done
+		#local tool
+		#for tool in clang llvm-as llvm-link; do
+		#	ln -fsv "${TERMUX_STANDALONE_TOOLCHAIN}/bin/${tool}" "${TERMUX_PKG_HOSTBUILD_DIR}/bin"
+		#done
 		TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLIBCLC_CUSTOM_LLVM_TOOLS_BINARY_DIR=${TERMUX_PKG_HOSTBUILD_DIR}/bin"
 	fi
 }
