@@ -29,7 +29,7 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DANDROID_PLATFORM_LEVEL=$TERMUX_PKG_API_LEVEL
 -DPYTHON_EXECUTABLE=$(command -v python${TERMUX_PYTHON_VERSION})
 -DLLVM_ENABLE_PIC=ON
--DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra;compiler-rt;lld;lldb;mlir;openmp;polly
+-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra;compiler-rt;libclc;lld;lldb;mlir;openmp;polly
 -DLLVM_ENABLE_LIBEDIT=OFF
 -DLLVM_INCLUDE_TESTS=OFF
 -DCLANG_DEFAULT_CXX_STDLIB=libc++
@@ -74,10 +74,19 @@ termux_step_host_build() {
 	termux_setup_cmake
 	termux_setup_ninja
 
-	cmake -G Ninja -DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;lldb;mlir' $TERMUX_PKG_SRCDIR/llvm
-	ninja -j $TERMUX_PKG_MAKE_PROCESSES clang-tblgen clang-pseudo-gen \
-		clang-tidy-confusable-chars-gen lldb-tblgen llvm-tblgen mlir-tblgen mlir-linalg-ods-yaml-gen
+	cmake \
+		-G Ninja \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;lldb;mlir' \
+		$TERMUX_PKG_SRCDIR/llvm
+	ninja \
+		-j $TERMUX_PKG_MAKE_PROCESSES \
+		clang-tblgen clang-pseudo-gen clang-tidy-confusable-chars-gen \
+		lldb-tblgen llvm-tblgen \
+		mlir-tblgen mlir-linalg-ods-yaml-gen \
+		opt
+
+	export PATH="${TERMUX_PKG_HOSTBUILD_DIR}/bin:${PATH}"
 }
 
 termux_step_pre_configure() {
@@ -104,6 +113,15 @@ termux_step_pre_configure() {
 	# see CMakeLists.txt and tools/clang/CMakeLists.txt
 	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLLVM_TARGET_ARCH=$LLVM_TARGET_ARCH"
 	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DLLVM_HOST_TRIPLE=$LLVM_DEFAULT_TARGET_TRIPLE"
+	# see clang/tools/driver/CMakeLists.txt
+	TERMUX_PKG_EXTRA_CONFIGURE_ARGS+=" -DCLANG_LINKS_TO_CREATE='clang++;clang-cl;clang-cpp;cc;c++;cpp;gcc;g++;${TERMUX_HOST_PLATFORM}-clang;${TERMUX_HOST_PLAFORM}-clang++;${TERMUX_HOST_PLATFORM}-gcc;${TERMUX_HOST_PLATFORM}-g++;${TERMUX_HOST_PLATFORM}-cpp;clang++-${LLVM_MAJOR_VERSION}'"
+
+	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
+		ln -fs ${TERMUX_STANDALONE_TOOLCHAIN}/bin/clang ${TERMUX_PKG_HOSTBUILD_DIR}/bin/clang
+		ln -fs ${TERMUX_STANDALONE_TOOLCHAIN}/bin/llvm-as ${TERMUX_PKG_HOSTBUILD_DIR}/bin/llvm-as
+		ln -fs ${TERMUX_STANDALONE_TOOLCHAIN}/bin/llvm-link ${TERMUX_PKG_HOSTBUILD_DIR}/bin/llvm-link
+	fi
+
 	export TERMUX_SRCDIR_SAVE=$TERMUX_PKG_SRCDIR
 	TERMUX_PKG_SRCDIR=$TERMUX_PKG_SRCDIR/llvm
 }
@@ -123,11 +141,6 @@ termux_step_post_make_install() {
 	cp tools/clang/docs/man/{clang,diagtool}.1 $TERMUX_PREFIX/share/man/man1
 	cd $TERMUX_PREFIX/bin
 
-	for tool in clang clang++ cc c++ cpp gcc g++ ${TERMUX_HOST_PLATFORM}-{clang,clang++,gcc,g++,cpp}; do
-		ln -f -s clang-${LLVM_MAJOR_VERSION} $tool
-	done
-
-	ln -f -s clang++ clang++-${LLVM_MAJOR_VERSION}
 	ln -f -s ${LLVM_MAJOR_VERSION} $TERMUX_PREFIX/lib/clang/latest
 
 	if [ $TERMUX_ARCH == "arm" ]; then
