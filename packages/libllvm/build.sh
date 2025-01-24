@@ -77,7 +77,7 @@ termux_step_host_build() {
 	cmake \
 		-G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
-		-DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;lldb;mlir' \
+		-DLLVM_ENABLE_PROJECTS='clang;clang-tools-extra;libclc;lldb;mlir' \
 		$TERMUX_PKG_SRCDIR/llvm
 	ninja \
 		-j $TERMUX_PKG_MAKE_PROCESSES \
