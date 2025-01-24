@@ -84,7 +84,7 @@ termux_step_host_build() {
 		clang-tblgen clang-pseudo-gen clang-tidy-confusable-chars-gen \
 		lldb-tblgen llvm-tblgen \
 		mlir-tblgen mlir-linalg-ods-yaml-gen \
-		opt
+		opt prepare_builtins
 
 	export PATH="${TERMUX_PKG_HOSTBUILD_DIR}/bin:${PATH}"
 }
