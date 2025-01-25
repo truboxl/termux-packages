@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="Unofficial Thunderbird email client"
 TERMUX_PKG_LICENSE="MPL-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="128.5.2"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL="https://archive.mozilla.org/pub/thunderbird/releases/${TERMUX_PKG_VERSION}esr/source/thunderbird-${TERMUX_PKG_VERSION}esr.source.tar.xz"
 TERMUX_PKG_SHA256=ef932fe30fcc3f90f465feffcf641147d678ec3ecda220f317046e715a905547
 TERMUX_PKG_DEPENDS="ffmpeg, fontconfig, freetype, gdk-pixbuf, glib, gtk3, libandroid-shmem, libandroid-spawn, libc++, libcairo, libevent, libffi, libice, libicu, libjpeg-turbo, libnspr, libnss, libotr, libpixman, libsm, libvpx, libwebp, libx11, libxcb, libxcomposite, libxdamage, libxext, libxfixes, libxrandr, libxtst, pango, pulseaudio, zlib"
@@ -11,6 +12,7 @@ TERMUX_PKG_BUILD_IN_SRC=true
 # Mozilla does not provide a simple way to find the latest ESR release
 TERMUX_PKG_UPDATE_VERSION_REGEXP='\d+\.\d+\.\d+(?=esr/)'
 TERMUX_PKG_AUTO_UPDATE=true
+TERMUX_RUST_VERSION=1.83.0
 
 termux_pkg_auto_update() {
 	# Adapted from the auto_update function in x11/firefox and packages/ncdu.
