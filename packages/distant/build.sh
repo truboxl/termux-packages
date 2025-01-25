@@ -15,7 +15,6 @@ termux_step_pre_configure() {
 	export OPENSSL_INCLUDE_DIR=$TERMUX_PREFIX/include
 	export OPENSSL_LIB_DIR=$TERMUX_PREFIX/lib
 	export LIBSSH2_SYS_USE_PKG_CONFIG=1
-	export PKG_CONFIG_ALLOW_CROSS=1
 
 	sed -i "s%\@TERMUX_PREFIX\@%${TERMUX_PREFIX}%g" ${TERMUX_PKG_SRCDIR}/src/constants.rs
 
