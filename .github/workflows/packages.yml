@@ -227,11 +227,11 @@ jobs:
           fi
         done
 
-        if [ "$DOCKER_BUILD" == 'false' ]; then
-          NDK=$ANDROID_NDK ANDROID_HOME=$ANDROID_SDK_ROOT ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
-        elif [ -n "$packages" ]; then
+        #if [ "$DOCKER_BUILD" == 'false' ]; then
+        #  NDK=$ANDROID_NDK ANDROID_HOME=$ANDROID_SDK_ROOT ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
+        #elif [ -n "$packages" ]; then
           ./scripts/run-docker.sh ./build-package.sh -I -a ${{ matrix.target_arch }} $packages
-        fi
+        #fi
 
     - name: Generate build artifacts
       if: always()
