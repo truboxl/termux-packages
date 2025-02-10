@@ -1,5 +1,5 @@
 diff --git a/discover/gpu_info_vulkan.c b/discover/gpu_info_vulkan.c
-index e868dcc..e899860 100644
+index e868dcc..02d35aa 100644
 --- a/discover/gpu_info_vulkan.c
 +++ b/discover/gpu_info_vulkan.c
 @@ -1,8 +1,12 @@
@@ -37,7 +37,7 @@ index e868dcc..e899860 100644
 +  //if (resp->free <= 1) {
 +    LOG(rh.verbose, "fallback to detect meminfo available memory\n");
 +    uint64_t available_memory = 0;
-+    FILE* meminfo_file = popen("/proc/meminfo", "r");
++    FILE* meminfo_file = fopen("/proc/meminfo", "r");
 +    if (meminfo_file != NULL) {
 +      char units = '\0';
 +      char* line = NULL;
