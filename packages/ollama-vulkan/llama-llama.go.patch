@@ -1,0 +1,30 @@
+I gave up trying to fix build error below and end up commenting out the code
+
+ld.lld: error: undefined symbol: get_compiler
+>>> referenced by llama.cgo2.c
+>>>               /tmp/go-link-3139778230/000007.o:(_cgo_679bf1dbc3ed_Cfunc_get_compiler)
+
+--- a/llama/llama.go
++++ b/llama/llama.go
+@@ -60,14 +60,14 @@ func BackendInit() {
+ 
+ func PrintSystemInfo() string {
+ 	var compiler string
+-	switch C.get_compiler() {
+-	case C.COMP_UNKNOWN:
+-		compiler = "cgo(unknown_compiler)"
+-	case C.COMP_GCC:
+-		compiler = "cgo(gcc)"
+-	case C.COMP_CLANG:
++	//switch C.get_compiler() {
++	//case C.COMP_UNKNOWN:
++	//	compiler = "cgo(unknown_compiler)"
++	//case C.COMP_GCC:
++	//	compiler = "cgo(gcc)"
++	//case C.COMP_CLANG:
+ 		compiler = "cgo(clang)"
+-	}
++	//}
+ 	return C.GoString(C.llama_print_system_info()) + compiler
+ }
+ 
