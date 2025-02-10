@@ -1,0 +1,14 @@
+diff --git a/discover/gpu_info_vulkan.c b/discover/gpu_info_vulkan.c
+index e868dcc..592c6b1 100644
+--- a/discover/gpu_info_vulkan.c
++++ b/discover/gpu_info_vulkan.c
+@@ -3,6 +3,9 @@
+ #include <string.h>
+ 
+ int check_perfmon(vk_handle_t* rh) {
++#ifdef __ANDROID__
++  return 0;
++#endif
+ #ifdef __linux__
+   cap_t caps;
+   const cap_value_t cap_list[1] = {CAP_PERFMON};
