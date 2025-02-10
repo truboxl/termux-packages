@@ -1,0 +1,13 @@
+diff --git a/discover/gpu.go b/discover/gpu.go
+index 791d6b1..a208287 100644
+--- a/discover/gpu.go
++++ b/discover/gpu.go
+@@ -425,7 +425,7 @@ func GetGPUInfo() GpuInfoList {
+ 				gpuInfo.ID = C.GoString(&memInfo.gpu_id[0])
+ 				gpuInfo.Compute = fmt.Sprintf("%d.%d", memInfo.major, memInfo.minor)
+ 				gpuInfo.MinimumMemory = 0
+-				gpuInfo.DependencyPath = depPaths
++				gpuInfo.DependencyPath = []string{LibOllamaPath}
+ 				gpuInfo.Name = C.GoString(&memInfo.gpu_name[0])
+ 				gpuInfo.DriverMajor = int(memInfo.major)
+ 				gpuInfo.DriverMinor = int(memInfo.minor)
