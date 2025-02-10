@@ -1,8 +1,11 @@
 diff --git a/discover/gpu_info_vulkan.c b/discover/gpu_info_vulkan.c
-index e868dcc..a43c3ce 100644
+index e868dcc..064366e 100644
 --- a/discover/gpu_info_vulkan.c
 +++ b/discover/gpu_info_vulkan.c
-@@ -3,6 +3,9 @@
+@@ -1,8 +1,12 @@
+ #include "gpu_info_vulkan.h"
+ 
++#include <inttypes.h>
  #include <string.h>
  
  int check_perfmon(vk_handle_t* rh) {
@@ -12,7 +15,7 @@ index e868dcc..a43c3ce 100644
  #ifdef __linux__
    cap_t caps;
    const cap_value_t cap_list[1] = {CAP_PERFMON};
-@@ -176,7 +179,8 @@ void vk_check_vram(vk_handle_t rh, int i, mem_info_t *resp) {
+@@ -176,7 +180,8 @@ void vk_check_vram(vk_handle_t rh, int i, mem_info_t *resp) {
    int supports_budget = support_memory_budget(&rh, devices[i]);
    if (!supports_budget) {
      resp->err = strdup("device does not support memory budget");
@@ -22,7 +25,7 @@ index e868dcc..a43c3ce 100644
    }
    if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_CPU) {
      resp->err = strdup("device is a CPU");
-@@ -213,6 +217,24 @@ void vk_check_vram(vk_handle_t rh, int i, mem_info_t *resp) {
+@@ -213,6 +218,24 @@ void vk_check_vram(vk_handle_t rh, int i, mem_info_t *resp) {
    resp->major = VK_API_VERSION_MAJOR(properties.apiVersion);
    resp->minor = VK_API_VERSION_MINOR(properties.apiVersion);
    resp->patch = VK_API_VERSION_PATCH(properties.apiVersion);
@@ -36,7 +39,7 @@ index e868dcc..a43c3ce 100644
 +      char* line = NULL;
 +      size_t linelen = 0;
 +      while (getline(&line, &linelen, meminfo_file) != -1) {
-+        int fields_parsed = sscanf(line, "MemAvailable: %" SCNu64 " %cB", %available_memory, &units);
++        int fields_parsed = sscanf(line, "MemAvailable: %" SCNu64 " %cB", &available_memory, &units);
 +        if (fields_parsed >= 1) {
 +          break;
 +        }
