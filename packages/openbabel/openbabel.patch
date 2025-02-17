@@ -1,0 +1,25 @@
+diff -ur openbabel/src/format.cpp openbabel.mod/src/format.cpp
+--- openbabel/src/format.cpp	2020-05-08 23:38:02.000000000 +0800
++++ openbabel.mod/src/format.cpp	2023-10-22 23:58:34.007576816 +0800
+@@ -75,8 +75,8 @@
+ bool OBFormat::Display(std::string& txt, const char* param, const char* ID)
+ {
+   //No output for formats which can't be written or read
+-  if((Flags() & NOTREADABLE) && (Flags() & NOTWRITABLE))
+-    return false;
++  //if((Flags() & NOTREADABLE) && (Flags() & NOTWRITABLE))
++  //  return false;
+ 
+   bool justread=false, justwrite=false;
+   //No output if formats is not readable or writable if this was requested
+diff -ur openbabel/src/plugin.cpp openbabel.mod/src/plugin.cpp
+--- openbabel/src/plugin.cpp	2020-05-08 23:38:02.000000000 +0800
++++ openbabel.mod/src/plugin.cpp	2023-10-22 23:59:11.771576818 +0800
+@@ -68,6 +68,7 @@
+     if(DLHandler::openLib(*itr))
+       count++;
+   }
++  cout << "count = " << count << endl;
+   if(!count) {
+     string error = "No valid OpenBabel plugs found in "+TargetDir;
+     obErrorLog.ThrowError(__FUNCTION__, error, obError);
