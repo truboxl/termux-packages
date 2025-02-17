@@ -1,0 +1,16 @@
+diff -uNr a/configure.ac b/configure.ac
+--- a/configure.ac	2024-03-18 10:16:31.000000000 +0800
++++ b/configure.ac	2024-09-18 14:08:47.904011759 +0800
+@@ -87,6 +87,12 @@
+ abi_wcsl=unknown
+ 
+ AS_CASE([$host_os],
++  [*-android*], [
++    api_time_macros=no
++    abi_accmode=yes
++    abi_arc4random=yes
++    abi_arc4random_stir=no
++  ],
+   [*-gnu* | gnu*], [
+     api_time_macros=no
+ 
