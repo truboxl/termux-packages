@@ -152,7 +152,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        target_arch: [aarch64]
+        target_arch: [arm]
         packages: ${{ fromJSON(needs.prepare.outputs.matrix) }}
       fail-fast: false
     steps:
