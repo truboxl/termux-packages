@@ -153,6 +153,10 @@ source "$TERMUX_SCRIPTDIR/scripts/build/setup/termux_setup_python_pip.sh"
 # shellcheck source=scripts/build/setup/termux_setup_rust.sh
 source "$TERMUX_SCRIPTDIR/scripts/build/setup/termux_setup_rust.sh"
 
+# Utility function for packages to setup scrcpy.
+# shellcheck source=scripts/build/setup/termux_setup_scrcpy.sh
+source "$TERMUX_SCRIPTDIR/scripts/build/setup/termux_setup_scrcpy.sh"
+
 # Utility function for swift-using packages to setup a swift toolchain
 # shellcheck source=scripts/build/setup/termux_setup_swift.sh
 source "$TERMUX_SCRIPTDIR/scripts/build/setup/termux_setup_swift.sh"
