@@ -491,6 +491,8 @@ jobs:
 
           adb shell id
           adb shell run-as com.termux id
+          adb shell run-as com.termux pwd
+          adb shell run-as com.termux ls -l
           adb shell run-as com.termux ls -l /data/data/com.termux
           adb shell run-as com.termux ls -l /data/data/com.termux/files
           adb shell run-as com.termux ls -l /data/data/com.termux/files/home
@@ -508,7 +510,7 @@ jobs:
           sleep 1
           adb shell run-as com.termux ps -A
           sleep 1
-          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin /system/bin/sh -c "id; env | sort; cd /data; pwd; ls -l; cd data; pwd; ls -l; cd com.termux; pwd; ls -l; cd files; pwd; ls -l; cd home; pwd; ls -l; cd termux-packages; pwd; ls -l; ./scripts/setup-termux.sh; git restore .; ./build-package.sh -I openssl"
+          adb shell run-as com.termux "pwd; id; env | sort; cd /data/data/com.termux/files/usr/home/termux-packages; pwd; ls -l; ./scripts/setup-termux.sh; git restore .; ./build-package.sh -I openssl"
           sleep 1
 
           #adb shell input text "cd%stermux-packages"
