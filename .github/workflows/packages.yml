@@ -481,7 +481,7 @@ jobs:
           adb forward tcp:8022 tcp:8022
           nc -vzw 1 127.0.0.1 8022 || true
 
-          bash -c ". ${GITHUB_WORKSPACE}/scripts/properties.sh; . ${GITHUB_WORKSPACE}/scripts/build/setup/termux-setup-scrcpy.sh; termux_setup_scrcpy; scrcpy --record=sr.mp4" &
+          bash -c ". ${GITHUB_WORKSPACE}/scripts/properties.sh; . ${GITHUB_WORKSPACE}/scripts/build/setup/termux_setup_scrcpy.sh; termux_setup_scrcpy; scrcpy --record=sr.mp4" &
 
           adb push ../termux-packages/.git /sdcard/.git
           adb push ../termux-packages/scripts/properties.sh /sdcard/properties.sh
