@@ -508,7 +508,7 @@ jobs:
           sleep 1
           adb shell run-as com.termux ps -A
           sleep 1
-          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin bash -c "id; env | sort; export HOME=/data/data/com.termux/files/home; cd ~; pwd; ls -l; cd termux-packages; pwd; ls -l; ./scripts/setup-termux.sh; git restore .; ./build-package.sh -I openssl"
+          adb shell run-as com.termux env HOME=/data/data/com.termux/files/home PATH=/data/data/com.termux/files/usr/bin TERM=xterm-256color TMPDIR=/data/data/com.termux/files/usr/tmp bash -c "id; env | sort; cd /data; pwd; ls -l; cd data; pwd; ls -l; cd com.termux; pwd; ls -l; cd files; pwd; ls -l; cd home; pwd; ls -l; cd termux-packages; pwd; ls -l; ./scripts/setup-termux.sh; git restore .; ./build-package.sh -I openssl"
           sleep 1
 
           #adb shell input text "cd%stermux-packages"
