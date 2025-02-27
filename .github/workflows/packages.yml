@@ -489,6 +489,13 @@ jobs:
           adb shell am start -n com.termux/com.termux.app.TermuxActivity
           sleep 20
 
+          adb shell id
+          adb shell run-as com.termux id
+          adb shell run-as com.termux ls -l /data/data/com.termux
+          adb shell run-as com.termux ls -l /data/data/com.termux/files
+          adb shell run-as com.termux ls -l /data/data/com.termux/files/home
+          adb shell run-as com.termux ls -l /data/data/com.termux/files/usr
+
           adb shell run-as com.termux mkdir -p /data/data/com.termux/files/home/termux-packages/scripts
           adb shell run-as com.termux mv -v /sdcard/.git /data/data/com.termux/files/home/termux-packages/.git
           adb shell run-as com.termux mv -v /sdcard/properties.sh /data/data/com.termux/files/home/termux-packages/scripts/properties.sh
