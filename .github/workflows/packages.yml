@@ -493,9 +493,6 @@ jobs:
           adb shell run-as com.termux mv -v /sdcard/.git /data/data/com.termux/files/home/termux-packages/.git
           adb shell run-as com.termux mv -v /sdcard/properties.sh /data/data/com.termux/files/home/termux-packages/scripts/properties.sh
           adb shell run-as com.termux mv -v /sdcard/setup-termux.sh /data/data/com.termux/files/home/termux-packages/scripts/setup-termux.sh
-          adb shell input text "yes%s\|%spkg%supgrade"
-          adb shell input keyevent KEYCODE_ENTER
-          sleep 1
           adb shell input text "termux-setup-storage%s\&\&%ssleep%s1"
           adb shell input keyevent KEYCODE_ENTER
           sleep 1
@@ -504,7 +501,7 @@ jobs:
           sleep 1
           adb shell run-as com.termux ps -A
           sleep 1
-          adb shell run-as com.termux env HOME=/data/data/com.termux/files/home PATH=/data/data/com.termux/files/usr/bin bash -c "cd ~/termux-packages; git restore .; ./build-package.sh -I openssl"
+          adb shell run-as com.termux env HOME=/data/data/com.termux/files/home PATH=/data/data/com.termux/files/usr/bin bash -c "cd ~/termux-packages; pwd; ls -l; ./scripts/setup-termux.sh; git restore .; ./build-package.sh -I openssl"
           sleep 1
 
           #adb shell input text "cd%stermux-packages"
