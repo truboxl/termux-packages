@@ -471,6 +471,7 @@ jobs:
         script: |
           pwd
           ls -l
+          ls -l ..
           adb logcat >logcat.txt &
           while true; do if adb shell test -f /sdcard/ok; then touch ok; break; fi; sleep 1; done &
           #while true; do if test -f ok; then break; fi; adb shell "free -h && df -h"; then break; fi; sleep 300; done &
@@ -483,7 +484,7 @@ jobs:
           adb forward tcp:8022 tcp:8022
           nc -vzw 1 127.0.0.1 8022 || true
 
-          timeout $((5*60)) bash -c "cd ${GITHUB_WORKPLACE}; . ./scripts/properties.sh; . ./scripts/build/termux_download.sh; ./scripts/build/setup/termux_setup_scrcpy.sh; termux_setup_scrcpy; scrcpy --record=sr.mp4" &
+          bash -c ". ${GITHUB_WORKPLACE}/scripts/properties.sh; . ${GITHUB_WORKSPACE}/scripts/build/termux_download.sh; . ${GITHUB_WORKSPACE}/scripts/build/setup/termux_setup_scrcpy.sh; termux_setup_scrcpy; scrcpy --record=sr.mp4" & || exit 1
 
           adb push ../termux-packages/.git /sdcard/.git
           adb push ../termux-packages/scripts/properties.sh /sdcard/properties.sh
