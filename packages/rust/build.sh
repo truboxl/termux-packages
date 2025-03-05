@@ -2,9 +2,12 @@ TERMUX_PKG_HOMEPAGE=https://www.rust-lang.org/
 TERMUX_PKG_DESCRIPTION="Systems programming language focused on safety, speed and concurrency"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="1.84.1"
+TERMUX_PKG_VERSION="1.86.0~beta"
 TERMUX_PKG_SRCURL=https://static.rust-lang.org/dist/rustc-${TERMUX_PKG_VERSION}-src.tar.xz
-TERMUX_PKG_SHA256=e23ec747a06ffd3e94155046f40b6664ac152c9ee3c2adfd90353a7ccff24226
+if [[ "${TERMUX_PKG_VERSION}" == *"beta"* ]]; then
+TERMUX_PKG_SRCURL=https://static.rust-lang.org/dist/rustc-beta-src.tar.xz
+fi
+TERMUX_PKG_SHA256=9769386f170d1fd1e0aece5388cb0f89ff47d8b55b3eb4c6ea4cb2d6a0f608d4
 _LLVM_MAJOR_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libllvm/build.sh; echo $LLVM_MAJOR_VERSION)
 _LLVM_MAJOR_VERSION_NEXT=$((_LLVM_MAJOR_VERSION + 1))
 _LZMA_VERSION=$(. $TERMUX_SCRIPTDIR/packages/liblzma/build.sh; echo $TERMUX_PKG_VERSION)
@@ -118,7 +121,7 @@ termux_step_configure() {
 	# like 30 to 40 + minutes ... so lets get it right
 
 	# upstream tests build using versions N and N-1
-	local BOOTSTRAP_VERSION=1.84.0
+	local BOOTSTRAP_VERSION=beta
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
 		if ! rustup install "${BOOTSTRAP_VERSION}"; then
 			echo "WARN: ${BOOTSTRAP_VERSION} is unavailable, fallback to stable version!"
