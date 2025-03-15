@@ -32,6 +32,8 @@ tools = [
 ]
 sanitizers = false
 android-ndk = "@TERMUX_STANDALONE_TOOLCHAIN@"
+# temp disable, fixed in rust 1.86.0
+docs = false
 
 [install]
 prefix = "@TERMUX_PREFIX@"
@@ -58,10 +60,6 @@ profiler = true
 [target.armv7-linux-androideabi]
 llvm-config = "@TERMUX_PREFIX@/bin/llvm-config"
 profiler = true
-
-[build.armv7-linux-androideabi]
-# temp disable, fixed in rust 1.86.0
-docs = false
 
 [target.i686-linux-android]
 llvm-config = "@TERMUX_PREFIX@/bin/llvm-config"
