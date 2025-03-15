@@ -32,6 +32,8 @@ tools = [
 ]
 sanitizers = false
 android-ndk = "@TERMUX_STANDALONE_TOOLCHAIN@"
+# temp disable, fixed in rust 1.86.0
+docs = false
 
 [install]
 prefix = "@TERMUX_PREFIX@"
