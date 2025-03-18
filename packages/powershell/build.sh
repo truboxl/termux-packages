@@ -38,12 +38,7 @@ termux_step_pre_configure() {
 
 	command -v pwsh
 
-	export DOTNET_TARGET_NAME="linux-bionic-${TERMUX_ARCH}"
-	case "${TERMUX_ARCH}" in
-	aarch64) DOTNET_TARGET_NAME="linux-bionic-arm64" ;;
-	i686) DOTNET_TARGET_NAME="linux-bionic-x86" ;;
-	x86_64) DOTNET_TARGET_NAME="linux-bionic-x64" ;;
-	esac
+	termux_setup_dotnet
 
 	export CONFIG="Release"
 	if [[ "$TERMUX_DEBUG_BUILD" == "true" ]]; then
