@@ -34,9 +34,7 @@ termux_step_pre_configure() {
 	# this is the workaround
 	curl -L https://github.com/PowerShell/PowerShell/releases/download/v7.5.0/powershell_7.5.0-1.deb_amd64.deb -o $TERMUX_PKG_CACHEDIR/powershell.deb
 	/usr/bin/sudo apt install -y $TERMUX_PKG_CACHEDIR/powershell.deb
-	dpkg -L powershell-preview
-	ln -fsv /usr/bin/pwsh-preview ${TERMUX_PKG_TMPDIR}/pwsh
-	PATH="${TERMUX_PKG_TMPDIR}:${PATH}"
+	dpkg -L powershell
 
 	command -v pwsh
 
