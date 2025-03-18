@@ -2,7 +2,7 @@ TERMUX_PKG_HOMEPAGE=https://learn.microsoft.com/en-us/powershell/
 TERMUX_PKG_DESCRIPTION="Cross-platform automation and configuration tool/framework"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="7.4.7"
+TERMUX_PKG_VERSION="7.4.9"
 TERMUX_PKG_SRCURL=git+https://github.com/PowerShell/PowerShell
 TERMUX_PKG_GIT_BRANCH="v${TERMUX_PKG_VERSION}"
 TERMUX_PKG_DEPENDS="libc++, libpsl-native, openssl, zlib"
@@ -31,8 +31,8 @@ termux_step_pre_configure() {
 	#echo "./tools/install-powershell.sh"
 	#./tools/install-powershell.sh
 
-	# remove below once above is solved
-	curl -L https://packages.microsoft.com/ubuntu/24.04/prod/pool/main/p/powershell-preview/powershell-preview_7.5.0-preview.5-1.deb_amd64.deb -o $TERMUX_PKG_CACHEDIR/powershell.deb
+	# this is the workaround
+	curl -L https://github.com/PowerShell/PowerShell/releases/download/v7.5.0/powershell_7.5.0-1.deb_amd64.deb -o $TERMUX_PKG_CACHEDIR/powershell.deb
 	/usr/bin/sudo apt install -y $TERMUX_PKG_CACHEDIR/powershell.deb
 	dpkg -L powershell-preview
 	ln -fsv /usr/bin/pwsh-preview ${TERMUX_PKG_TMPDIR}/pwsh
