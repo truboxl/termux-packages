@@ -18,7 +18,7 @@ termux_step_pre_configure() {
 	export CARGO_HOME
 
 	cargo fetch --target "${CARGO_TARGET_NAME}"
-	cargo tree --target "$CARGO_TARGET_NAME"
+	cargo tree --target "${CARGO_TARGET_NAME}"
 
 	local f
 	for f in \
@@ -40,7 +40,7 @@ termux_step_pre_configure() {
 }
 
 termux_step_make() {
-	cargo build --jobs "${TERMUX_MAKE_PROCESSES}" --target "${CARGO_TARGET_NAME}" --release --offline
+	cargo build --jobs "${TERMUX_PKG_MAKE_PROCESSES}" --target "${CARGO_TARGET_NAME}" --release
 }
 
 termux_step_make_install() {
