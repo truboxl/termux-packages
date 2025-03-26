@@ -25,7 +25,8 @@ termux_step_pre_configure() {
 		$CARGO_HOME/registry/src/*/winit-*/Cargo.toml \
 		; do
 		cp -fv ${f}{.orig,}
-		sed -e 's/target_os = "android"/not(target_os = "android")/g' -i $f
+		#sed -e 's/target_os = "android"/not(target_os = "android")/g' -i $f
+		sed -e 's/target_os = "android",//g' -i $f
 		sed -e 's/= "0.5.0"$/= { version = "0.5.0", default-features = false }/g' -i $f
 		diff -u $f{.orig,} || :
 	done
