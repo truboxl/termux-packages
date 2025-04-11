@@ -40,7 +40,7 @@ jobs:
       # max 256 at a time, divide by 4 archs = 64 packages
       run: |
         pkg=$(ls packages && ls root-packages && ls x11-packages)
-        echo "matrix=$(echo "$pkg" | head -n $((256*6)) | tail -n 256 | python3 -c "import json,sys;line = [line.rstrip() for line in sys.stdin.readlines()];print(json.dumps(line))")" >> "$GITHUB_OUTPUT"
+        echo "matrix=$(echo "$pkg" | head -n $((256*7)) | tail -n 256 | python3 -c "import json,sys;line = [line.rstrip() for line in sys.stdin.readlines()];print(json.dumps(line))")" >> "$GITHUB_OUTPUT"
     outputs:
       matrix: ${{ steps.list.outputs.matrix }}
   build:
