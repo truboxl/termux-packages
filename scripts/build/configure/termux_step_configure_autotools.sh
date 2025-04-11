@@ -104,7 +104,7 @@ termux_step_configure_autotools() {
 	env $AVOID_GNULIB "$TERMUX_PKG_SRCDIR/configure" \
 		--disable-dependency-tracking \
 		--prefix=$TERMUX_PREFIX \
-		--libdir=$TERMUX_LIB_PATH \
+		--libdir=$TERMUX_PREFIX_LIB \
 		--sbindir=$TERMUX_PREFIX/bin \
 		--disable-rpath --disable-rpath-hack \
 		$HOST_FLAG \

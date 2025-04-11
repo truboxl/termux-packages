@@ -140,5 +140,5 @@ termux_step_start_build() {
 }
 
 termux_step_setup_pkg_config_libdir() {
-	export TERMUX_PKG_CONFIG_LIBDIR=$TERMUX_LIB_PATH/pkgconfig:$TERMUX_PREFIX/share/pkgconfig
+	export TERMUX_PKG_CONFIG_LIBDIR=$TERMUX_PREFIX_LIB/pkgconfig:$TERMUX_PREFIX/share/pkgconfig
 }

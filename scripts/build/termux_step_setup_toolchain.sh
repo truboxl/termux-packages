@@ -27,7 +27,7 @@ termux_step_setup_toolchain() {
 
 termux_step_setup_build32_environment() {
 	termux_set_crosses_arch
-	TERMUX_LIB_PATH="$TERMUX_LIB32_PATH"
+	TERMUX_PREFIX_LIB="$TERMUX_PREFIX_MULTI_LIB"
 	if [ "$TERMUX_PKG_ONLY_BUILD32" = "false" ]; then
 		TERMUX_PKG_BUILDDIR="$TERMUX_PKG_BUILD32DIR"
 	fi

@@ -437,14 +437,15 @@ termux_set_crosses_arch() {
 
 # Run functions for normal compilation and cross compilation
 termux_run_cross_function() {
+	local func="${1}"
 	cd "$TERMUX_PKG_BUILDDIR"
 	if [ "$TERMUX_PKG_ONLY_BUILD32" = "false" ]; then
-		"${1}"
+		"${func}"
 	fi
 	if [ "$TERMUX_PKG_BUILD32" = "true" ]; then
 		(
 			termux_step_setup_build32_environment
-			"${1}32"
+			"${func}32"
 		)
 	fi
 }

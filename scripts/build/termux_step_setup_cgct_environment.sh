@@ -9,7 +9,7 @@ termux_step_setup_cgct_environment() {
 	if [ "$TERMUX_PKG_BUILD32" = "true" ]; then
 		(
 			termux_set_crosses_arch
-			TERMUX_LIB_PATH="$TERMUX_LIB32_PATH"
+			TERMUX_PREFIX_LIB="$TERMUX_PREFIX_MULTI_LIB"
 			termux_install_temporary_glibc
 			termux_set_links_to_libgcc_of_cgct
 		)
@@ -65,8 +65,8 @@ termux_install_temporary_glibc() {
 	tar -xJf "$PATH_TMP_GLIBC/$GLIBC_PKG" -C "$PATH_TMP_GLIBC" data
 	if [ "$cross_glibc" = "true" ]; then
 		# Installing lib32
-		mkdir -p "$TERMUX_LIB_PATH"
-		cp -r $PATH_TMP_GLIBC/$PREFIX_TMP_GLIBC/lib/* "$TERMUX_LIB_PATH"
+		mkdir -p "$TERMUX_PREFIX_LIB"
+		cp -r $PATH_TMP_GLIBC/$PREFIX_TMP_GLIBC/lib/* "$TERMUX_PREFIX_LIB"
 		# Installing include32
 		mkdir -p "$TERMUX_PREFIX/include32"
 		local hpath
@@ -80,16 +80,16 @@ termux_install_temporary_glibc() {
 		find "$PATH_TMP_GLIBC/$PREFIX_TMP_GLIBC/include" -type d -empty -delete
 		cp -r $PATH_TMP_GLIBC/$PREFIX_TMP_GLIBC/include/* $TERMUX_PREFIX/include32
 		# Installing dynamic linker in lib
-		mkdir -p "$TERMUX_LIB64_PATH"
-		local ld_path=$(ls $TERMUX_LIB_PATH/ld-*)
-		ln -sr "${ld_path}" "$TERMUX_LIB64_PATH/$(basename ${ld_path})"
+		mkdir -p "$TERMUX_PREFIX_BASE_LIB"
+		local ld_path=$(ls $TERMUX_PREFIX_LIB/ld-*)
+		ln -sr "${ld_path}" "$TERMUX_PREFIX_BASE_LIB/$(basename ${ld_path})"
 	else
 		# Complete installation of glibc components
 		cp -r $PATH_TMP_GLIBC/$PREFIX_TMP_GLIBC/* "$TERMUX_PREFIX"
 	fi
 	# It is necessary to reconfigure the paths in libc.so
 	# for correct work of cross-compilation and compilation in forked projects
-	sed -i "s|/$PREFIX_TMP_GLIBC/lib/|$TERMUX_LIB_PATH/|g" "$TERMUX_LIB_PATH/libc.so"
+	sed -i "s|/$PREFIX_TMP_GLIBC/lib/|$TERMUX_PREFIX_LIB/|g" "$TERMUX_PREFIX_LIB/libc.so"
 
 	# Marking the installation of temporary glibc
 	rm -fr "$PATH_TMP_GLIBC/data"
@@ -101,10 +101,10 @@ termux_install_temporary_glibc() {
 # to allow cgct to work properly, if necessary
 termux_set_links_to_libgcc_of_cgct() {
 	local libgcc_cgct
-	mkdir -p "$TERMUX_LIB_PATH"
+	mkdir -p "$TERMUX_PREFIX_LIB"
 	for libgcc_cgct in $(find "$CGCT_DIR/$TERMUX_ARCH/lib" -maxdepth 1 -type f -name 'libgcc*'); do
-		if [ ! -e "$TERMUX_LIB_PATH/$(basename $libgcc_cgct)" ]; then
-			cp -r "$libgcc_cgct" "$TERMUX_LIB_PATH"
+		if [ ! -e "$TERMUX_PREFIX_LIB/$(basename $libgcc_cgct)" ]; then
+			cp -r "$libgcc_cgct" "$TERMUX_PREFIX_LIB"
 		fi
 	done
 }

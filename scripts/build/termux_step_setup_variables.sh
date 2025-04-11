@@ -37,7 +37,7 @@ termux_step_setup_variables() {
 	fi
 
 	if [ "$TERMUX_PACKAGE_LIBRARY" = "glibc" ]; then
-		export TERMUX_PREFIX="$TERMUX_PREFIX/glibc"
+		termux_build_props__set_prefix_glibc
 		if [ "$TERMUX_ON_DEVICE_BUILD" = "false" ] && [ "$TERMUX_PREFIX" != "$CGCT_DEFAULT_PREFIX" ]; then
 			export CGCT_APP_PREFIX="$TERMUX_PREFIX"
 		fi
@@ -45,9 +45,6 @@ termux_step_setup_variables() {
 			TERMUX_PKG_NAME="$(termux_package__add_prefix_glibc_to_package_name "${TERMUX_PKG_NAME}")"
 		fi
 	fi
-	TERMUX_LIB64_PATH="$TERMUX_PREFIX/lib"
-	TERMUX_LIB32_PATH="$TERMUX_PREFIX/lib32"
-	TERMUX_LIB_PATH="$TERMUX_LIB64_PATH"
 
 	if [ "$TERMUX_ON_DEVICE_BUILD" = "true" ]; then
 		# For on-device builds cross-compiling is not supported so we can
@@ -57,7 +54,7 @@ termux_step_setup_variables() {
 
 		if [ "$TERMUX_PACKAGE_LIBRARY" = "bionic" ]; then
 			# On-device builds without termux-exec are unsupported.
-			if [[ ":${LD_PRELOAD:-}:" != ":${TERMUX_LIB_PATH}/libtermux-exec"*".so:" ]]; then
+			if [[ ":${LD_PRELOAD:-}:" != ":${TERMUX_PREFIX_LIB}/libtermux-exec"*".so:" ]]; then
 				termux_error_exit "On-device builds without termux-exec are not supported."
 			fi
 		fi
@@ -178,7 +175,7 @@ termux_step_setup_variables() {
 	TERMUX_PKG_PYTHON_BUILD_DEPS="" # python modules to be installed via build-pip
 	TERMUX_PKG_PYTHON_COMMON_DEPS="" # python modules to be installed via pip3 or build-pip
 	TERMUX_PYTHON_CROSSENV_PREFIX="$TERMUX_TOPDIR/python${TERMUX_PYTHON_VERSION}-crossenv-prefix-$TERMUX_PACKAGE_LIBRARY-$TERMUX_ARCH" # python modules dependency location (only used in non-devices)
-	TERMUX_PYTHON_HOME=$TERMUX_LIB_PATH/python${TERMUX_PYTHON_VERSION} # location of python libraries
+	TERMUX_PYTHON_HOME=$TERMUX_PREFIX_LIB/python${TERMUX_PYTHON_VERSION} # location of python libraries
 	TERMUX_PKG_MESON_NATIVE=false
 	TERMUX_PKG_CMAKE_CROSSCOMPILING=true
 	TERMUX_PROOT_EXTRA_ENV_VARS="" # Extra environvent variables for proot command in termux_setup_proot
