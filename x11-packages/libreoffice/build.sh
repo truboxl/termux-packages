@@ -34,6 +34,7 @@ termux_step_configure() {
 		--with-system-openssl \
 		--without-java \
 		ac_cv_lib_z_deflate=yes \
+		PYTHON_VERSION=$(pkg-config --modversion python3) \
 		|| termux_step_configure_autotools_failure_hook
 
 		#--with-jdk-home=${TERMUX_JAVA_HOME}
