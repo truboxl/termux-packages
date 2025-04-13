@@ -30,9 +30,11 @@ termux_step_configure() {
 		--libdir=${TERMUX_PREFIX}/lib \
 		--sbindir=${TERMUX_PREFIX}/bin \
 		--host=${TERMUX_ARCH}-linux-gnu \
-		--with-jdk-home=${TERMUX_JAVA_HOME} \
+		--without-java \
 		ac_cv_lib_z_deflate=yes \
 		|| termux_step_configure_autotools_failure_hook
+
+		#--with-jdk-home=${TERMUX_JAVA_HOME}
 }
 
 termux_step_configure_autotools_failure_hook() {
