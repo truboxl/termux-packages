@@ -20,7 +20,7 @@ UTERMUX_PKG_SHA256=(
 )
 TERMUX_PKG_SRCURL=https://download.documentfoundation.org/libreoffice/src/${TERMUX_PKG_VERSION%.*}/libreoffice-${TERMUX_PKG_VERSION}.tar.xz
 TERMUX_PKG_SHA256=01a14580c15a5b14153fa46c28e90307f6683e0d0326727a4ad13e9545dfe6ac
-TERMUX_PKG_DEPENDS="fontconfig, libc++, libxslt, zlib"
+TERMUX_PKG_DEPENDS="cups, fontconfig, libc++, libicu, libxslt, openssl, zlib"
 TERMUX_PKG_BUILD_IN_SRC=true
 
 termux_step_configure() {
@@ -30,6 +30,7 @@ termux_step_configure() {
 		--libdir=${TERMUX_PREFIX}/lib \
 		--sbindir=${TERMUX_PREFIX}/bin \
 		--host=${TERMUX_ARCH}-linux-gnu \
+		--with-system-openssl \
 		--without-java \
 		ac_cv_lib_z_deflate=yes \
 		|| termux_step_configure_autotools_failure_hook
