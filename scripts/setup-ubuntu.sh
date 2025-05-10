@@ -70,6 +70,9 @@ PACKAGES+=" python3-setuptools"
 PACKAGES+=" python-wheel-common"
 PACKAGES+=" python3.12-venv"
 
+# Needed for pyconfig.h (e.g. frida)
+PACKAGES+=" python3-dev"
+
 # Needed by package bc.
 PACKAGES+=" ed"
 
