@@ -1,5 +1,5 @@
---- ../cache/libbsd-0.9.1/src/nlist.c	2018-05-14 22:54:12.000000000 +0000
-+++ ./src/nlist.c	2018-10-16 03:17:23.141271836 +0000
+--- a/src/nlist.c
++++ b/src/nlist.c
 @@ -39,8 +39,11 @@
  #include <stdlib.h>
  #include <string.h>
@@ -12,4 +12,4 @@
 +#endif
  #include "local-elf.h"
  
- #define SIZE_T_MAX 0xffffffffU
+ /* Note: This function is used by libkvm0, so we need to export it.
