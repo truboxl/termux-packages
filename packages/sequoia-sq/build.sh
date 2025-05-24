@@ -36,10 +36,33 @@ termux_step_pre_configure() {
 	PATH="${TERMUX_PKG_HOSTBUILD_DIR}/bin:${PATH}"
 	termux_setup_rust
 
-	# # The `openssl-sys` crate fails to compile if we don't set this.
+	# The `openssl-sys` crate fails to compile if we don't set this.
 	HOST_TRIPLET="$(gcc -dumpmachine)"
-	PKG_CONFIG_PATH_x86_64_unknown_linux_gnu="$(grep 'DefaultSearchPaths:' "/usr/share/pkgconfig/personality.d/${HOST_TRIPLET}.personality" | cut -d ' ' -f 2)"
-	export PKG_CONFIG_PATH_x86_64_unknown_linux_gnu
+	export PKG_CONFIG_PATH_x86_64_unknown_linux_gnu="$(grep 'DefaultSearchPaths:' "/usr/share/pkgconfig/personality.d/${HOST_TRIPLET}.personality" | cut -d ' ' -f 2)"
+
+	# clash with rust host build
+	unset CFLAGS
+
+	# fix 32bit Android openpgp-cert-d build
+	rm -fr .cargo
+	cargo vendor
+	mkdir -p .cargo
+	cat <<-EOL >.cargo/config.toml
+	[source.crates-io]
+	replace-with = "vendored-sources"
+
+	[source.vendored-sources]
+	directory = "vendor"
+
+	[patch.crates-io]
+	openpgp-cert-d = { path = "./patch-openpgp-cert-d" }
+	EOL
+
+	rm -fr patch-openpgp-cert-d
+	cp -fr vendor/openpgp-cert-d patch-openpgp-cert-d
+	pushd patch-openpgp-cert-d
+	patch -p1 -i "${TERMUX_PKG_BUILDER_DIR}/0001-openpgp-cert-d.diff"
+	popd
 }
 
 termux_step_make() {
@@ -53,7 +76,7 @@ termux_step_make() {
 termux_step_make_install() {
 	RELEASE_DIR="${TERMUX_PKG_SRCDIR}/target/${CARGO_TARGET_NAME}/release"
 	COMPLETIONS_DIR="$(echo "${RELEASE_DIR}"/build/sequoia-sq-*/out/shell-completions)"
-	install -Dm600 -t "${TERMUX_PREFIX}/bin" "${RELEASE_DIR}/sq"
+	install -Dm700 -t "${TERMUX_PREFIX}/bin" "${RELEASE_DIR}/sq"
 	install -Dm600 -t "${TERMUX_PREFIX}/share/man/man1" "${RELEASE_DIR}"/build/sequoia-sq-*/out/man-pages/*.1
 	install -Dm600 -t "${TERMUX_PREFIX}/share/bash-completion/completions" "${COMPLETIONS_DIR}/sq.bash"
 	install -Dm600 -t "${TERMUX_PREFIX}/share/elvish/lib" "${COMPLETIONS_DIR}/sq.elv"
