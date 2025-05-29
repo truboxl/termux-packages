@@ -638,6 +638,7 @@ for ((i=0; i<${#PACKAGE_LIST[@]}; i++)); do
 	# in subshell.
 	(
 		if ! $TERMUX_BUILD_IGNORE_LOCK; then
+			ps ax -H
 			flock -n 5 || termux_error_exit "Another build is already running within same environment."
 		fi
 
