@@ -164,6 +164,7 @@ termux_step_make() {
 		--online \
 		-- \
 		-m:${TERMUX_PKG_MAKE_PROCESSES} \
+		/nodeReuse:false \
 		/p:Configuration=${CONFIG} \
 		/p:OverrideTargetRid=linux-bionic-${arch}
 
