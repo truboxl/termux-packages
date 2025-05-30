@@ -164,11 +164,20 @@ termux_step_make() {
 		--online \
 		-- \
 		-m:${TERMUX_PKG_MAKE_PROCESSES} \
-		/nodeReuse:false \
 		/p:Configuration=${CONFIG} \
 		/p:OverrideTargetRid=linux-bionic-${arch}
 
 	"${TERMUX_PKG_BUILDDIR}/.dotnet/dotnet" build-server shutdown
+
+	local dotnet_process=$(pgrep dotnet)
+	if [[ -n "$dotnet_process" ]]; then
+		echo "WARN: Dangling process, forcibly killing"
+		local pid
+		for pid in ${dotnet_process}; do
+			echo "${pid}: $(cat /proc/${pid}/cmdline | tr '\0' ' ')"
+			kill "$pid"
+		done
+	fi
 }
 
 termux_step_make_install() {
