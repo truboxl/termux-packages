@@ -41,6 +41,8 @@ termux_step_post_get_source() {
 
 	# removed by BinaryTool
 	git restore src/runtime/src/installer/tests/Assets/Projects/AppWithUnknownLanguageResource/test.res
+
+	git diff
 }
 
 termux_step_pre_configure() {
