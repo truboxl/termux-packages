@@ -85,7 +85,7 @@ termux_step_host_build() {
 		"$TERMUX_PKG_SRCDIR/llvm"
 	ninja \
 		-j "$TERMUX_PKG_MAKE_PROCESSES" \
-		clang-tblgen clang-pseudo-gen clang-tidy-confusable-chars-gen \
+		clang-tblgen clang-tidy-confusable-chars-gen \
 		lldb-tblgen llvm-tblgen \
 		mlir-tblgen mlir-linalg-ods-yaml-gen \
 		opt prepare_builtins
