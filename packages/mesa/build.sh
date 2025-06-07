@@ -51,6 +51,7 @@ termux_step_pre_configure() {
 	termux_setup_rust
 
 	cargo install --force --locked bindgen-cli
+	export BINDGEN_EXTRA_CLANG_ARGS="--sysroot ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot"
 
 	CPPFLAGS+=" -D__USE_GNU"
 	LDFLAGS+=" -landroid-shmem"
