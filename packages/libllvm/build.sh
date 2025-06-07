@@ -76,7 +76,7 @@ TERMUX_PKG_HAS_DEBUG=false
 
 termux_step_post_get_source() {
 	pushd llvm/projects
-	git clone https://github.com/KhronosGroup/SPIRV-LLVM-Translator --branch v20.1.5 --depth 1
+	git clone https://github.com/KhronosGroup/SPIRV-LLVM-Translator --branch v20.1.3 --depth 1
 	popd
 }
 
