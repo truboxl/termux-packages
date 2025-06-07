@@ -2,6 +2,7 @@ TERMUX_PKG_HOMEPAGE=https://github.com/KhronosGroup/SPIRV-LLVM-Translator
 TERMUX_PKG_DESCRIPTION="SPIR-V LLVM Translator"
 TERMUX_PKG_LICENSE="Apache-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
+_LLVM_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libllvm/build.sh; echo "${TERMUX_PKG_VERSION}")
 TERMUX_PKG_VERSION="1"
 TERMUX_PKG_SRCURL=git+https://github.com/KhronosGroup/SPIRV-LLVM-Translator
 TERMUX_PKG_DEPENDS="libc++"
