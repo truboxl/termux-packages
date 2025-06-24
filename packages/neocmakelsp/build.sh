@@ -10,10 +10,6 @@ TERMUX_PKG_DEPENDS="cmake"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
 
-termux_step_pre_configure() {
-	rm -f meson.build
-}
-
 termux_step_post_make_install() {
 	install -Dm600 -t "${TERMUX_PREFIX}/share/bash-completion/completions" completions/bash/neocmakelsp
 	install -Dm600 -t "${TERMUX_PREFIX}/share/fish/vendor_completions.d" completions/fish/neocmakelsp.fish
