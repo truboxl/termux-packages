@@ -29,8 +29,29 @@ jobs:
     - name: Generate test packages list
       id: list
       run: |
-        BASE_COMMIT=$(jq --raw-output .pull_request.base.sha "${GITHUB_EVENT_PATH}")
-        echo "Processing pull request #$(jq --raw-output .pull_request.number "${GITHUB_EVENT_PATH}"): ${BASE_COMMIT}..HEAD"
+        OLD_COMMIT="${{ github.event.before }}"
+        HEAD_COMMIT="${{ github.event.after }}"
+        if [ "${{ github.event_name }}" != "workflow_dispatch" ]; then
+          BASE_REF="${{ github.event.pull_request.base.ref }}"
+          git fetch origin "${BASE_REF:-master}" 2>/dev/null
+          BASE_COMMIT="$(git merge-base "origin/${BASE_REF:-master}" "HEAD")"
+          if [ -z "${{ github.event.pull_request.base.sha }}" ]; then
+            if ! git log "$OLD_COMMIT" > /dev/null; then
+              if [ "$(git branch --show-current)" = "master" ]; then
+                echo "Force push detected on master branch. Unable to proceed."
+                exit 1
+              else
+                OLD_COMMIT=$(git fetch origin master >&2; git merge-base origin/master $HEAD_COMMIT)
+              fi
+            fi
+            echo "Processing commit range: ${OLD_COMMIT}..${HEAD_COMMIT}"
+            CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "${OLD_COMMIT}" "${HEAD_COMMIT}")
+          else
+            # Pull requests.
+            echo "Processing pull request #${{ github.event.pull_request.number }}: ${BASE_COMMIT}..HEAD"
+            CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "${BASE_COMMIT}" "HEAD")
+          fi
+        fi
 
         # Process tag '%ci:no-test' that may be added as line to commit message.
         # Forces CI to cancel current build with status 'passed'
@@ -40,7 +61,6 @@ jobs:
           exit 0
         fi
 
-        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "${BASE_COMMIT}" "HEAD")
         echo -e "List of changed files:\n${CHANGED_FILES}"
         repos=$(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json)
         pkg=""
