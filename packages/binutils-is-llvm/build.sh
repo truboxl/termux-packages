@@ -4,11 +4,13 @@ TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 # The version number is different from the original one.
 TERMUX_PKG_VERSION=0.3
-TERMUX_PKG_REVISION=3
-TERMUX_PKG_AUTO_UPDATE=false
-TERMUX_PKG_SKIP_SRC_EXTRACT=true
+TERMUX_PKG_REVISION=4
 TERMUX_PKG_DEPENDS="lld, llvm"
 TERMUX_PKG_CONFLICTS="binutils"
+TERMUX_PKG_AUTO_UPDATE=false
+# Different TERMUX_HOST_PLATFORM for different arch
+TERMUX_PKG_PLATFORM_INDEPENDENT=false
+TERMUX_PKG_SKIP_SRC_EXTRACT=true
 
 termux_step_make_install() {
 	ln -sf lld $TERMUX_PREFIX/bin/ld
