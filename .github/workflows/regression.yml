@@ -160,7 +160,7 @@ jobs:
         else
           echo -e "Reorganised jobs:\n${pkg_s}"
         fi
-
+        echo OOI
         # max 256 at a time, divide by 4 archs = 64 packages
         partition="$parallel_ci_limit"
         list_number=1
@@ -184,7 +184,6 @@ jobs:
         if (( list_number >= last_list_number )); then
           pkg="$last_list"
         fi
-        echo "OOI"
         echo "matrix=$(echo "$pkg" | python3 -c "import json,sys;line = [line.rstrip() for line in sys.stdin.readlines()];print(json.dumps(line))")" >> "$GITHUB_OUTPUT"
 
     outputs:
