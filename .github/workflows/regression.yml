@@ -168,7 +168,7 @@ jobs:
         total_packages=$(echo "$list_of_packages" | wc -l)
         [ -z "$list_of_packages" ] && total_packages=0
         full_total_packages=$((total_packages))
-        [ "$full_total_packages" = 0 ] && echo "ERROR!" && return 1
+        [ "$full_total_packages" = 0 ] && echo "ERROR!" && exit 1
         last_list_remainder=$((full_total_packages%partition))
         last_list_number=$((full_total_packages/partition))
         [ "$last_list_remainder" != 0 ] && last_list_number=$((last_list_number+1))
@@ -184,6 +184,7 @@ jobs:
         if (( list_number >= last_list_number )); then
           pkg="$last_list"
         fi
+        echo "OOI"
         echo "matrix=$(echo "$pkg" | python3 -c "import json,sys;line = [line.rstrip() for line in sys.stdin.readlines()];print(json.dumps(line))")" >> "$GITHUB_OUTPUT"
 
     outputs:
