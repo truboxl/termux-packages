@@ -160,7 +160,7 @@ jobs:
         else
           echo -e "Reorganised jobs:\n${pkg_s}"
         fi
-        echo OOI
+
         # max 256 at a time, divide by 4 archs = 64 packages
         partition="$parallel_ci_limit"
         list_number=1
@@ -175,9 +175,10 @@ jobs:
         second_last_list_number=$((last_list_number-1))
         combined_list=$(echo -e "${list_of_packages}")
         last_list=$(echo "$combined_list" | head -n $((partition*last_list_number)) | tail -n "$partition" | head -n "$partition")
+        echo ooi
         if [ "$last_list_remainder" != 0 ]; then
           second_last_list=$(echo "$combined_list" | head -n $((partition*second_last_list_number)) | tail -n "$partition" | head -n "$partition")
-          diff_second_last=$(diff -uN <(echo "$second_last_list") <(echo "$last_list"))
+          diff_second_last=$(diff -uN <(echo "$second_last_list") <(echo "$last_list") || :)
           last_list=$(echo "$diff_second_last" | grep -v "^++" | grep "^+" | cut -d+ -f2-)
         fi
         pkg=$(echo "$combined_list" | head -n $((partition*list_number)) | tail -n "$partition")
