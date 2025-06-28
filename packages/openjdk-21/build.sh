@@ -3,7 +3,7 @@ TERMUX_PKG_DESCRIPTION="Java development kit and runtime"
 TERMUX_PKG_LICENSE="GPL-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="21.0.7"
-TERMUX_PKG_REVISION=2
+TERMUX_PKG_REVISION=3
 TERMUX_PKG_SRCURL=https://github.com/openjdk/jdk21u/archive/refs/tags/jdk-${TERMUX_PKG_VERSION}-ga.tar.gz
 TERMUX_PKG_SHA256=d8637e7d6fece0757b7fada49d32d0b3334a15a110445acef8cfea64b4672ca2
 TERMUX_PKG_AUTO_UPDATE=true
@@ -92,12 +92,12 @@ termux_step_configure() {
 		OBJDUMP="$OBJDUMP" \
 		STRIP="$STRIP" \
 		CXXFILT="llvm-cxxfilt" \
-		BUILD_CC="/usr/bin/clang-18" \
-		BUILD_CXX="/usr/bin/clang++-18" \
-		BUILD_NM="/usr/bin/llvm-nm-18" \
-		BUILD_AR="/usr/bin/llvm-ar-18" \
-		BUILD_OBJCOPY="/usr/bin/llvm-objcopy-18" \
-		BUILD_STRIP="/usr/bin/llvm-strip-18" \
+		BUILD_CC="/usr/bin/clang-19" \
+		BUILD_CXX="/usr/bin/clang++-19" \
+		BUILD_NM="/usr/bin/llvm-nm-19" \
+		BUILD_AR="/usr/bin/llvm-ar-19" \
+		BUILD_OBJCOPY="/usr/bin/llvm-objcopy-19" \
+		BUILD_STRIP="/usr/bin/llvm-strip-19" \
 		--with-jobs=$TERMUX_PKG_MAKE_PROCESSES
 }
 
