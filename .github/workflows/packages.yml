@@ -48,7 +48,7 @@ jobs:
       # max 256 at a time, divide by 4 archs = 64 packages
       run: |
         partition=256
-        list_number=3
+        list_number=4
         list_of_packages=$(ls packages)
         list_of_root_packages=$(ls root-packages)
         list_of_x11_packages=$(ls x11-packages)
