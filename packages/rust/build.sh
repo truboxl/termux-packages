@@ -4,6 +4,7 @@ TERMUX_PKG_DESCRIPTION="Systems programming language focused on safety, speed an
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="1.88.0"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://static.rust-lang.org/dist/rustc-${TERMUX_PKG_VERSION}-src.tar.xz
 TERMUX_PKG_SHA256=0c1dcbb4f762513d021e1a282c0ac58c0a423642b3a6bf581cafb5414df4193e
 _LLVM_MAJOR_VERSION=$(. $TERMUX_SCRIPTDIR/packages/libllvm/build.sh; echo $LLVM_MAJOR_VERSION)
@@ -145,7 +146,14 @@ termux_step_configure() {
 		done
 	fi
 
+	local REVISION
+	if [[ "${TERMUX_PKG_REVISION}" != 0 ]]; then
+		REVISION="-${TERMUX_PKG_REVISION}"
+	fi
+
 	sed \
+		-e "s|@TERMUX_PKG_VERSION@|${TERMUX_PKG_VERSION}|g" \
+		-e "s|@REVISION@|${REVISION}|g" \
 		-e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" \
 		-e "s|@TERMUX_STANDALONE_TOOLCHAIN@|${TERMUX_STANDALONE_TOOLCHAIN}|g" \
 		-e "s|@TERMUX_HOST_LLVM_BASE_DIR@|${TERMUX_HOST_LLVM_BASE_DIR}|g" \

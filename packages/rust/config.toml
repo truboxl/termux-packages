@@ -9,6 +9,7 @@ download-ci-llvm = false
 link-shared = true
 
 [build]
+description = "Termux @TERMUX_PKG_VERSION@@REVISION@"
 host = ["@CARGO_TARGET_NAME@"]
 target = [
     "aarch64-linux-android",
