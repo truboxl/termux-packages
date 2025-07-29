@@ -2,7 +2,7 @@ TERMUX_PKG_HOMEPAGE=https://emscripten.org
 TERMUX_PKG_DESCRIPTION="Emscripten: An LLVM-to-WebAssembly Compiler"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="4.0.10"
+TERMUX_PKG_VERSION="4.0.12"
 TERMUX_PKG_SRCURL=git+https://github.com/emscripten-core/emscripten
 TERMUX_PKG_GIT_BRANCH=${TERMUX_PKG_VERSION}
 TERMUX_PKG_DEPENDS="nodejs-lts | nodejs, python"
@@ -54,13 +54,13 @@ opt/emscripten/LICENSE
 
 # https://github.com/emscripten-core/emscripten/issues/11362
 # can switch to stable LLVM to save space once above is fixed
-_LLVM_COMMIT=8f7e57485ee73205e108d74abb5565d5c63beaca
-_LLVM_TGZ_SHA256=ea3bdec770d19962bc678ec290d47feab1c88943acd26837a60caf5285768482
+_LLVM_COMMIT=ceb2b9c141903c16d76e0b3a0cbeb0e9f3c68d5c
+_LLVM_TGZ_SHA256=e5e8a051635ba5c5e2864da805965c9bcd783acd6de835b039dbdecd83f87fcd
 
 # https://github.com/emscripten-core/emscripten/issues/12252
 # upstream says better bundle the right binaryen revision for now
-_BINARYEN_COMMIT=8c82b6884483315011541e4519afdcb7fd46df68
-_BINARYEN_TGZ_SHA256=7ab7ffe0dabbefe121ab4234a11d2ab04ff45827df050a0ab8b1cdc66465cbaf
+_BINARYEN_COMMIT=fc6a7977cccea66c7d78f3d86eb0cdac9f37cbdb
+_BINARYEN_TGZ_SHA256=ce3d9faa3dcfd09b7579af111c42444aa9e5f81e988a2efe6dce18b69af0aa87
 
 # https://github.com/emscripten-core/emsdk/blob/main/emsdk.py
 # https://chromium.googlesource.com/emscripten-releases/+/refs/heads/main/src/build.py
@@ -239,6 +239,10 @@ termux_step_pre_configure() {
 	# this is a workaround for build-all.sh issue
 	TERMUX_PKG_DEPENDS+=", emscripten-binaryen, emscripten-llvm"
 
+	# emscripten 4.0.11
+	# for "npm ci --omit=dev" in ./tools/install.py
+	termux_setup_nodejs
+
 	# https://github.com/termux/termux-packages/issues/16358
 	# TODO libclang-cpp.so* is not affected
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
@@ -363,15 +367,9 @@ termux_step_post_massage() {
 }
 
 termux_step_create_debscripts() {
-	# emscripten's package-lock.json is generated with nodejs v12.13.0
-	# which comes with npm v6 which used lockfile version 1
-	# which isn't compatible with lockfile version 2 used in npm v7 and v8
-	sed \
-		-e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" \
-		"${TERMUX_PKG_BUILDER_DIR}/postinst.sh" > postinst
 	sed \
 		-e "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" \
 		"${TERMUX_PKG_BUILDER_DIR}/postrm.sh" > postrm
 
-	chmod u+x postinst postrm
+	chmod u+x postrm
 }
