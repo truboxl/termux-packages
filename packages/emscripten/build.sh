@@ -2,7 +2,7 @@ TERMUX_PKG_HOMEPAGE=https://emscripten.org
 TERMUX_PKG_DESCRIPTION="Emscripten: An LLVM-to-WebAssembly Compiler"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="4.0.10"
+TERMUX_PKG_VERSION="4.0.11"
 TERMUX_PKG_SRCURL=git+https://github.com/emscripten-core/emscripten
 TERMUX_PKG_GIT_BRANCH=${TERMUX_PKG_VERSION}
 TERMUX_PKG_DEPENDS="nodejs-lts | nodejs, python"
@@ -54,13 +54,13 @@ opt/emscripten/LICENSE
 
 # https://github.com/emscripten-core/emscripten/issues/11362
 # can switch to stable LLVM to save space once above is fixed
-_LLVM_COMMIT=8f7e57485ee73205e108d74abb5565d5c63beaca
-_LLVM_TGZ_SHA256=ea3bdec770d19962bc678ec290d47feab1c88943acd26837a60caf5285768482
+_LLVM_COMMIT=bf94c8ddb321696956365830bf23dd232ef90e74
+_LLVM_TGZ_SHA256=473e8bd776bfd8bea3a0bdc6d1dba7c4c12f07cb1a30c488f096f0566bafe9ff
 
 # https://github.com/emscripten-core/emscripten/issues/12252
 # upstream says better bundle the right binaryen revision for now
-_BINARYEN_COMMIT=8c82b6884483315011541e4519afdcb7fd46df68
-_BINARYEN_TGZ_SHA256=7ab7ffe0dabbefe121ab4234a11d2ab04ff45827df050a0ab8b1cdc66465cbaf
+_BINARYEN_COMMIT=fc29e302e6708e71cc0a0058fcf4aee97140a750
+_BINARYEN_TGZ_SHA256=aaea58bcfaa4ce311da642a708ec9a126e9b561c5191a182a41ccb5fa7acc0e5
 
 # https://github.com/emscripten-core/emsdk/blob/main/emsdk.py
 # https://chromium.googlesource.com/emscripten-releases/+/refs/heads/main/src/build.py
@@ -238,6 +238,10 @@ termux_step_host_build() {
 termux_step_pre_configure() {
 	# this is a workaround for build-all.sh issue
 	TERMUX_PKG_DEPENDS+=", emscripten-binaryen, emscripten-llvm"
+
+	# emscripten 4.0.11
+	# for "npm ci --omit=dev" in ./tools/install.py
+	termux_setup_nodejs
 
 	# https://github.com/termux/termux-packages/issues/16358
 	# TODO libclang-cpp.so* is not affected
