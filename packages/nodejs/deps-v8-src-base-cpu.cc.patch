@@ -1,0 +1,14 @@
+--- a/deps/v8/src/base/cpu.cc
++++ b/deps/v8/src/base/cpu.cc
+@@ -846,7 +846,11 @@
+     char* features = cpu_info.ExtractField("Features");
+     has_jscvt_ = HasListItem(features, "jscvt");
+     has_dot_prod_ = HasListItem(features, "asimddp");
++#if V8_OS_ANDROID
++    has_lse_ = 0;
++#else
+     has_lse_ = HasListItem(features, "atomics");
++#endif
+     has_pmull1q_ = HasListItem(features, "pmull");
+     has_fp16_ = HasListItem(features, "half");
+     delete[] features;
