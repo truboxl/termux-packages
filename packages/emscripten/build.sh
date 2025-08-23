@@ -375,7 +375,7 @@ termux_step_post_massage() {
 
 	local upstream_entrypoint=$(find "${TERMUX_PKG_CACHEDIR}/emsdk" -mindepth 1 -maxdepth 1 -type f | xargs -i bash -c "[[ -x '{}' ]] && basename '{}'" | sort)
 	local downstream_entrypoint=$(find "${TERMUX_PREFIX}/opt/emscripten" -mindepth 1 -maxdepth 1 -type f | xargs -i bash -c "[[ -x '{}' ]] && basename '{}'" | sort)
-	local df2=$(diff -u <(echo "${upstream_entrypoint}") <(echo "${downstream_entrypoimt}"))
+	local df2=$(diff -u <(echo "${upstream_entrypoint}") <(echo "${downstream_entrypoint}"))
 	if [[ -n "${df2}" ]]; then
 		termux_error_exit "Mismatch list of entrypoints with upstream:\n${df2}"
 	fi
