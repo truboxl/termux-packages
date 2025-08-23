@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="Emscripten: An LLVM-to-WebAssembly Compiler"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="4.0.13"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=git+https://github.com/emscripten-core/emscripten
 TERMUX_PKG_GIT_BRANCH=${TERMUX_PKG_VERSION}
 TERMUX_PKG_DEPENDS="nodejs-lts | nodejs, python"
@@ -370,6 +371,13 @@ termux_step_post_massage() {
 	local df=$(diff -u <(echo "${upstream_bin}") <(echo -e "${llvm_bin}\n${binaryen_bin}" | sort))
 	if [[ -n "${df}" ]]; then
 		termux_error_exit "Mismatch list of binaries with upstream:\n${df}"
+	fi
+
+	local upstream_entrypoint=$(find "${TERMUX_PKG_CACHEDIR}/emsdk" -mindepth 1 -maxdepth 1 -type f | xargs -i bash -c "[[ -x '{}' ]] && basename '{}'" | sort)
+	local downstream_entrypoint=$(find "${TERMUX_PREFIX}/opt/emscripten" -mindepth 1 -maxdepth 1 -type f | xargs -i bash -c "[[ -x '{}' ]] && basename '{}'" | sort)
+	local df2=$(diff -u <(echo "${upstream_entrypoint}") <(echo "${downstream_entrypoimt}"))
+	if [[ -n "${df2}" ]]; then
+		termux_error_exit "Mismatch list of entrypoints with upstream:\n${df2}"
 	fi
 }
 
