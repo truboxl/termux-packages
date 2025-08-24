@@ -313,6 +313,11 @@ termux_step_make_install() {
 
 	pushd "${TERMUX_PKG_SRCDIR}"
 
+	# emscripten 4.0.13
+	# https://github.com/emscripten-core/emscripten/pull/23761
+	# https://github.com/termux/termux-packages/issues/25777
+	./tools/create_entry_points.py
+
 	# https://github.com/emscripten-core/emscripten/pull/15840
 	sed -e "s|-git||" -i "${TERMUX_PKG_SRCDIR}/emscripten-version.txt"
 
