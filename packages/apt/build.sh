@@ -5,7 +5,7 @@ TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="3.1.5"
 # old tarball are removed in https://deb.debian.org/debian/pool/main/a/apt/apt_${TERMUX_PKG_VERSION}.tar.xz
 TERMUX_PKG_SRCURL=https://salsa.debian.org/apt-team/apt/-/archive/${TERMUX_PKG_VERSION}/apt-${TERMUX_PKG_VERSION}.tar.gz
-TERMUX_PKG_SHA256=cb5be2295cb4baa79789c2864f79863cc1fa324e21440cc68036a4448b019104
+TERMUX_PKG_SHA256=5f0c91ca278f2386121d425492d34f28cb20d08b131e03cf00ca6935e1797987
 # apt-key requires utilities from coreutils, findutils, gpgv, grep, sed.
 TERMUX_PKG_DEPENDS="coreutils, dpkg, findutils, grep, libandroid-glob, libbz2, libc++, libiconv, liblz4, liblzma, libseccomp, openssl, sed, sequoia-sqv | gpgv, termux-keyring, termux-licenses, xxhash, zlib, zstd"
 TERMUX_PKG_BUILD_DEPENDS="docbook-xsl, libdb, gnupg, sequoia-sqv"
