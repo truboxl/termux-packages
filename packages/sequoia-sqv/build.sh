@@ -16,9 +16,18 @@ termux_step_pre_configure() {
 	PKG_CONFIG_PATH_x86_64_unknown_linux_gnu="$(grep 'DefaultSearchPaths:' "/usr/share/pkgconfig/personality.d/${HOST_TRIPLET}.personality" | cut -d ' ' -f 2)"
 	export PKG_CONFIG_PATH_x86_64_unknown_linux_gnu # Declare and export separately, see http://shellcheck.net/wiki/SC2155
 
+	# /usr/include/nettle/bignum.h:50:11: fatal error: 'gmp.h' file not found
+	# thread 'main' panicked at /home/builder/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/nettle-sys-2.3.1/build.rs:214:39:
+	echo "INFO: Fixing gmp.pc to point to gmp.h location"
+	sed -e "s|^includedir=.*|includedir=/usr/include/x86_64-linux-gnu|" /usr/lib/x86_64-linux-gnu/pkgconfig/gmp.pc > "${TERMUX_PKG_TMPDIR}/gmp.pc"
+	diff -uN /usr/lib/x86_64-linux-gnu/pkgconfig/gmp.pc "${TERMUX_PKG_TMPDIR}/gmp.pc" || :
+	PKG_CONFIG_PATH_x86_64_unknown_linux_gnu="${TERMUX_PKG_TMPDIR}:${PKG_CONFIG_PATH_x86_64_unknown_linux_gnu}"
+
+	# error: function-like macro '__GLIBC_USE' is not defined
+	export BINDGEN_EXTRA_CLANG_ARGS_${CARGO_TARGET_NAME//-/_}="--sysroot ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot --target=${CARGO_TARGET_NAME} -isystem ${TERMUX_STANDALONE_TOOLCHAIN}/include/c++/v1 -isystem ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot/usr/include/${CARGO_TARGET_NAME}"
+
 	# clashes with rust host build
 	unset CFLAGS
-
 }
 
 termux_step_make() {
