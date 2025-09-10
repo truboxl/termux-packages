@@ -24,7 +24,7 @@ termux_step_pre_configure() {
 	PKG_CONFIG_PATH_x86_64_unknown_linux_gnu="${TERMUX_PKG_TMPDIR}:${PKG_CONFIG_PATH_x86_64_unknown_linux_gnu}"
 
 	# error: function-like macro '__GLIBC_USE' is not defined
-	export BINDGEN_EXTRA_CLANG_ARGS_${CARGO_TARGET_NAME//-/_}="--sysroot ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot --target=${CARGO_TARGET_NAME} -isystem ${TERMUX_STANDALONE_TOOLCHAIN}/include/c++/v1 -isystem ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot/usr/include/${CARGO_TARGET_NAME}"
+	export BINDGEN_EXTRA_CLANG_ARGS_${CARGO_TARGET_NAME//-/_}="--sysroot ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot --target=${CARGO_TARGET_NAME}"
 
 	# clashes with rust host build
 	unset CFLAGS
