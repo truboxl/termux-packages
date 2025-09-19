@@ -359,7 +359,7 @@ termux_step_post_make_install() {
 
 termux_step_post_massage() {
 	local _rpath_check_file
-	for _rpath_check_file in libSystem.Security.Cryptography.Native.OpenSsl.so libcoreclr.so libSystem.Net.Security.Native.so; do
+	for _rpath_check_file in libcoreclr.so libSystem.Net.Security.Native.so; do
 		local _rpath_check_readelf=$("$READELF" -d "${TERMUX_PREFIX}/lib/dotnet/shared/Microsoft.NETCore.App/${TERMUX_PKG_VERSION}/${_rpath_check_file}")
 		local _rpath=$(echo "${_rpath_check_readelf}" | sed -ne "s|.*RUNPATH.*\[\(.*\)\].*|\1|p")
 		if [[ "${_rpath}" != "${TERMUX_PREFIX}/lib" ]]; then
