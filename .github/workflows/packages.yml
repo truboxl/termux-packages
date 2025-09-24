@@ -505,9 +505,8 @@ jobs:
         script: |
           pwd
           ls -l
-          ls -l ..
-          adb logcat >logcat.txt &
-          while true; do if adb shell test -f /sdcard/ok; then touch ok; break; fi; sleep 1; done &
+
+          adb wait-for-device logcat >logcat.txt &
           # 180s = 3min, 6h = 360min = 120 * 3min
           for i in $(seq -w 1 116); do if test -f ok; then break; fi; adb shell screenrecord --verbose --time-limit 180 /sdcard/sr${i}.mp4; sync; adb pull /sdcard/sr${i}.mp4; adb shell rm /sdcard/sr${i}.mp4; done &
 
@@ -573,7 +572,7 @@ jobs:
           #adb shell input keyevent KEYCODE_ENTER
           #sleep 1
 
-          adb shell "while true; do if ! pgrep screenrecord >/dev/null; then touch /sdcard/ok; else break; fi; sleep 1; done"
+          adb shell "while true; do if ! pgrep screenrecord >/dev/null; then touch /sdcard/ok; pkill logcat; else break; fi; sleep 1; done"
     - name: Upload logs and videos
       if: always()
       uses: actions/upload-artifact@v4
