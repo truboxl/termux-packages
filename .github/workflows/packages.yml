@@ -560,7 +560,7 @@ jobs:
           sleep 1
           adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages
           sleep 1
-          adb shell run-as com.termux env LD_PRELOAD=/data/data/com.termux/files/usr/lib/libtermux-exec-ld-preload.so PATH=/data/data/com.termux/files/usr/bin bash ./build-package.sh -I rust-analyzer
+          adb shell run-as com.termux env LD_PRELOAD=/data/data/com.termux/files/usr/lib/libtermux-exec-ld-preload.so PATH=/data/data/com.termux/files/usr/bin bash -c "pushd /data/data/com.termux/files/home/termux-packages; ./build-package.sh -I rust-analyzer"
           sleep 1
 
           #adb shell input text "cd%stermux-packages"
