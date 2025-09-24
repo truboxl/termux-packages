@@ -486,6 +486,7 @@ jobs:
         *) echo "ERROR: $*" && exit 1 ;;
         esac
         echo "Downloading $TERMUX_APK_URL"
+        echo "curl -L $TERMUX_APK_URL -o termux-${{ matrix.target_arch }}.apk"
         curl -L $TERMUX_APK_URL -o termux-${{ matrix.target_arch }}.apk
     - name: Disable console authentication
       # https://developer.android.com/studio/run/emulator-console#console-session
@@ -573,7 +574,7 @@ jobs:
           #adb shell input keyevent KEYCODE_ENTER
           #sleep 1
 
-          adb shell "while true; do if ! pgrep screenrecord >/dev/null; then if test -f /sdcard/ok; then break; fi; fi; sleep 1; done"
+          adb shell "while true; do if ! pgrep screenrecord >/dev/null; then touch /sdcard/ok; else break; fi; sleep 1; done"
           pkill scrcpy
     - name: Upload logs and videos
       if: always()
