@@ -1,0 +1,16 @@
+diff --git a/CMakePresets.json b/CMakePresets.json
+index e6d3f6e..7706803 100644
+--- a/CMakePresets.json
++++ b/CMakePresets.json
+@@ -67,9 +67,9 @@
+       "configuration": "Release"
+     },
+     {
+-      "name": "CPU",
++      "name": "Vulkan",
+       "configurePreset": "Default",
+-      "targets": [ "ggml-cpu" ]
++      "targets": [ "ggml-vulkan" ]
+     },
+     {
+       "name": "CUDA",

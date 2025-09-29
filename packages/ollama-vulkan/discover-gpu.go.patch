@@ -1,0 +1,13 @@
+diff --git a/discover/gpu.go b/discover/gpu.go
+index 791d6b1..82c24a0 100644
+--- a/discover/gpu.go
++++ b/discover/gpu.go
+@@ -595,6 +595,8 @@ func FindGPULibs(baseLibName string, defaultPatterns []string) []string {
+ 		ldPaths = strings.Split(os.Getenv("PATH"), string(os.PathListSeparator))
+ 	case "linux":
+ 		ldPaths = strings.Split(os.Getenv("LD_LIBRARY_PATH"), string(os.PathListSeparator))
++	case "android":
++		ldPaths = strings.Split(os.Getenv("LD_LIBRARY_PATH"), string(os.PathListSeparator))
+ 	}
+ 
+ 	// then search the system's LD_LIBRARY_PATH
