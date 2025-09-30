@@ -42,7 +42,7 @@ docdir = "share/doc/rust"
 
 [rust]
 optimize = true
-debug = false
+debug = true
 codegen-units = 0
 jemalloc = false
 channel = "stable"
