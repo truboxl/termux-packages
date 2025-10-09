@@ -22,7 +22,6 @@ termux_step_make_install() {
 			make -j 1 ${TERMUX_PKG_EXTRA_MAKE_ARGS} ${TERMUX_PKG_MAKE_INSTALL_TARGET}
 		fi
 	elif test -f Cargo.toml; then
-		termux_setup_rust
 		cargo install \
 			--jobs $TERMUX_PKG_MAKE_PROCESSES \
 			--path . \
