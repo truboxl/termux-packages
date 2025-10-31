@@ -10,6 +10,10 @@ TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_DEPENDS="libc++"
 TERMUX_PKG_BUILD_IN_SRC=true
 
+termux_step_pre_configure() {
+	termux_setup_rust
+}
+
 termux_step_post_get_source() {
 	mv pyproject.toml{,.unused}
 	mv setup.py{,.unused}

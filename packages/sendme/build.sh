@@ -11,3 +11,7 @@ TERMUX_PKG_SRCURL="https://github.com/n0-computer/sendme/archive/refs/tags/v$TER
 TERMUX_PKG_SHA256=8f1e7588d922904c4375e479a243c09c2fcbf8be3f01b9c67466f5569951b056
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_BUILD_IN_SRC=true
+
+termux_step_pre_configure() {
+	termux_setup_rust
+}
