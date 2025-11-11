@@ -620,8 +620,7 @@ jobs:
           adb shell ps
           adb shell "while true; do echo "=== killing screenrecord ==="; if pgrep screenrecord; then pkill screenrecord; break; fi; sleep 1; done"
           adb shell "while true; do echo "=== killing logcat ==="; if pgrep logcat; then pkill logcat; break; fi; sleep 1; done"
-          ps ax | grep logcat | awk '{print $1}' || true
-          ps ax | grep logcat | awk '{print $1}' | xargs -n1 -t kill
+          ps ax
     - name: Upload logs and videos
       if: always()
       uses: actions/upload-artifact@v4
