@@ -618,8 +618,7 @@ jobs:
           adb shell "run-as com.termux env LD_PRELOAD=/data/data/com.termux/files/usr/lib/libtermux-exec-ld-preload.so PATH=/data/data/com.termux/files/usr/bin TMPDIR=/data/data/com.termux/files/usr/tmp bash -c 'pwd; ls -l; cd /data/data/com.termux/files/home/termux-packages; diff --color -u lint-packages.log lint-packages2.log'" || true
 
           adb shell touch /sdcard/ok
-          adb shell "while true; do echo "=== waiting screenrecord timeout ==="; if ! pgrep screenrecord; then break; fi; sleep 1; done"
-          adb shell "while true; do echo "=== killing logcat ==="; if pgrep logcat; then pkill logcat; break; fi; sleep 1; done"
+          adb shell "while true; do echo "=== waiting screenrecord timeout ==="; if ! pgrep screenrecord; then pkill logcat; fi; sleep 1; done"
     - name: Upload logs and videos
       if: always()
       uses: actions/upload-artifact@v4
