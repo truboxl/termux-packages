@@ -600,7 +600,8 @@ jobs:
           #sleep 1
           adb shell run-as com.termux ps
           adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages/scripts
-          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin pkg install xxd jq git -y
+          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin bash -c 'yes | pkg upgrade'
+          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin bash -c 'yes | pkg install xxd jq git'
           adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages
           adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin git -C /data/data/com.termux/files/home/termux-packages restore .
           adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages
@@ -616,9 +617,10 @@ jobs:
           sleep 10
           adb shell "run-as com.termux env LD_PRELOAD=/data/data/com.termux/files/usr/lib/libtermux-exec-ld-preload.so PATH=/data/data/com.termux/files/usr/bin TMPDIR=/data/data/com.termux/files/usr/tmp bash -c 'pwd; ls -l; cd /data/data/com.termux/files/home/termux-packages; sha256sum lint-packages2.log'"
           adb shell "run-as com.termux env LD_PRELOAD=/data/data/com.termux/files/usr/lib/libtermux-exec-ld-preload.so PATH=/data/data/com.termux/files/usr/bin TMPDIR=/data/data/com.termux/files/usr/tmp bash -c 'pwd; ls -l; cd /data/data/com.termux/files/home/termux-packages; diff --color -u lint-packages.log lint-packages2.log'" || true
+          adb shell "run-as com.termux env LD_PRELOAD=/data/data/com.termux/files/usr/lib/libtermux-exec-ld-preload.so PATH=/data/data/com.termux/files/usr/bin TMPDIR=/data/data/com.termux/files/usr/tmp bash -c 'pwd; ls -l; cd /data/data/com.termux/files/home/termux-packages; cat lint-packages.log'" || true
 
           adb shell touch /sdcard/ok
-          adb shell "while true; do echo "=== waiting screenrecord timeout ==="; if ! pgrep screenrecord; then pkill logcat; fi; sleep 1; done"
+          adb shell "while true; do echo "=== waiting screenrecord timeout ==="; if ! pgrep screenrecord; then pkill logcat; break; fi; sleep 1; done"
     - name: Upload logs and videos
       if: always()
       uses: actions/upload-artifact@v4
