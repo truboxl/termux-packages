@@ -364,9 +364,9 @@ termux_step_post_massage() {
 	for _rpath_check_file in libSystem.Security.Cryptography.Native.OpenSsl.so libcoreclr.so libSystem.Net.Security.Native.so; do
 		if [[ ! -f "${_microsoft_netcore_app_dir}/${TERMUX_PKG_VERSION}/${_rpath_check_file}" ]]; then
 			echo "ERROR: ${_microsoft_netcore_app_dir}/${TERMUX_PKG_VERSION}/${_rpath_check_file} does not exist!"
-			echo "ERROR: Finding '${_rpath_checking_file}' in '${_microsoft_netcore_app_dir}':"
-			find "${_microsoft_netcore_app_dir}" -name "${_rpath_checking_file}" | sort
-			termux_error_exit "Please review error above"
+			echo "ERROR: Finding '${_rpath_check_file}' in '${_microsoft_netcore_app_dir}':"
+			find "${_microsoft_netcore_app_dir}" -name "${_rpath_check_file}" | sort
+			termux_error_exit "Please review error above!"
 		fi
 		local _rpath_check_readelf=$("$READELF" -d "${_microsoft_netcore_app_dir}/${TERMUX_PKG_VERSION}/${_rpath_check_file}")
 		local _rpath=$(echo "${_rpath_check_readelf}" | sed -ne "s|.*RUNPATH.*\[\(.*\)\].*|\1|p")
