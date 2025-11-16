@@ -3,12 +3,17 @@ TERMUX_PKG_DESCRIPTION="LSP language server for editing Markdown files"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="Joshua Kahn @TomJo2000"
 TERMUX_PKG_VERSION="2024.12.18"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL="git+https://github.com/artempyanykh/marksman"
 TERMUX_PKG_GIT_BRANCH="main"
 TERMUX_PKG_DEPENDS="dotnet-host, dotnet-runtime-8.0"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_EXCLUDED_ARCHES="arm"
+TERMUX_DOTNET_VERSION=8.0
+TERMUX_PKG_RM_AFTER_INSTALL="
+lib/dotnet
+"
 
 termux_step_post_get_source() {
 	git fetch --tags
