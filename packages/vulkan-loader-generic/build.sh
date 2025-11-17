@@ -19,7 +19,6 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DENABLE_WERROR=OFF
 -DVULKAN_HEADERS_INSTALL_DIR=$TERMUX_PREFIX
 -DPython3_EXECUTABLE=$(command -v python3)
---trace
 "
 
 termux_step_pre_configure() {
