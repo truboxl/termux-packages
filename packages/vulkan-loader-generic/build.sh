@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION="Vulkan Loader"
 TERMUX_PKG_LICENSE="Apache-2.0"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="1.4.333"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL=https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/v${TERMUX_PKG_VERSION}.tar.gz
 TERMUX_PKG_SHA256=38737d2198ef4f0baf9b0d97e7820ad5e5704c30ddc66f0654e190da68f7423f
 TERMUX_PKG_BUILD_DEPENDS="vulkan-headers (=${TERMUX_PKG_VERSION}), libx11, libxcb, libxrandr"
@@ -19,7 +20,6 @@ TERMUX_PKG_EXTRA_CONFIGURE_ARGS="
 -DENABLE_WERROR=OFF
 -DVULKAN_HEADERS_INSTALL_DIR=$TERMUX_PREFIX
 -DPython3_EXECUTABLE=$(command -v python3)
---trace
 "
 
 termux_step_pre_configure() {
