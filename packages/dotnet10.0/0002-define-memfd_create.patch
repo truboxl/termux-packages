@@ -1,9 +1,9 @@
 --- a/src/runtime/src/coreclr/minipal/Unix/doublemapping.cpp
 +++ b/src/runtime/src/coreclr/minipal/Unix/doublemapping.cpp
-@@ -14,7 +14,7 @@
- #include <assert.h>
+@@ -16,7 +16,7 @@
  #include <limits.h>
  #include <errno.h>
+ #include <sys/resource.h>
 -#if defined(TARGET_LINUX) && !defined(MFD_CLOEXEC)
 +#if (defined(TARGET_LINUX) && !defined(MFD_CLOEXEC)) || defined(TARGET_ANDROID)
  #include <linux/memfd.h>
