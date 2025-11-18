@@ -3,7 +3,7 @@ Workaround https://github.com/dotnet/runtime/issues/111071
 
 --- a/src/runtime/docs/design/features/host-runtime-information.md
 +++ b/src/runtime/docs/design/features/host-runtime-information.md
-@@ -84,16 +84,10 @@ List of directory paths corresponding to shared store paths and additional probi
+@@ -88,16 +88,10 @@ List of directory paths corresponding to shared store paths and additional probi
  
  Hex string representation of a function pointer. It is set when running a single-file application. The function is called by the runtime to look for assemblies bundled into the application. The expected signature is defined as `BundleProbeFn` in [`coreclrhost.h`](/src/coreclr/hosts/inc/coreclrhost.h)
  
@@ -22,7 +22,7 @@ Workaround https://github.com/dotnet/runtime/issues/111071
 -**.NET 9 and above** This property is no longer set by the host. `host_runtime_contract.pinvoke_override` is set when running a self-contained single-file application.
 --- a/src/runtime/src/coreclr/dlls/mscoree/exports.cpp
 +++ b/src/runtime/src/coreclr/dlls/mscoree/exports.cpp
-@@ -138,6 +138,7 @@ static void ConvertConfigPropertiesToUnicode(
+@@ -136,6 +136,7 @@ static void ConvertConfigPropertiesToUnicode(
      LPCWSTR** propertyValuesWRef,
      BundleProbeFn** bundleProbe,
      PInvokeOverrideFn** pinvokeOverride,
@@ -30,7 +30,7 @@ Workaround https://github.com/dotnet/runtime/issues/111071
      host_runtime_contract** hostContract)
  {
      LPCWSTR* propertyKeysW = new (nothrow) LPCWSTR[propertyCount];
-@@ -169,6 +170,11 @@ static void ConvertConfigPropertiesToUnicode(
+@@ -167,6 +168,11 @@ static void ConvertConfigPropertiesToUnicode(
              if (*pinvokeOverride == nullptr)
                  *pinvokeOverride = (PInvokeOverrideFn*)u16_strtoui64(propertyValuesW[propertyIndex], nullptr, 0);
          }
@@ -42,7 +42,7 @@ Workaround https://github.com/dotnet/runtime/issues/111071
          else if (strcmp(propertyKeys[propertyIndex], HOST_PROPERTY_RUNTIME_CONTRACT) == 0)
          {
              // Host contract is passed in as the value of HOST_RUNTIME_CONTRACT property (encoded as a string).
-@@ -246,6 +252,7 @@ int coreclr_initialize(
+@@ -244,6 +250,7 @@ int coreclr_initialize(
      LPCWSTR* propertyKeysW;
      LPCWSTR* propertyValuesW;
      BundleProbeFn* bundleProbe = nullptr;
@@ -50,7 +50,7 @@ Workaround https://github.com/dotnet/runtime/issues/111071
      PInvokeOverrideFn* pinvokeOverride = nullptr;
      host_runtime_contract* hostContract = nullptr;
  
-@@ -261,6 +268,7 @@ int coreclr_initialize(
+@@ -259,6 +266,7 @@ int coreclr_initialize(
          &propertyValuesW,
          &bundleProbe,
          &pinvokeOverride,
@@ -58,7 +58,7 @@ Workaround https://github.com/dotnet/runtime/issues/111071
          &hostContract);
  
  #ifdef TARGET_UNIX
-@@ -275,6 +283,8 @@ int coreclr_initialize(
+@@ -273,6 +281,8 @@ int coreclr_initialize(
      }
  #endif
  
@@ -69,7 +69,7 @@ Workaround https://github.com/dotnet/runtime/issues/111071
          HostInformation::SetContract(hostContract);
 --- a/src/runtime/src/coreclr/vm/ceemain.cpp
 +++ b/src/runtime/src/coreclr/vm/ceemain.cpp
-@@ -229,12 +229,13 @@ extern "C" HRESULT __cdecl CorDBGetInterface(DebugInterface** rcInterface);
+@@ -228,12 +228,13 @@ extern "C" HRESULT __cdecl CorDBGetInterface(DebugInterface** rcInterface);
  
  // g_coreclr_embedded indicates that coreclr is linked directly into the program
  // g_hostpolicy_embedded indicates that the hostpolicy library is linked directly into the executable
@@ -144,19 +144,27 @@ Workaround https://github.com/dotnet/runtime/issues/111071
  
 --- a/src/runtime/src/native/corehost/apphost/static/CMakeLists.txt
 +++ b/src/runtime/src/native/corehost/apphost/static/CMakeLists.txt
-@@ -46,6 +46,7 @@ set(HEADERS
-     ../../fxr_resolver.h
- )
- 
+@@ -40,6 +40,8 @@ set(HEADERS
+ if (NOT CLR_CMAKE_TARGET_ANDROID)
+     add_compile_definitions(NATIVE_LIBS_EMBEDDED)
+ endif()
 +add_compile_definitions(HOSTPOLICY_EMBEDDED)
- add_compile_definitions(NATIVE_LIBS_EMBEDDED)
++add_compile_definitions(NATIVE_LIBS_EMBEDDED)
  
  include(../../fxr/files.cmake)
+ include(../../hostpolicy/files.cmake)
+@@ -307,4 +309,4 @@ add_sanitizer_runtime_support(singlefilehost)
+ 
+ if (CLR_CMAKE_HOST_APPLE)
+     adhoc_sign_with_entitlements(singlefilehost "${CLR_ENG_NATIVE_DIR}/entitlements.plist")
+-endif()
+\ No newline at end of file
++endif()
 --- a/src/runtime/src/native/corehost/host_runtime_contract.h
 +++ b/src/runtime/src/native/corehost/host_runtime_contract.h
-@@ -18,6 +18,7 @@
- #define HOST_PROPERTY_APP_PATHS "APP_PATHS"
+@@ -19,6 +19,7 @@
  #define HOST_PROPERTY_BUNDLE_PROBE "BUNDLE_PROBE"
+ #define HOST_PROPERTY_BUNDLE_EXTRACTION_PATH "BUNDLE_EXTRACTION_PATH"
  #define HOST_PROPERTY_ENTRY_ASSEMBLY_NAME "ENTRY_ASSEMBLY_NAME"
 +#define HOST_PROPERTY_HOSTPOLICY_EMBEDDED "HOSTPOLICY_EMBEDDED"
  #define HOST_PROPERTY_NATIVE_DLL_SEARCH_DIRECTORIES "NATIVE_DLL_SEARCH_DIRECTORIES"
@@ -188,7 +196,7 @@ Workaround https://github.com/dotnet/runtime/issues/111071
  };
 --- a/src/runtime/src/native/corehost/hostpolicy/hostpolicy_context.cpp
 +++ b/src/runtime/src/native/corehost/hostpolicy/hostpolicy_context.cpp
-@@ -329,6 +329,44 @@ int hostpolicy_context_t::initialize(const hostpolicy_init_t &hostpolicy_init, c
+@@ -343,6 +343,44 @@ int hostpolicy_context_t::initialize(const hostpolicy_init_t &hostpolicy_init, c
          coreclr_properties.add(common_property::StartUpHooks, startup_hooks.c_str());
      }
  
