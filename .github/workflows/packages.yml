@@ -31,6 +31,8 @@ concurrency:
 
 jobs:
   build:
+    outputs:
+      packages: ${{ steps.build-info.outputs.packages }}
     permissions:
       contents: read # actions/upload-artifact doesn't need contents: write
     runs-on: ubuntu-24.04
@@ -184,6 +186,7 @@ jobs:
         done
 
         echo "packages: ${packages[*]}"
+        echo "packages=${packages[*]}" >> $GITHUB_OUTPUT
 
         docker='true'
         if [[ "${#packages[@]}" -gt 0 ]]; then
@@ -210,7 +213,6 @@ jobs:
             cd ..
           fi
         fi
-
     - name: Lint packages
       run: |
         declare -a package_recipes=()
@@ -224,7 +226,6 @@ jobs:
         if [[ "${#package_recipes[@]}" -gt 0 ]]; then
           ./scripts/lint-packages.sh "${package_recipes[@]}"
         fi
-
     - name: Free additional disk space (if needed)
       if: ${{ steps.build-info.outputs.docker-build == 'false' && steps.build-info.outputs.skip-building != 'true' }}
       run: |
@@ -235,7 +236,6 @@ jobs:
         rm -f ${HOME}/lib/ndk-*.zip ${HOME}/lib/sdk-*.zip
         sudo apt install ninja-build
         ./scripts/free-space.sh
-
     - name: Build packages
       if: ${{ steps.build-info.outputs.skip-building != 'true' }}
       env:
@@ -264,7 +264,6 @@ jobs:
             ./scripts/run-docker.sh ./build-package.sh -I -C -a "${{ matrix.target_arch }}" "${packages[@]}"
           fi
         fi
-
     - name: Generate build artifacts
       if: always()
       run: |
@@ -461,3 +460,191 @@ jobs:
             fi
           fi
         done
+
+  test-after-build:
+    if: ${{ needs.build.outputs.packages != '' }}
+    env:
+      PACKAGES: ${{ needs.build.outputs.packages }}
+    needs: build
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        # Limitations:
+        # TODO QEMU2 Android emulator cant run ARM images on x86_64 host (ubuntu-*)
+        # TODO there is no prebuilt Android emulator for ARM host (ubuntu-*-arm)
+        # ARM emulation in x86_64 images errors on termux-bootstrap-second-stage.sh
+        # API 25 screenrecord is unavailable
+        # API 26 has broken Internet, adb input
+        # x86_64 API 27 google_apis is unavailable
+        # i686 API 30+ images are unavailable
+        # x86_64 API 31+ does not support i686
+        #
+        # Scope of test:
+        # API 24 minimum target
+        # API 28 next expected minimum
+        # API 29 last 32bit emulator image
+        # API 30 all 64bit emulator image
+        # API 35 latest image
+        target_arch: [i686, x86_64]
+        api: [24, 28, 29, 30, 36]
+        image: [google_apis]
+        os: [ubuntu-24.04]
+        include:
+          - target_arch: i686
+            arch: x86
+          - target_arch: x86_64
+            arch: x86_64
+          - target_arch: i686
+            arch: x86_64
+            api: 30
+        exclude:
+          - target_arch: i686
+            api: 36
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@v6
+    - name: Get *.deb files
+      uses: actions/download-artifact@v6
+      with:
+        path: ./
+        pattern: debs-*
+    - name: Extract *.deb files
+      run: |
+        for archive in debs-*/debs-${{ matrix.target_arch }}-${{ github.sha }}.tar; do
+          tar -xvf "$archive"
+        done
+    - name: Enable KVM
+      run: |
+        echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger --name-match=kvm
+    - name: Download Termux APK (Debug)
+      run: |
+        while true; do
+          if curl --retry 3 https://api.github.com/repos/termux/termux-app/releases/latest -o result; then
+            break
+          fi
+          sleep 3
+        done
+        TERMUX_APK_URL=$(cat result | grep browser_download_url | sed -e 's|.*: ||' -e 's|"||g')
+        case "${{ matrix.target_arch }}" in
+        aarch64) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep arm64) ;;
+        arm) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep armeabi) ;;
+        i686) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep x86 | grep -v x86_64) ;;
+        x86_64) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep x86_64) ;;
+        *) echo "ERROR: $*" && exit 1 ;;
+        esac
+        echo "curl --retry 3 -L $TERMUX_APK_URL -o termux-${{ matrix.target_arch }}.apk"
+        curl --retry 3 -L $TERMUX_APK_URL -o termux-${{ matrix.target_arch }}.apk
+    - name: Disable console authentication
+      # TODO explore later
+      # https://developer.android.com/studio/run/emulator-console#console-session
+      run: |
+        > ~/.emulator_console_auth_token
+    - name: Test with Android Emulator
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: ${{ matrix.api }} # 24-30
+        arch: ${{ matrix.arch }} # arm64-v8a, x86, x86_64
+        target: ${{ matrix.image }} # default, google_apis
+        cores: 4
+        ram-size: 2048M
+        force-avd-creation: false
+        emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+        enable-hw-keyboard: true
+        script: |
+          # proposed bootstrapping script
+          #./scripts/test-runner-ci.sh
+
+          pwd; ls -l; rm -f ok
+
+          adb shell getprop ro.product.cpu.abilist
+
+          for i in $(seq -w 1 100); do if test -f ok; then break; fi; adb logcat >logcat${i}.txt; done &
+          # 180s = 3min, 6h = 360min = 120 * 3min
+          for i in $(seq -w 1 116); do if test -f ok; then break; fi; if ! adb shell test -f /system/bin/screenrecord; then echo "WARN: screenrecord is non existant, skipping recording"; break; fi; adb shell screenrecord --verbose --time-limit 180 /sdcard/sr${i}.mp4; sync; adb pull /sdcard/sr${i}.mp4; adb shell rm /sdcard/sr${i}.mp4; done &
+
+          tar -cf payload.tar.gz -C ../termux-packages .git repo.json scripts/properties.sh scripts/setup-termux.sh
+          tar -cf packages.tar.gz -C ../termux-packages debs/*.deb
+
+          adb install -g termux-${{ matrix.target_arch }}.apk
+          adb shell pm path com.termux
+          adb shell am start -n com.termux/com.termux.app.TermuxActivity
+          sleep 30
+          #adb shell pm grant com.termux android.permission.READ_EXTERNAL_STORAGE
+          #adb shell pm grant com.termux android.permission.WRITE_EXTERNAL_STORAGE
+          adb shell input text "termux-setup-storage%s\&\&%ssleep%s1"
+          adb shell input keyevent KEYCODE_ENTER
+          adb shell input keyevent KEYCODE_ENTER
+          sleep 1
+
+          adb shell id
+          adb shell run-as com.termux id
+          adb shell input text "id\%s\|%stee%sid\.txt%s\&\&%ssleep%s1"
+          adb shell input keyevent KEYCODE_ENTER
+          sleep 1
+          adb shell 'run-as com.termux cat /data/data/com.termux/files/home/id.txt || true'
+
+          adb shell df -h /data/local/tmp
+          adb shell rm -fr /data/local/tmp/tmp
+          adb shell mkdir -p /data/local/tmp/tmp
+          adb push payload.tar.gz /data/local/tmp/tmp/payload.tar.gz
+          adb push packages.tar.gz /data/local/tmp/tmp/packages.tar.gz
+          adb shell df -h /data/local/tmp
+          adb shell ls -l /data/local/tmp/tmp
+          adb shell run-as com.termux ls -l /data/local/tmp/tmp
+          adb shell input text "ls%s\-l%s\/data\/local\/tmp\/tmp%s\|%stee%stmp\.txt%s\&\&%ssleep%s1"
+          adb shell input keyevent KEYCODE_ENTER
+          sleep 1
+          adb shell 'run-as com.termux cat /data/data/com.termux/files/home/tmp.txt || true'
+
+          adb shell run-as com.termux pwd
+          adb shell run-as com.termux ls -l
+          adb shell run-as com.termux ls -l /data/data/com.termux
+          adb shell run-as com.termux ls -l /data/data/com.termux/files
+          adb shell run-as com.termux ls -l /data/data/com.termux/files/home
+          adb shell 'run-as com.termux ls -l /data/data/com.termux/files/home/storage || true'
+          adb shell 'run-as com.termux ls -l /data/data/com.termux/files/home/storage/shared || true'
+          adb shell run-as com.termux ls -l /data/data/com.termux/files/usr
+
+          adb shell run-as com.termux mkdir -p /data/data/com.termux/files/home/termux-packages
+          adb shell run-as com.termux tar -xof /data/local/tmp/tmp/payload.tar.gz -C /data/data/com.termux/files/home/termux-packages
+          adb shell run-as com.termux tar -xof /data/local/tmp/tmp/packages.tar.gz -C /data/data/com.termux/files/home/termux-packages
+
+          adb shell input text "watch%sps%sax%s-H"
+          adb shell input keyevent KEYCODE_ENTER
+          sleep 1
+          adb shell run-as com.termux ps
+
+          adb shell run-as com.termux rm -f /data/data/com.termux/files/usr/etc/termux/chosen_mirrors
+          adb shell run-as com.termux ln -sv ../mirrors/default /data/data/com.termux/files/usr/etc/termux/chosen_mirrors
+          adb shell 'run-as com.termux env PATH=/data/data/com.termux/files/usr/bin bash -c "yes | pkg install termux-tools"'
+
+          adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages/scripts
+          adb shell run-as com.termux chmod +x /data/data/com.termux/files/home/termux-packages/scripts/setup-termux.sh
+          adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages/scripts
+          #adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin bash /data/data/com.termux/files/home/termux-packages/scripts/setup-termux.sh
+          #adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin pkg install xxd jq git -y
+          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin pkg install git -y
+          adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages
+          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin git -C /data/data/com.termux/files/home/termux-packages restore .
+          adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages
+          adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages/debs
+
+          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin pkg install x11-repo -y
+          adb shell 'run-as com.termux env PATH=/data/data/com.termux/files/usr/bin bash -c "cd /data/data/com.termux/files/home/termux-packages/debs; yes | pkg install ./*.deb"'
+          adb shell "run-as com.termux env PATH=/data/data/com.termux/files/usr/bin bash -c \"cd /data/data/com.termux/files/home/termux-packages; ./scripts/test-runner.sh $PACKAGES\" || :"
+
+          touch ok
+          adb shell "while true; do if ! pidof screenrecord >/dev/null; then pkill logcat; break; fi; sleep 1; done"
+    - name: Upload logs and videos
+      if: always()
+      uses: actions/upload-artifact@v5
+      with:
+        name: testafterbuild-${{ matrix.target_arch }}-${{ matrix.api }}-${{ matrix.image }}-${{ github.sha }}
+        path: |
+          logcat*.txt
+          sr*.mp4
