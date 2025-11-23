@@ -561,7 +561,7 @@ jobs:
 
           for i in $(seq -w 1 100); do if test -f ok; then break; fi; adb logcat >logcat${i}.txt; done &
           # 180s = 3min, 6h = 360min = 120 * 3min
-          for i in $(seq -w 1 116); do if test -f ok; then break; fi; if ! adb shell test -x /system/bin/screenrecord; then echo "WARN: screenrecord is non existant, skipping recording"; break; fi; adb shell screenrecord --verbose --time-limit 180 /sdcard/sr${i}.mp4; sync; adb pull /sdcard/sr${i}.mp4; adb shell rm /sdcard/sr${i}.mp4; done &
+          for i in $(seq -w 1 116); do if test -f ok; then break; fi; if ! adb shell test -f /system/bin/screenrecord; then echo "WARN: screenrecord is non existant, skipping recording"; break; fi; adb shell screenrecord --verbose --time-limit 180 /sdcard/sr${i}.mp4; sync; adb pull /sdcard/sr${i}.mp4; adb shell rm /sdcard/sr${i}.mp4; done &
 
           tar -cf payload.tar.gz -C ../termux-packages .git repo.json scripts/properties.sh scripts/setup-termux.sh
           tar -cf packages.tar.gz -C ../termux-packages debs/*.deb
@@ -573,6 +573,7 @@ jobs:
           #adb shell pm grant com.termux android.permission.READ_EXTERNAL_STORAGE
           #adb shell pm grant com.termux android.permission.WRITE_EXTERNAL_STORAGE
           adb shell input text "termux-setup-storage%s\&\&%ssleep%s1"
+          adb shell input keyevent KEYCODE_ENTER
           adb shell input keyevent KEYCODE_ENTER
           sleep 1
 
@@ -629,7 +630,7 @@ jobs:
           adb shell "run-as com.termux env PATH=/data/data/com.termux/files/usr/bin bash -c \"cd /data/data/com.termux/files/home/termux-packages; ./scripts/test-runner.sh $PACKAGES\" || :"
 
           touch ok
-          adb shell "while true; do if ! pidof screenrecord >/dev/null; then pkill logcat; else break; fi; sleep 1; done"
+          adb shell "while true; do if ! pidof screenrecord >/dev/null; then pkill logcat; break; fi; sleep 1; done"
     - name: Upload logs and videos
       if: always()
       uses: actions/upload-artifact@v5
