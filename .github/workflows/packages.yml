@@ -510,14 +510,12 @@ jobs:
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Get list of packages for testing
-      run: echo "$PACKAGES"
     - name: Clone repository
       uses: actions/checkout@v6
     - name: Get *.deb files
       uses: actions/download-artifact@v6
       with:
-        path: ./
+        path: ./debs-*
     - name: Extract *.deb files
       run: |
         for archive in debs-*/debs-${{ matrix.target_arch }}-${{ github.sha }}.tar; do
