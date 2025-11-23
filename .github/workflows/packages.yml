@@ -506,7 +506,6 @@ jobs:
             api: 26
           - target_arch: x86_64
             api: 27
-
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -515,7 +514,8 @@ jobs:
     - name: Get *.deb files
       uses: actions/download-artifact@v6
       with:
-        path: ./debs-*
+        path: ./
+        pattern: debs-*
     - name: Extract *.deb files
       run: |
         for archive in debs-*/debs-${{ matrix.target_arch }}-${{ github.sha }}.tar; do
