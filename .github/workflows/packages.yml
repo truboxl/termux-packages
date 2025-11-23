@@ -473,11 +473,12 @@ jobs:
         # TODO QEMU2 Android emulator cant run ARM images on x86_64 host (ubuntu-*)
         # TODO there is no prebuilt Android emulator for ARM host (ubuntu-*-arm)
         # ARM emulation in x86_64 images errors on termux-bootstrap-second-stage.sh
+        # API 25 screenrecord is unavailable
         # API 26 has broken Internet, adb input
         # x86_64 API 27 google_apis is unavailable
         # there is no i686 API 30+ image
         target_arch: [i686, x86_64]
-        api: [24, 25, 26, 27, 28, 29, 30, 31, 32 ,33, 34, 35, 36]
+        api: [24, 28, 29, 30, 35]
         image: [google_apis]
         os: [ubuntu-24.04]
         include:
@@ -485,27 +486,12 @@ jobs:
             arch: x86
           - target_arch: x86_64
             arch: x86_64
-        exclude:
           - target_arch: i686
-            api: 26
-          - target_arch: i686
+            arch: x86_64
             api: 30
           - target_arch: i686
-            api: 31
-          - target_arch: i686
-            api: 32
-          - target_arch: i686
-            api: 33
-          - target_arch: i686
-            api: 34
-          - target_arch: i686
+            arch: x86_64
             api: 35
-          - target_arch: i686
-            api: 36
-          - target_arch: x86_64
-            api: 26
-          - target_arch: x86_64
-            api: 27
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
@@ -528,7 +514,13 @@ jobs:
         sudo udevadm trigger --name-match=kvm
     - name: Download Termux APK (Debug)
       run: |
-        TERMUX_APK_URL=$(curl --retry 3 https://api.github.com/repos/termux/termux-app/releases/latest | grep browser_download_url | sed -e 's|.*: ||' -e 's|"||g')
+        while true; do
+          if curl --retry 3 https://api.github.com/repos/termux/termux-app/releases/latest -o result; then
+            break
+          fi
+          sleep 3
+        done
+        TERMUX_APK_URL=$(cat result | grep browser_download_url | sed -e 's|.*: ||' -e 's|"||g')
         case "${{ matrix.target_arch }}" in
         aarch64) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep arm64) ;;
         arm) TERMUX_APK_URL=$(echo "$TERMUX_APK_URL" | grep armeabi) ;;
