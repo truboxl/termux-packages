@@ -615,11 +615,15 @@ jobs:
           sleep 1
           adb shell run-as com.termux ps
 
+          adb shell run-as com.termux rm -f /data/data/com.termux/files/usr/etc/termux/chosen_mirrors
+          adb shell run-as com.termux ln -s ../mirrors/default /data/data/com.termux/files/usr/etc/termux/chosen_mirrors
+
           adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages/scripts
           adb shell run-as com.termux chmod +x /data/data/com.termux/files/home/termux-packages/scripts/setup-termux.sh
           adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages/scripts
           #adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin bash /data/data/com.termux/files/home/termux-packages/scripts/setup-termux.sh
-          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin pkg install xxd jq git -y
+          #adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin pkg install xxd jq git -y
+          adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin pkg install git -y
           adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages
           adb shell run-as com.termux env PATH=/data/data/com.termux/files/usr/bin git -C /data/data/com.termux/files/home/termux-packages restore .
           adb shell run-as com.termux ls -l /data/data/com.termux/files/home/termux-packages
