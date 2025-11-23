@@ -32,7 +32,7 @@ concurrency:
 jobs:
   build:
     outputs:
-      final-packages: ${{ steps.build-info.outputs.packages }}
+      packages: ${{ steps.build-info.outputs.packages }}
     permissions:
       contents: read # actions/upload-artifact doesn't need contents: write
     runs-on: ubuntu-24.04
@@ -464,7 +464,7 @@ jobs:
   on-device-test-after-build:
     if: ${{ needs.build.outputs.packages != '' }}
     env:
-      PACKAGES: ${{ needs.build.outputs.final_packages }}
+      PACKAGES: ${{ needs.build.outputs.packages }}
     needs: build
     permissions:
       contents: read
