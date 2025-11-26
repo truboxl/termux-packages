@@ -14,7 +14,7 @@ TERMUX_PKG_BUILD_DEPENDS="wasi-libc"
 TERMUX_PKG_SUGGESTS="rust-analyzer"
 TERMUX_PKG_NO_REPLACE_GUESS_SCRIPTS=true
 TERMUX_PKG_NO_STATICSPLIT=true
-TERMUX_PKG_AUTO_UPDATE=true
+TERMUX_PKG_AUTO_UPDATE=false
 TERMUX_PKG_RM_AFTER_INSTALL="
 bin/llc
 bin/llvm-*
@@ -116,7 +116,7 @@ termux_step_configure() {
 	# like 30 to 40 + minutes ... so lets get it right
 
 	# upstream tests build using versions N and N-1
-	local BOOTSTRAP_VERSION=1.91.0
+	local BOOTSTRAP_VERSION=1.89.0
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
 		if ! rustup install "${BOOTSTRAP_VERSION}"; then
 			echo "WARN: ${BOOTSTRAP_VERSION} is unavailable, fallback to stable version!"
@@ -186,9 +186,6 @@ termux_step_configure() {
 	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-Wl,-rpath=${TERMUX_PREFIX}/lib -C link-arg=-Wl,--enable-new-dtags"
 
 	unset CC CFLAGS CFLAGS_${env_host} CPP CPPFLAGS CXX CXXFLAGS LD LDFLAGS PKG_CONFIG RANLIB
-
-	# Needed by wasm32-wasip2
-	cargo install wasm-component-ld
 }
 
 termux_step_make() {
@@ -218,6 +215,7 @@ termux_step_make_install() {
 
 	# remove version suffix: beta, nightly
 	local VERSION=${TERMUX_PKG_VERSION//~*}
+	VERSION="${VERSION##*y}"
 
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then
 		echo "WARN: Replacing on device rust! Caveat emptor!"
