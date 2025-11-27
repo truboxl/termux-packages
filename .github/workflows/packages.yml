@@ -41,12 +41,18 @@ jobs:
         target_arch: [aarch64, arm, i686, x86_64]
       fail-fast: false
     steps:
+    - name: ps aux
+      run: ps aux
     - name: Clone repository
       uses: actions/checkout@v6
       with:
         fetch-depth: 1000
+    - name: ps aux
+      run: ps aux
     - name: Set process id limit for 32-bit builds depending on aosp-libs
       run: echo 65535 | sudo tee /proc/sys/kernel/pid_max
+    - name: ps aux
+      run: ps aux
     - name: Gather build summary
       id: build-info
       env:
@@ -213,6 +219,8 @@ jobs:
             cd ..
           fi
         fi
+    - name: ps aux
+      run: ps aux
     - name: Lint packages
       run: |
         declare -a package_recipes=()
@@ -226,6 +234,8 @@ jobs:
         if [[ "${#package_recipes[@]}" -gt 0 ]]; then
           ./scripts/lint-packages.sh "${package_recipes[@]}"
         fi
+    - name: ps aux
+      run: ps aux
     - name: Free additional disk space (if needed)
       if: ${{ steps.build-info.outputs.docker-build == 'false' && steps.build-info.outputs.skip-building != 'true' }}
       run: |
@@ -236,6 +246,8 @@ jobs:
         rm -f ${HOME}/lib/ndk-*.zip ${HOME}/lib/sdk-*.zip
         sudo apt install ninja-build
         ./scripts/free-space.sh
+    - name: ps aux
+      run: ps aux
     - name: Build packages
       if: ${{ steps.build-info.outputs.skip-building != 'true' }}
       env:
@@ -264,6 +276,8 @@ jobs:
             ./scripts/run-docker.sh ./build-package.sh -I -C -a "${{ matrix.target_arch }}" "${packages[@]}"
           fi
         fi
+    - name: ps aux
+      run: ps aux
     - name: Generate build artifacts
       if: always()
       run: |
@@ -290,6 +304,8 @@ jobs:
         # Files containing certain symbols (e.g. ":") will cause failure in actions/upload-artifact.
         # Archiving *.deb files in a tarball to avoid issues with uploading.
         tar cf artifacts/debs-${{ matrix.target_arch }}-${{ github.sha }}.tar debs
+    - name: ps aux
+      run: ps aux
     - name: Checksums for built *.deb files
       if: always()
       run: |
@@ -300,6 +316,8 @@ jobs:
       with:
         name: checksum-${{ matrix.target_arch }}-${{ github.sha }}
         path: checksum-${{ matrix.target_arch }}-${{ github.sha }}.txt
+    - name: ps aux
+      run: ps aux
     - name: Store *.deb files
       if: always()
       uses: actions/upload-artifact@v5
