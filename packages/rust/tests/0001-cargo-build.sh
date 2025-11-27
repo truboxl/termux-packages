@@ -1,8 +1,13 @@
 #!/bin/bash
-set -e
+set -e -u
 
 pkg install -y file ndk-multilib wasm-component-ld
 #pkg install -y rust rust-std-*
+
+command -v cargo
+cargo -V
+command -v rustc
+rustc -V
 
 export RUSTC_LOG="rustc_codegen_ssa::back::link=info"
 echo "RUSTC_LOG=$RUSTC_LOG"
@@ -44,8 +49,3 @@ file rusthello/target/*/*/rusthello
 file rusthello/target/*/*/rusthello.wasm
 popd
 rm -fr "$tmpdir"
-
-command -v cargo
-cargo -V
-command -v rustc
-rustc -V

@@ -12,10 +12,17 @@
 # Expected output:-
 # processing crate: issue_25360, module: issue-25360/src/main.rs
 # diagnostic scan complete
-set -e
+set -e -u
 
 pkg install -y rust-analyzer
 #pkg install -y rust
+
+command -v rust-analyzer
+rust-analyzer -V
+command -v cargo
+cargo -V
+command -v rustc
+rustc -V
 
 tmpdir=$(mktemp -d)
 pushd "$tmpdir"
@@ -57,11 +64,3 @@ rust-analyzer diagnostics .
 popd
 popd
 rm -fr "$tmpdir"
-echo
-
-command -v rust-analyzer
-rust-analyzer -V
-command -v cargo
-cargo -V
-command -v rustc
-rustc -V

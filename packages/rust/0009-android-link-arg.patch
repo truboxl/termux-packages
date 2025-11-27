@@ -1,0 +1,16 @@
+diff -uNr a/compiler/rustc_target/src/spec/base/android.rs b/compiler/rustc_target/src/spec/base/android.rs
+--- a/compiler/rustc_target/src/spec/base/android.rs	2025-11-07 11:39:30.000000000 +0800
++++ b/compiler/rustc_target/src/spec/base/android.rs	2025-11-29 14:34:23.416005401 +0800
+@@ -1,4 +1,4 @@
+-use crate::spec::{SanitizerSet, TargetOptions, TlsModel, base};
++use crate::spec::{Cc, LinkerFlavor, Lld, SanitizerSet, TargetOptions, TlsModel, base};
+ 
+ pub(crate) fn opts() -> TargetOptions {
+     let mut base = base::linux::opts();
+@@ -13,5 +13,6 @@
+     // was to always emit `uwtable`).
+     base.default_uwtable = true;
+     base.crt_static_respected = true;
++    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-Wl,-Bsymbolic-non-weak-functions"]);
+     base
+ }
