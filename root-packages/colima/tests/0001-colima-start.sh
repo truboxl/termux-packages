@@ -6,9 +6,9 @@ pkg install -y docker
 #pkg install -y colima
 
 command -v colima
-colima version
+colima --version
 command -v docker
-docker version
+docker --version
 command -v limactl
 limactl --version
 
