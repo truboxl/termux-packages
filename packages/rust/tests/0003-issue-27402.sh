@@ -8,9 +8,9 @@ set -e -u
 
 #pkg install -y rust
 
-command -v rustdoc
+command -v rustdoc || echo "rustdoc is not installed" && exit 1
 rustdoc -V
-command -v rustc
+command -v rustc || echo "rustc is not installed" && exit 1
 rustc -V
 
 tmpdir=$(mktemp -d)

@@ -4,9 +4,9 @@ set -e -u
 pkg install -y file ndk-multilib wasm-component-ld
 #pkg install -y rust rust-std-*
 
-command -v cargo
+command -v cargo || echo "cargo is not installed" && exit 1
 cargo -V
-command -v rustc
+command -v rustc || echo "rustc is not installed" && exit 1
 rustc -V
 
 export RUSTC_LOG="rustc_codegen_ssa::back::link=info"

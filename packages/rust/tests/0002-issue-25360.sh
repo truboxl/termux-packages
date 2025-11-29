@@ -17,11 +17,11 @@ set -e -u
 pkg install -y rust-analyzer
 #pkg install -y rust
 
-command -v rust-analyzer
+command -v rust-analyzer || echo "rust-analyzer is not installed" && exit 1
 rust-analyzer -V
-command -v cargo
+command -v cargo || echo "cargo is not installed" && exit 1
 cargo -V
-command -v rustc
+command -v rustc || echo "rustc is not installed" && exit 1
 rustc -V
 
 tmpdir=$(mktemp -d)
