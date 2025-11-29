@@ -551,7 +551,8 @@ jobs:
         arch: ${{ matrix.arch }} # arm64-v8a, x86, x86_64
         target: ${{ matrix.image }} # default, google_apis
         cores: 4
-        ram-size: 2048M
+        ram-size: 4096M
+        disk-size: 10G
         force-avd-creation: false
         emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         enable-hw-keyboard: true
