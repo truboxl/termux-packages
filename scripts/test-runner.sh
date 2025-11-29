@@ -1,16 +1,20 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-if [ $# != 1 ]; then
+if [ $# == 0 ]; then
 	echo "Specify package to run tests for as only argument"
 	exit 1
 fi
 
-PACKAGE=$1
-TEST_DIR=packages/$PACKAGE/tests
+PACKAGES=($@)
+
+for (( i=0; i < ${#PACKAGES[@]}; i++ )); do
+
+PACKAGE="${PACKAGES[$i]}"
+TEST_DIR="$(find . -mindepth 2 -maxdepth 2 -name $PACKAGE -type d)/tests"
 
 if [ ! -d $TEST_DIR ]; then
-	echo "ERROR: No tests folder for package $PACKAGE"
-	exit 1
+	echo "WARN: No tests folder for package $PACKAGE, skipping"
+	continue
 fi
 
 NUM_TESTS=0
@@ -39,4 +43,6 @@ for TEST_SCRIPT in $TEST_DIR/*; do
 	test -t 1 && printf "\033[0m"
 done
 
-echo "$NUM_TESTS tests run - $NUM_FAILURES failure(s)"
+echo "$PACKAGE: $NUM_TESTS tests run - $NUM_FAILURES failure(s)"
+
+done
