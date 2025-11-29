@@ -213,6 +213,8 @@ termux_step_configure() {
 
 	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-Wl,-rpath=${TERMUX_PREFIX}/lib -C link-arg=-Wl,--enable-new-dtags"
 
+	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-fno-builtin"
+
 	unset CC CFLAGS CFLAGS_${env_host} CPP CPPFLAGS CXX CXXFLAGS LD LDFLAGS PKG_CONFIG RANLIB
 
 	# Needed by wasm32-wasip2
