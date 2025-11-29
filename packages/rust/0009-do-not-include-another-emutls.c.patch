@@ -1,0 +1,29 @@
+https://github.com/rust-lang/rust/issues/147590
+https://github.com/termux/termux-packages/issues/27402
+
+--- a/library/compiler-builtins/compiler-builtins/build.rs
++++ b/library/compiler-builtins/compiler-builtins/build.rs
+@@ -523,11 +523,6 @@
+             sources.remove(&["__aeabi_cdcmp", "__aeabi_cfcmp"]);
+         }
+ 
+-        // Android and Cygwin uses emulated TLS so we need a runtime support function.
+-        if target.os == "android" || target.os == "cygwin" {
+-            sources.extend(&[("__emutls_get_address", "emutls.c")]);
+-        }
+-
+         // Work around a bug in the NDK headers (fixed in
+         // https://r.android.com/2038949 which will be released in a future
+         // NDK version) by providing a definition of LONG_BIT.
+@@ -535,11 +530,6 @@
+             cfg.define("LONG_BIT", "(8 * sizeof(long))");
+         }
+ 
+-        // OpenHarmony also uses emulated TLS.
+-        if target.env == "ohos" {
+-            sources.extend(&[("__emutls_get_address", "emutls.c")]);
+-        }
+-
+         // Optionally, link against a prebuilt llvm compiler-rt containing the builtins
+         // library. Only the builtins library is required. On many platforms, this is
+         // available as a library named libclang_rt.builtins.a.
