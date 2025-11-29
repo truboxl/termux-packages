@@ -11,6 +11,6 @@ diff -uNr a/compiler/rustc_target/src/spec/base/android.rs b/compiler/rustc_targ
      // was to always emit `uwtable`).
      base.default_uwtable = true;
      base.crt_static_respected = true;
-+    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-Wl,-Bsymbolic-non-weak-functions"]);
++    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-fno-builtin"]);
      base
  }
