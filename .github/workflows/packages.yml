@@ -568,7 +568,7 @@ jobs:
           for i in $(seq -w 1 116); do if test -f ok; then break; fi; if ! adb shell test -f /system/bin/screenrecord; then echo "WARN: screenrecord is non existant, skipping recording"; break; fi; adb shell screenrecord --verbose --time-limit 180 /sdcard/sr${i}.mp4; sync; adb pull /sdcard/sr${i}.mp4; adb shell rm /sdcard/sr${i}.mp4; done &
 
           tar -cf payload.tar.gz -C ../termux-packages .git repo.json scripts/properties.sh scripts/setup-termux.sh
-          tar -cf packages.tar.gz -C ../termux-packages debs/*.deb
+          tar -cf packages.tar.gz -C ../termux-packages debs/*.deb || :
 
           adb install -g termux-${{ matrix.target_arch }}.apk
           adb shell pm path com.termux
@@ -592,7 +592,7 @@ jobs:
           adb shell rm -fr /data/local/tmp/tmp
           adb shell mkdir -p /data/local/tmp/tmp
           adb push payload.tar.gz /data/local/tmp/tmp/payload.tar.gz
-          adb push packages.tar.gz /data/local/tmp/tmp/packages.tar.gz
+          adb push packages.tar.gz /data/local/tmp/tmp/packages.tar.gz || :
           adb shell df -h /data/local/tmp
           adb shell ls -l /data/local/tmp/tmp
           adb shell run-as com.termux ls -l /data/local/tmp/tmp
@@ -612,7 +612,7 @@ jobs:
 
           adb shell run-as com.termux mkdir -p /data/data/com.termux/files/home/termux-packages
           adb shell run-as com.termux tar -xof /data/local/tmp/tmp/payload.tar.gz -C /data/data/com.termux/files/home/termux-packages
-          adb shell run-as com.termux tar -xof /data/local/tmp/tmp/packages.tar.gz -C /data/data/com.termux/files/home/termux-packages
+          adb shell run-as com.termux tar -xof /data/local/tmp/tmp/packages.tar.gz -C /data/data/com.termux/files/home/termux-packages || :
 
           adb shell input text "watch%sps%sax%s-H"
           adb shell input keyevent KEYCODE_ENTER
