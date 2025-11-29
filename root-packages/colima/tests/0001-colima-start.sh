@@ -5,12 +5,11 @@ pkg install -y root-repo
 pkg install -y docker
 #pkg install -y colima
 
-echo "Package version:"
-command -v colima
+command -v colima || echo "colima is not installed" && exit 1
 colima --version
-command -v docker
+command -v docker || echo "docker is not installed" && exit 1
 docker --version
-command -v limactl
+command -v limactl || echo "limactl is not installed" && exit 1
 limactl --version
 
 tmpdir=$(mktemp -d)
