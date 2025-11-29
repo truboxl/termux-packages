@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-pkg install -y root-packages
+pkg install -y root-repo
 pkg install -y docker
 #pkg install -y colima
 
