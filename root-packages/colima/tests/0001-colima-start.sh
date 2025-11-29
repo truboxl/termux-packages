@@ -1,10 +1,11 @@
 #!/bin/bash
-set -e
+set -e -u
 
 pkg install -y root-repo
 pkg install -y docker
 #pkg install -y colima
 
+echo "Package version:"
 command -v colima
 colima --version
 command -v docker
