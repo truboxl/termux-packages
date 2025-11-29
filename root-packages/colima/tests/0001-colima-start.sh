@@ -6,9 +6,11 @@ pkg install -y docker
 #pkg install -y colima
 
 command -v colima
-limactl -V
+colima version
 command -v docker
-docker -V
+docker version
+command -v limactl
+limactl --version
 
 tmpdir=$(mktemp -d)
 pushd "$tmpdir"
