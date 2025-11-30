@@ -12,7 +12,7 @@
  
  pub(crate) fn target() -> Target {
 +    let mut base = base::android::opts();
-+    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["--rtlib=compiler-rt"]);
++    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-Wl,--as-needed,-lc++_shared"]);
 +
      Target {
          llvm_target: "aarch64-linux-android".into(),
@@ -36,7 +36,7 @@
  
  pub(crate) fn target() -> Target {
 +    let mut base = base::android::opts();
-+    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["--rtlib=compiler-rt"]);
++    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-Wl,--as-needed,-lc++_shared"]);
 +
      Target {
          llvm_target: "arm-linux-androideabi".into(),
@@ -56,7 +56,7 @@
  pub(crate) fn target() -> Target {
      let mut base = base::android::opts();
      base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-march=armv7-a"]);
-+    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["--rtlib=compiler-rt"]);
++    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-Wl,--as-needed,-lc++_shared"]);
 +
      Target {
          llvm_target: "armv7-none-linux-android".into(),
@@ -75,7 +75,7 @@
  
  pub(crate) fn target() -> Target {
      let mut base = base::android::opts();
-+    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["--rtlib=compiler-rt"]);
++    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-Wl,--as-needed,-lc++_shared"]);
  
      base.max_atomic_width = Some(64);
  
@@ -92,7 +92,7 @@
  
  pub(crate) fn target() -> Target {
 +    let mut base = base::android::opts();
-+    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["--rtlib=compiler-rt"]);
++    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-Wl,--as-needed,-lc++_shared"]);
 +
      Target {
          llvm_target: "riscv64-linux-android".into(),
@@ -112,7 +112,7 @@
  pub(crate) fn target() -> Target {
      let mut base = base::android::opts();
      base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-march=armv7-a"]);
-+    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["--rtlib=compiler-rt"]);
++    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-Wl,--as-needed,-lc++_shared"]);
 +
      Target {
          llvm_target: "armv7-none-linux-android".into(),
@@ -123,7 +123,7 @@
      base.features = "+mmx,+sse,+sse2,+sse3,+ssse3,+sse4.1,+sse4.2,+popcnt".into();
      base.max_atomic_width = Some(64);
      base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-m64"]);
-+    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["--rtlib=compiler-rt"]);
++    base.add_pre_link_args(LinkerFlavor::Gnu(Cc::Yes, Lld::No), &["-Wl,--as-needed,-lc++_shared"]);
      base.stack_probes = StackProbeType::Inline;
      base.supports_xray = true;
  
