@@ -487,7 +487,7 @@ jobs:
         # API 30 all 64bit emulator image
         # latest image
         target_arch: [i686, x86_64]
-        api: [24, 28, 29, 30, 36]
+        api: [24, 28, 29, 30, 35]
         image: [google_apis]
         os: [ubuntu-24.04]
         include:
@@ -500,7 +500,7 @@ jobs:
             api: 30
         exclude:
           - target_arch: i686
-            api: 36
+            api: 35
       fail-fast: false
     runs-on: ${{ matrix.os }}
     steps:
