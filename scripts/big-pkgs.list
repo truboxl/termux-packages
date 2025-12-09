@@ -17,6 +17,7 @@ firefox
 flang
 ghc
 grafana
+lima
 libllvm
 python-torch
 qemu-system-x86-64
