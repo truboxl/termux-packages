@@ -151,6 +151,7 @@ termux_step_configure() {
 	# https://github.com/dotnet/runtime/issues/57784
 	# Android has no liblttng-ust, Linux also has different issue
 	set(FEATURE_EVENT_TRACE 0)
+	set(FEATURE_EVENTSOURCE_XPLAT 0)
 	EOL
 
 	echo "INFO: ${TERMUX_PKG_TMPDIR}/build/cmake/android.toolchain.cmake"
