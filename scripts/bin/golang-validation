@@ -1,8 +1,110 @@
 #!/bin/bash
 cd "$(realpath "$(dirname "$0")")/../.." || { echo "cd failed"; exit 1; }
 readarray -t TERMUX_PACKAGE_DIRECTORIES < <(jq --raw-output 'del(.pkg_format) | keys | .[]' repo.json)
-readarray -t PACKAGES < <(grep -rl termux_setup_golang --include=build.sh "${TERMUX_PACKAGE_DIRECTORIES[@]}" | cut -d/ -f2 | sort -u || :) || :
-ARCH="${1?"Usage: $0 [aarch64|arm|x86_64|i686]"}"
+
+usage() {
+	echo "USAGE: $0 ARCH PACKAGES [list|batch_number]"
+	echo
+	echo "OPTIONS:"
+	echo "  ARCH     - aarch64, arm, i686, x86_64"
+	echo "  PACKAGES - golang"
+	echo
+	echo "EXAMPLES:"
+	echo "  $0 aarch64 golang         Build all aarch64 golang based packages"
+	echo "  $0 aarch64 golang list    Split aarch64 golang based package list"
+	echo "  $0 aarch64 golang 2       Build 2nd batch of said list"
+}
+
+case "${1}" in
+	aarch64|arm|i686|x86_64)
+		ARCH="${1}"
+		;;
+	*)
+		echo "ERROR: Invalid args: $*" 1>&2
+		usage
+		exit 1
+		;;
+esac
+
+STRATEGY="50:50"
+EXCLUDE_BIG_PACKAGES=false
+BIG_PACKAGES_IN_SEPARATE_BATCH=false
+
+case "${2}" in
+	golang)
+		readarray -t PACKAGES < <(grep -rl termux_setup_golang --include=build.sh --exclude-dir=golang "${TERMUX_PACKAGE_DIRECTORIES[@]}" | cut -d/ -f1,2 | sort -u | cut -d/ -f2 || :) || :
+		STRATEGY="100:0"
+		EXCLUDE_BIG_PACKAGES=true
+		BIG_PACKAGES_IN_SEPARATE_BATCH=true
+		;;
+	*)
+		echo "ERROR: Invalid args: $*" 1>&2
+		usage
+		exit 1
+		;;
+esac
+
+split_build_job() {
+	local MIDPOINT=$((${#PACKAGES[@]}*${STRATEGY%%:*}/100))
+	local COUNT=0
+	local PACKAGE
+	local PACKAGES1=()
+	local PACKAGES2=()
+	unset BIG_PACKAGES
+	BIG_PACKAGES=()
+	for PACKAGE in "${PACKAGES[@]}"; do
+		while IFS= read -r PKG; do
+			if [[ "${PKG}" == "${PACKAGE}" ]]; then
+				BIG_PACKAGES+=("${PACKAGE}")
+				break
+			fi
+		done < scripts/big-pkgs.list
+	done
+	if [[ "${BIG_PACKAGES_IN_SEPARATE_BATCH}" == "true" ]]; then
+		PACKAGES2+=("${BIG_PACKAGES[@]}")
+	fi
+	for PACKAGE in "${PACKAGES[@]}"; do
+		COUNT=$((COUNT+1))
+		if [[ "${EXCLUDE_BIG_PACKAGES}" == "true" ]]; then
+			local PKG
+			local BIG_PACKAGE=false
+			while IFS= read -r PKG; do
+				if [[ "${PKG}" == "${PACKAGE}" ]]; then
+					BIG_PACKAGE=true
+					break
+				fi
+			done < <(echo "${BIG_PACKAGES[@]}" | tr " " "\n")
+			if [[ "${BIG_PACKAGE}" == true ]]; then
+				continue
+			fi
+		fi
+		if (( "${COUNT}" <= "${MIDPOINT}" )); then
+			PACKAGES1+=("${PACKAGE}")
+		elif (( "${COUNT}" > "${MIDPOINT}" )); then
+			PACKAGES2+=("${PACKAGE}")
+		fi
+	done
+	echo "${PACKAGES1[@]}"
+	echo "${PACKAGES2[@]}"
+	printf "\n\n"
+	echo "Number of packages:            ${#PACKAGES[@]}"
+	echo "Number of big packages:        ${#BIG_PACKAGES[@]}"
+	echo "Packages per batch (expected): ${MIDPOINT}:$((${#PACKAGES[@]}-MIDPOINT))"
+	echo "Packages per batch (actual):   ${#PACKAGES1[@]}:${#PACKAGES2[@]}"
+}
+
+if [[ "${3}" == "list" ]]; then
+	split_build_job
+	exit
+elif (( "${3}" )); then
+	readarray -t SPLIT_PACKAGES < <(split_build_job 2>/dev/null | head -n "${3}" | tail -n1 | tr ' ' '\n')
+	unset PACKAGES
+	PACKAGES=("${SPLIT_PACKAGES[@]}")
+elif [[ -n "${3}" ]]; then
+	echo "ERROR: Invalid args: $*" 1>&2
+	usage
+	exit 1
+fi
 
 # Converts milliseconds to human-readable format.
 # Example: `ms_to_human_readable 123456789` => 34h 17m 36s 789ms
