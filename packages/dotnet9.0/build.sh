@@ -15,8 +15,6 @@ TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_AUTO_UPDATE=true
 # https://github.com/dotnet/runtime/issues/7335
 # linux-x86 is not officially supported but works
-# TODO linux-bionic-arm is broken
-TERMUX_PKG_EXCLUDED_ARCHES="arm"
 
 termux_pkg_auto_update() {
 	local api_url="https://api.github.com/repos/dotnet/core/git/refs/tags"
