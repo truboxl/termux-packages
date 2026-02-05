@@ -22,24 +22,25 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import json
+import sys
 
+from os.path import getsize as getfilesize
 from requests import get as requests_get
-from time import sleep as sleep
+from time import sleep
 
 
 def get_repology_data(last_project, project):
     url = f"https://repology.org/api/v1"
     if project != "":
-        url = f"{url}/projects/{project}/?inrepo=termux&outdated=1"
-    else:
-        url = f"{url}/projects/{last_project}{'/' if last_project != '' else ''}?inrepo=termux&outdated=1&families_newest=2-"
+        last_project = project
+
+    url = f"{url}/projects/{last_project}{'/' if last_project != '' else ''}?inrepo=termux&outdated=1&families_newest=2-"
 
     repology_data = requests_get(url, timeout=60, headers={'User-Agent': 'Termux update checker 1.0 (github.com/termux/termux-packages)'}).json()
     # NOTE: We are using `families_newest=2-` so that api will return a
     # package as outdated if it is so in 2 or more
     # repo family. This helps us avoid false positives.
-    # However this does not work for all cases so an alternative lesser
-    # restriction query option is provided.
 
     return repology_data
 
@@ -53,9 +54,11 @@ def get_outdated_packages(project):
         sleep(1)
         repology_data = get_repology_data(last_project, project)
         project = "" # clear to not loop again
-        last_project = sorted(repology_data.keys())[
-            -1
-        ]  # This used to query repology for next set of packages.
+        repology_data_keys = sorted(repology_data.keys())
+        first_project = repology_data_keys[0]
+        last_project = repology_data_keys[-1]
+        # last_project is used to query next set of packages
+        print(f"{len(repology_data)}: {first_project} {last_project}")
         # Quoting repology documentation: "You may iterate through
         # all projects by using the last project name in the next request"
         # For more info, visit https://repology.org/api
@@ -92,22 +95,38 @@ def get_outdated_packages(project):
                 # If we don't find any version, skip the package.
                 continue
 
-    return termux_outdated_packages
+    return dict(sorted(termux_outdated_packages.items()))
 
 
 if __name__ == "__main__":
-    import json
-    import sys
-
     try:
         output_file = sys.argv[1]
     except IndexError:
-        sys.exit("Please provide an output file")
+        sys.exit("ERROR: Please provide an output file")
 
     try:
         project = sys.argv[2]
     except IndexError:
         project = ""
 
+    try:
+        file_size = getfilesize(output_file)
+    except Exception:
+        file_size = -1
+
+    if file_size > 3: # {} is size 3
+        print(f"INFO: Reusing {output_file} (size={file_size})")
+        sys.exit()
+
     with open(output_file, "w") as f:
-        json.dump(get_outdated_packages(project), f)
+        try:
+            json.dump(get_outdated_packages(project), f)
+        except Exception as error:
+            print(f"ERROR: {type(error).__name__}", file=sys.stderr)
+            print(error, file=sys.stderr)
+            print(f"WARN: The 'dump-repology-data' script was unsuccessful, so an empty json is being placed in {output_file}", file=sys.stderr)
+            print("{}", file=f)
+            sys.exit()
+
+    file_size = getfilesize(output_file)
+    print(f"INFO: 'dump-repology-data' successfully dumped to {output_file} (size={file_size})")
