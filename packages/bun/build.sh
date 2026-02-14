@@ -2,7 +2,7 @@ TERMUX_PKG_HOMEPAGE=https://bun.sh/
 TERMUX_PKG_DESCRIPTION="JavaScript runtime, bundler, test runner, and package manager"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="1.1.36"
+TERMUX_PKG_VERSION="1.3.9"
 TERMUX_PKG_SRCURL=git+https://github.com/oven-sh/bun
 TERMUX_PKG_GIT_BRANCH="bun-v${TERMUX_PKG_VERSION}"
 TERMUX_PKG_HOSTBUILD=true
@@ -16,7 +16,7 @@ termux_step_host_build() {
 
 	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "false" ]]; then
 		curl -fsSL https://bun.sh/install | bash
-		export PATH="${HOME}/.bun/bin:/usr/lib/llvm-18/bin:${PATH}"
+		export PATH="${HOME}/.bun/bin:${PATH}"
 		command -v bun
 		command -v clang
 	fi
