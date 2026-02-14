@@ -6,6 +6,7 @@ TERMUX_PKG_VERSION="1.3.9"
 TERMUX_PKG_SRCURL=git+https://github.com/oven-sh/bun
 TERMUX_PKG_GIT_BRANCH="bun-v${TERMUX_PKG_VERSION}"
 TERMUX_PKG_HOSTBUILD=true
+TERMUX_PKG_ON_DEVICE_BUILD_NOT_SUPPORTED=true
 
 termux_step_host_build() {
 	# we are not using NDK to build bun
@@ -20,6 +21,8 @@ termux_step_host_build() {
 		command -v bun
 		command -v clang
 	fi
+
+	bun run --cwd=${TERMUX_PKG_SRCDIR} scripts/glob-sources.mjs
 
 	cmake \
 		-G Ninja \
