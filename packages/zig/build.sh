@@ -3,11 +3,9 @@ TERMUX_PKG_DESCRIPTION="General-purpose programming language and toolchain"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="zig/LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
-TERMUX_PKG_VERSION="0.15.2"
+TERMUX_PKG_VERSION="0.16.0"
 TERMUX_PKG_SRCURL=https://ziglang.org/download/${TERMUX_PKG_VERSION}/zig-bootstrap-${TERMUX_PKG_VERSION}.tar.xz
-TERMUX_PKG_SHA256=a6845459501df3c3264ebc587b02a7094ad14f4f3f7287c48f04457e784d0d85
-TERMUX_PKG_DEPENDS="proot"
-TERMUX_PKG_ANTI_BUILD_DEPENDS="proot"
+TERMUX_PKG_SHA256=2a8266a4205772ef40838c8cbdf14875855a515ff3adf89b49c2d2ae93613d10
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=true
 
@@ -66,15 +64,4 @@ termux_step_post_massage() {
 		"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX_CLASSICAL/lib/zig/zig" version
 		"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX_CLASSICAL/lib/zig/zig" init
 	)
-}
-
-termux_step_create_debscripts() {
-	cat <<- EOL > postinst
-	#!${TERMUX_PREFIX}/bin/sh
-	echo "NOTE:"
-	echo "${TERMUX_PREFIX}/bin/zig is now a proot wrapper script to"
-	echo "${TERMUX_PREFIX}/lib/zig/zig to workaround issue:"
-	echo "error: warning: Encountered error: FileNotFound, falling back to default ABI and dynamic linker"
-	EOL
-	chmod 700 postinst
 }
