@@ -1,13 +1,19 @@
-diff -uNr a/src/runtime/src/libraries/System.IO.IsolatedStorage/src/System/IO/IsolatedStorage/Helper.AnyMobile.cs b/src/runtime/src/libraries/System.IO.IsolatedStorage/src/System/IO/IsolatedStorage/Helper.AnyMobile.cs
---- a/src/runtime/src/libraries/System.IO.IsolatedStorage/src/System/IO/IsolatedStorage/Helper.AnyMobile.cs	2026-04-23 00:22:06.569209338 +0800
-+++ b/src/runtime/src/libraries/System.IO.IsolatedStorage/src/System/IO/IsolatedStorage/Helper.AnyMobile.cs	2026-04-23 08:27:37.956000103 +0800
-@@ -37,7 +37,8 @@
-                 // In .Net 7 for Android SpecialFolder.LocalApplicationData returns "/data/user/0/{packageName}/files"
-                 // while in Xamarin it was "/data/user/0/{packageName}/files/.local/share"
-                 // For Android we need to hardcode Xamarin path for compatibility with legacy Xamarin
--                if (OperatingSystem.IsAndroid() && IsRoaming(scope))
-+                //if (OperatingSystem.IsAndroid() && IsRoaming(scope))
-+                if (IsRoaming(scope))
-                 {
-                     dataDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + ".local/share";
-                     Directory.CreateDirectory(dataDirectory);
+diff -uNr a/src/runtime/src/libraries/System.IO.IsolatedStorage/src/System.IO.IsolatedStorage.csproj b/src/runtime/src/libraries/System.IO.IsolatedStorage/src/System.IO.IsolatedStorage.csproj
+--- a/src/runtime/src/libraries/System.IO.IsolatedStorage/src/System.IO.IsolatedStorage.csproj	2026-04-23 00:22:06.585209338 +0800
++++ b/src/runtime/src/libraries/System.IO.IsolatedStorage/src/System.IO.IsolatedStorage.csproj	2026-04-30 05:56:11.766086829 +0800
+@@ -25,12 +25,15 @@
+              Link="Common\System\Obsoletions.cs" />
+   </ItemGroup>
+ 
++  <!--
+   <ItemGroup Condition="'$(TargetPlatformIdentifier)' == 'android' or '$(TargetPlatformIdentifier)' == 'ios' or '$(TargetPlatformIdentifier)' == 'maccatalyst' or '$(TargetPlatformIdentifier)' == 'tvos'">
+     <Compile Include="System\IO\IsolatedStorage\Helper.AnyMobile.cs" />
+     <Compile Include="System\IO\IsolatedStorage\IsolatedStorageFile.AnyMobile.cs" />
+   </ItemGroup>
+ 
+   <ItemGroup Condition="'$(TargetPlatformIdentifier)' != 'android' and '$(TargetPlatformIdentifier)' != 'ios' and '$(TargetPlatformIdentifier)' != 'maccatalyst' and '$(TargetPlatformIdentifier)' != 'tvos' and '$(TargetPlatformIdentifier)' != ''">
++  -->
++  <ItemGroup>
+     <Compile Include="System\IO\IsolatedStorage\Helper.NonMobile.cs" />
+     <Compile Include="System\IO\IsolatedStorage\IsolatedStorageFile.NonMobile.cs" />
+   </ItemGroup>
