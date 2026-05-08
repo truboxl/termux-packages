@@ -35,6 +35,8 @@ concurrency:
 
 jobs:
   build:
+    outputs:
+      packages: ${{ steps.build-info.outputs.packages }}
     permissions:
       contents: read # actions/upload-artifact doesn't need contents: write
     runs-on: ubuntu-24.04
@@ -186,6 +188,7 @@ jobs:
         done
 
         echo "packages: ${packages[*]}"
+        echo "packages=${packages[*]}" >> $GITHUB_OUTPUT
 
         free_space='false'
         if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
@@ -253,7 +256,6 @@ jobs:
       if: ${{ steps.build-info.outputs.free-space == 'true' && steps.build-info.outputs.skip-building != 'true' }}
       run: |
         ./scripts/free-space.sh
-
     - name: Build packages
       if: ${{ steps.build-info.outputs.skip-building != 'true' }}
       run: |
@@ -270,7 +272,6 @@ jobs:
         if [[ "${#packages[@]}" -gt 0 ]]; then
           ./scripts/run-docker.sh -d ./build-package.sh -I -C -a "${{ matrix.target_arch }}" "${packages[@]}"
         fi
-
     - name: Generate build artifacts
       if: always()
       run: |
@@ -471,3 +472,51 @@ jobs:
             fi
           fi
         done
+
+  test-after-build:
+    if: ${{ needs.build.outputs.packages != '' }}
+    env:
+      PACKAGES: ${{ needs.build.outputs.packages }}
+    needs: build
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        # Limitations:
+        # TODO QEMU2 Android emulator cant run ARM images on x86_64 host (ubuntu-*)
+        # TODO there is no prebuilt Android emulator for ARM host (ubuntu-*-arm)
+        # ARM emulation in x86_64 images errors on termux-bootstrap-second-stage.sh
+        # API 25 screenrecord is unavailable
+        # API 26 has broken Internet, adb input
+        # x86_64 API 27 google_apis is unavailable
+        # i686 API 30+ images are unavailable
+        # x86_64 API 31+ does not support i686
+        #
+        # Scope of test:
+        # API 24 minimum target
+        # API 28 next expected minimum
+        # API 29 last 32bit emulator image
+        # API 30 all 64bit emulator image
+        # latest image
+        target_arch: [i686, x86_64]
+        api: [24, 28, 29, 30, 36]
+        image: [google_apis]
+        os: [ubuntu-24.04]
+        include:
+          - target_arch: i686
+            arch: x86
+          - target_arch: x86_64
+            arch: x86_64
+          - target_arch: i686
+            arch: x86_64
+            api: 30
+        exclude:
+          - target_arch: i686
+            api: 36
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v6
+      - name: Test using Android Emulator
+        uses: ./.github/actions/test-after-build
