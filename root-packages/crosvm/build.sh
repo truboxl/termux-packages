@@ -8,7 +8,7 @@ _COMMIT_TIME=184306
 TERMUX_PKG_VERSION="0.1.0.20260508.184306"
 TERMUX_PKG_SRCURL=git+https://github.com/google/crosvm
 TERMUX_PKG_GIT_BRANCH="main"
-TERMUX_PKG_DEPENDS="libandroid-fexecve, libcap, libwayland, virglrenderer"
+TERMUX_PKG_DEPENDS="libandroid-fexecve, libandroid-shmem, libcap, libwayland, virglrenderer"
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_BUILD_IN_SRC=true
 
