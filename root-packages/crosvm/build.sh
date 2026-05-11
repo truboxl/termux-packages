@@ -1,4 +1,4 @@
-TERMUX_PKG_HOMEPAGE=https://chromium.googlesource.com/crosvm/crosvm
+TERMUX_PKG_HOMEPAGE=https://crosvm.dev/book/
 TERMUX_PKG_DESCRIPTION="ChromeOS Virtual Machine Monitor"
 TERMUX_PKG_LICENSE="BSD 3-Clause"
 TERMUX_PKG_MAINTAINER="@termux"
@@ -115,7 +115,7 @@ termux_step_make() {
 	cargo build \
 		--jobs "${TERMUX_PKG_MAKE_PROCESSES}" \
 		--target "${CARGO_TARGET_NAME}" \
-		--features geniezone,gunyah \
+		--features geniezone,gunyah,halla,gpu,x,virgl_renderer \
 		${extra_opt}
 }
 
