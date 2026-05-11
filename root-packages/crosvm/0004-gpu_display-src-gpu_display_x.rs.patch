@@ -47,7 +47,7 @@
 +#[cfg(target_os = "android")]
 +pub use reexport_android_modules::*;
 +#[cfg(target_os = "android")]
-+#[link(name = "android_shmem")]
++#[link(name = "android-shmem")]
 +extern "C" {
 +    pub fn shmat(shmid: libc::c_int, shmaddr: *const libc::c_void, shmflg: libc::c_int) -> *mut libc::c_void;
 +    pub fn shmctl(shmid: libc::c_int, cmd: libc::c_int, buf: *mut shmid_ds) -> libc::c_int;

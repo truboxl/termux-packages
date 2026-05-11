@@ -106,7 +106,6 @@ termux_step_make() {
 	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-l:libmlock2.a"
 
 	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-landroid-fexecve"
-	export CARGO_TARGET_${env_host}_RUSTFLAGS+=" -C link-arg=-landroid-shmem"
 	export LDFLAGS+=" -landroid-fexecve"
 
 	local extra_opt="--release"
