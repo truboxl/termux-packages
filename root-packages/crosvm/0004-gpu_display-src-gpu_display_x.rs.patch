@@ -1,0 +1,43 @@
+diff --git a/gpu_display/src/gpu_display_x.rs b/gpu_display/src/gpu_display_x.rs
+index 8b50734..798bc40 100644
+--- a/gpu_display/src/gpu_display_x.rs
++++ b/gpu_display/src/gpu_display_x.rs
+@@ -26,13 +26,38 @@ use std::rc::Rc;
+ use base::AsRawDescriptor;
+ use base::RawDescriptor;
+ use base::VolatileSlice;
++#[cfg(not(target_os = "android"))]
+ use libc::shmat;
++#[cfg(not(target_os = "android"))]
+ use libc::shmctl;
++#[cfg(not(target_os = "android"))]
+ use libc::shmdt;
++#[cfg(not(target_os = "android"))]
+ use libc::shmget;
++#[cfg(not(target_os = "android"))]
+ use libc::IPC_CREAT;
++#[cfg(not(target_os = "android"))]
+ use libc::IPC_PRIVATE;
++#[cfg(not(target_os = "android"))]
+ use libc::IPC_RMID;
++#[cfg(target_os = "android")]
++#[link(name = "android_shmem")]
++pub fn shmat(shmid: c_int, shmaddr: *const c_void, shmflg: c_int) -> *mut c_void;
++#[cfg(target_os = "android")]
++#[link(name = "android_shmem")]
++pub fn shmctl(shmid: c_int, cmd: c_int, buf: *mut crate::shmid_ds) -> c_int;
++#[cfg(target_os = "android")]
++#[link(name = "android_shmem")]
++pub fn shmdt(shmaddr: *const c_void) -> c_int;
++#[cfg(target_os = "android")]
++#[link(name = "android_shmem")]
++pub fn shmget(key: crate::key_t, size: size_t, shmflg: c_int) -> c_int;
++#[cfg(target_os = "android")]
++pub const IPC_CREAT: c_int = 0o1000;
++#[cfg(target_os = "android")]
++pub const IPC_PRIVATE: key_t = 0;
++#[cfg(target_os = "android")]
++pub const IPC_RMID: c_int = 0;
+ use linux_input_sys::virtio_input_event;
+ use vm_control::gpu::DisplayParameters;
+ 
