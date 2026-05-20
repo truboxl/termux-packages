@@ -20,7 +20,7 @@ termux_step_post_get_source() {
 	curl -s https://storage.googleapis.com/git-repo-downloads/repo.asc | gpg --verify - ${TERMUX_PKG_TMPDIR}/repo
 	chmod 755 ${TERMUX_PKG_TMPDIR}/repo
 	export PATH+=":${TERMUX_PKG_TMPDIR}"
-	repo init --partial-clone --no-use-superproject -b android-latest-release -u https://android.googlesource.com/platform/manifest
+	repo init --partial-clone --no-use-superproject --depth 1 -b android-latest-release -u https://android.googlesource.com/platform/manifest
 	repo sync -v -c -j${TERMUX_PKG_MAKE_PROCESSES}
 }
 
