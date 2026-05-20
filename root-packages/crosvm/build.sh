@@ -15,8 +15,11 @@ TERMUX_PKG_SKIP_SRC_EXTRACT=true
 TERMUX_PKG_EXCLUDED_ARCHES="arm, i686"
 
 termux_step_post_get_source() {
+	curl -o ${TERMUX_PKG_TMPDIR}/repo https://storage.googleapis.com/git-repo-downloads/repo
+	gpg --recv-keys 8BB9AD793E8E6153AF0F9A4416530D5E920F5C65
+	curl -s https://storage.googleapis.com/git-repo-downloads/repo.asc | gpg --verify - ${TERMUX_PKG_TMPDIR}/repo && install -m 755 ${TERMUX_PKG_TMPDIR}/repo ~/bin/repo
 	repo init --partial-clone --no-use-superproject -b android-latest-release -u https://android.googlesource.com/platform/manifest
-	repo sync -c -j8
+	repo sync -c -j${TERMUX_PKG_MAKE_PROCESSES}
 }
 
 termux_step_pre_configure() {
