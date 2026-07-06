@@ -119,6 +119,10 @@ termux_step_make() {
 }
 
 termux_step_make_install() {
+	find "${TERMUX_PKG_BUILDDIR}" -type f | sort
+	echo ======
+	find "${TERMUX_PKG_BUILDDIR}" -type f -name *.dll | sort
+	exit 1
 	# we provide bionic builds of these in the repo
 	rm -f "${TERMUX_PKG_BUILDDIR}/build/"{libe_sqlite3,libSkiaSharp,libHarfBuzzSharp}.so*
 	chmod 0700 "${TERMUX_PKG_BUILDDIR}/build"
