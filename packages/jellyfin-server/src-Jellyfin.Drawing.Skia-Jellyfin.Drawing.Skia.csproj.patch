@@ -1,0 +1,10 @@
+--- a/src/Jellyfin.Drawing.Skia/Jellyfin.Drawing.Skia.csproj
++++ b/src/Jellyfin.Drawing.Skia/Jellyfin.Drawing.Skia.csproj
+@@ -11,6 +11,7 @@
+     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+     <!-- TODO: Remove once we update SkiaSharp > 2.88.5 -->
+     <NoWarn>NU1903</NoWarn>
++    <ShouldIncludeNativeSkiaSharp>True</ShouldIncludeNativeSkiaSharp>
+   </PropertyGroup>
+ 
+   <ItemGroup>
