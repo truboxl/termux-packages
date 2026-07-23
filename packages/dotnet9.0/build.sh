@@ -3,6 +3,7 @@ TERMUX_PKG_DESCRIPTION=".NET 9.0"
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="@truboxl"
 TERMUX_PKG_VERSION="9.0.18"
+TERMUX_PKG_REVISION=1
 _DOTNET_SDK_VERSION="9.0.119"
 TERMUX_PKG_SRCURL=git+https://github.com/dotnet/dotnet
 TERMUX_PKG_GIT_BRANCH="v${_DOTNET_SDK_VERSION}"
@@ -14,8 +15,6 @@ TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_AUTO_UPDATE=true
 # https://github.com/dotnet/runtime/issues/7335
 # linux-x86 is not officially supported but works
-# TODO linux-bionic-arm is broken
-TERMUX_PKG_EXCLUDED_ARCHES="arm"
 
 termux_pkg_auto_update() {
 	local api_url="https://api.github.com/repos/dotnet/core/git/refs/tags"
