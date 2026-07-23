@@ -367,24 +367,6 @@
  
              ConfigureImageBase(targetDetails);
  
---- a/src/runtime/src/installer/pkg/sfx/Microsoft.NETCore.App/Microsoft.NETCore.App.Runtime.CoreCLR.sfxproj
-+++ b/src/runtime/src/installer/pkg/sfx/Microsoft.NETCore.App/Microsoft.NETCore.App.Runtime.CoreCLR.sfxproj
-@@ -40,14 +40,12 @@
-   <Target Name="ResolveReadyToRunCompilers" DependsOnTargets="ResolveRuntimeFilesFromLocalBuild">
-     <PropertyGroup>
-       <Crossgen2Path>$([MSBuild]::NormalizePath('$(Crossgen2InBuildDir)', 'crossgen2$(ExeSuffix)'))</Crossgen2Path>
--      <_CrossGenTargetOS Condition="'$(TargetsAndroid)' != 'true'">$(TargetOS)</_CrossGenTargetOS>
--      <_CrossGenTargetOS Condition="'$(TargetsAndroid)' == 'true'">linux</_CrossGenTargetOS>
-     </PropertyGroup>
- 
-     <ItemGroup>
-       <Crossgen2Tool Include="$(Crossgen2Path)"
-                      TargetArch="$(TargetArchitecture)"
--                     TargetOS="$(_CrossGenTargetOS)"
-+                     TargetOS="$(TargetOS)"
-                      PerfmapFormatVersion="$(PublishReadyToRunPerfmapFormatVersion)"/>
-     </ItemGroup>
-   </Target>
 --- a/src/runtime/src/mono/msbuild/android/build/AndroidBuild.InTree.targets
 +++ b/src/runtime/src/mono/msbuild/android/build/AndroidBuild.InTree.targets
 @@ -33,7 +33,7 @@
