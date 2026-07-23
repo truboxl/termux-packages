@@ -176,7 +176,7 @@ termux_step_configure() {
 termux_step_make() {
 	if [[ "${TERMUX_ARCH}" == "arm" ]]; then
 		pushd "${TERMUX_PKG_SRCDIR}/src/runtime/src/installer/pkg/sfx/Microsoft.NETCore.App"
-		"${TERMUX_PKG_BUILDDIR}/.dotnet/dotnet" restore
+		"${TERMUX_PKG_BUILDDIR}/.dotnet/dotnet" restore Microsoft.NETCore.App.Runtime.Mono.sfxproj
 		popd
 	fi
 
