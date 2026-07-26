@@ -1,7 +1,7 @@
 TERMUX_PKG_HOMEPAGE=https://dotnet.microsoft.com/en-us/
 TERMUX_PKG_DESCRIPTION="A metapackage for .NET Host"
 TERMUX_PKG_LICENSE="Public Domain"
-TERMUX_PKG_MAINTAINER="@truboxl"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="10.0"
 TERMUX_PKG_DEPENDS="dotnet-host-9.0 | dotnet-host-8.0"
 TERMUX_PKG_ANTI_BUILD_DEPENDS="dotnet-host-9.0, dotnet-host-8.0"
