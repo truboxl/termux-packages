@@ -158,6 +158,12 @@ termux_step_configure() {
 	set(FEATURE_EVENT_TRACE 0)
 	EOL
 
+	if [[ "$TERMUX_ARCH" == "arm" ]]; then
+		cat <<- EOL >> "${TERMUX_PKG_TMPDIR}/build/cmake/android.toolchain.cmake"
+		set(CLR_CMAKE_TARGET_UNIX_ARM 1)
+		EOL
+	fi
+
 	echo "INFO: ${TERMUX_PKG_TMPDIR}/build/cmake/android.toolchain.cmake"
 	cat "${TERMUX_PKG_TMPDIR}/build/cmake/android.toolchain.cmake"
 	echo
