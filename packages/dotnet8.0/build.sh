@@ -161,6 +161,7 @@ termux_step_configure() {
 	if [[ "$TERMUX_ARCH" == "arm" ]]; then
 		cat <<- EOL >> "${TERMUX_PKG_TMPDIR}/build/cmake/android.toolchain.cmake"
 		set(CLR_CMAKE_TARGET_UNIX_ARM 1)
+		set(CLR_CMAKE_TARGET_ARCH_ARMV7L 1)
 		set(ARM_SOFTFP 1)
 		EOL
 	fi
