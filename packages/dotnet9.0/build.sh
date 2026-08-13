@@ -169,6 +169,8 @@ termux_step_configure() {
 		set(CLR_CMAKE_TARGET_ARCH_ARMV7L 1)
 		set(ARM_SOFTFP 1)
 		EOL
+		CFLAGS+=" -DARM_SOFTFP"
+		CXXFLAGS+=" -DARM_SOFTFP"
 	fi
 
 	echo "INFO: ${TERMUX_PKG_TMPDIR}/build/cmake/android.toolchain.cmake"
