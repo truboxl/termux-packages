@@ -1,0 +1,148 @@
+--- a/src/runtime/eng/native/configureplatform.cmake
++++ b/src/runtime/eng/native/configureplatform.cmake
+@@ -366,6 +366,10 @@ if(CLR_CMAKE_TARGET_OS STREQUAL android)
+     set(CLR_CMAKE_TARGET_UNIX 1)
+     set(CLR_CMAKE_TARGET_LINUX 1)
+     set(CLR_CMAKE_TARGET_ANDROID 1)
++
++    if(CLR_CMAKE_TARGET_ARCH_ARM)
++        set(ARM_SOFTFP 1)
++    endif(CLR_CMAKE_TARGET_ARCH_ARM)
+ endif(CLR_CMAKE_TARGET_OS STREQUAL android)
+ 
+ if(CLR_CMAKE_TARGET_OS STREQUAL darwin)
+--- a/src/runtime/eng/native/gen-buildsys.sh
++++ b/src/runtime/eng/native/gen-buildsys.sh
+@@ -80,10 +80,6 @@ if [[ "$CROSSCOMPILE" == "1" ]]; then
+     fi
+ fi
+ 
+-if [[ "$host_arch" == "armel" ]]; then
+-    cmake_extra_defines="$cmake_extra_defines -DARM_SOFTFP=1"
+-fi
+-
+ if ! cmake_command=$(command -v cmake); then
+     echo "CMake was not found in PATH."
+     exit 1
+--- a/src/runtime/eng/pipelines/coreclr/templates/helix-queues-setup.yml
++++ b/src/runtime/eng/pipelines/coreclr/templates/helix-queues-setup.yml
+@@ -42,6 +42,13 @@ jobs:
+     - ${{ if in(parameters.platform, 'iossimulator_x64', 'tvossimulator_x64', 'maccatalyst_x64') }}:
+       - OSX.15.Amd64.Open
+ 
++    # Android arm
++    - ${{ if in(parameters.platform, 'android_arm') }}:
++      - ${{ if eq(variables['System.TeamProject'], 'public') }}:
++        - Windows.11.Amd64.Android-armel.Open
++      - ${{ if eq(variables['System.TeamProject'], 'internal') }}:
++        - Ubuntu.2204.Amd64.Android.29
++
+     # Android arm64
+     - ${{ if in(parameters.platform, 'android_arm64') }}:
+       - Windows.11.Amd64.Android.Open
+--- a/src/runtime/eng/pipelines/runtime.yml
++++ b/src/runtime/eng/pipelines/runtime.yml
+@@ -389,6 +389,7 @@ extends:
+           templatePath: 'templates'
+           buildConfig: release
+           platforms:
++          - android_arm
+           - android_x64
+           - browser_wasm
+           - tvos_arm64
+--- a/src/runtime/src/coreclr/clrdefinitions.cmake
++++ b/src/runtime/src/coreclr/clrdefinitions.cmake
+@@ -282,10 +282,6 @@ function(set_target_definitions_to_custom_os_and_arch)
+     target_compile_definitions(${TARGETDETAILS_TARGET} PRIVATE FEATURE_MULTIREG_RETURN)
+   endif()
+ 
+-  if (TARGETDETAILS_ARCH STREQUAL "armel")
+-    target_compile_definitions(${TARGETDETAILS_TARGET} PRIVATE ARM_SOFTFP)
+-  endif()
+-
+   if (NOT (TARGETDETAILS_ARCH STREQUAL "x86") OR (TARGETDETAILS_OS MATCHES "^unix"))
+     target_compile_definitions(${TARGETDETAILS_TARGET} PRIVATE FEATURE_EH_FUNCLETS)
+   endif (NOT (TARGETDETAILS_ARCH STREQUAL "x86") OR (TARGETDETAILS_OS MATCHES "^unix"))
+--- a/src/runtime/src/coreclr/jit/CMakeLists.txt
++++ b/src/runtime/src/coreclr/jit/CMakeLists.txt
+@@ -640,7 +640,7 @@ if (CLR_CMAKE_TARGET_ARCH_RISCV64)
+   create_standalone_jit(TARGET clrjit_unix_riscv64_${ARCH_HOST_NAME} OS unix ARCH riscv64 DESTINATIONS .)
+ else()
+   create_standalone_jit(TARGET clrjit_universal_arm_${ARCH_HOST_NAME} OS universal ARCH arm DESTINATIONS .)
+-  target_compile_definitions(clrjit_universal_arm_${ARCH_HOST_NAME} PRIVATE ARM_SOFTFP CONFIGURABLE_ARM_ABI)
++  target_compile_definitions(clrjit_universal_arm_${ARCH_HOST_NAME} PRIVATE CONFIGURABLE_ARM_ABI)
+   create_standalone_jit(TARGET clrjit_win_x86_${ARCH_HOST_NAME} OS win ARCH x86 DESTINATIONS .)
+ endif (CLR_CMAKE_TARGET_ARCH_RISCV64)
+ 
+--- a/src/runtime/src/coreclr/tools/Common/CommandLineHelpers.cs
++++ b/src/runtime/src/coreclr/tools/Common/CommandLineHelpers.cs
+@@ -72,7 +72,7 @@ public static TargetOS GetTargetOS(string token)
+ 
+             return token.ToLowerInvariant() switch
+             {
+-                "linux" => TargetOS.Linux,
++                "linux" or "android" => TargetOS.Linux,
+                 "win" or "windows" => TargetOS.Windows,
+                 "osx" => TargetOS.OSX,
+                 "freebsd" => TargetOS.FreeBSD,
+--- a/src/runtime/src/coreclr/tools/aot/ILCompiler/Program.cs
++++ b/src/runtime/src/coreclr/tools/aot/ILCompiler/Program.cs
+@@ -85,8 +85,8 @@ public int Run()
+             // directly encoded as part of the required ISAs.
+             bool isVectorTOptimistic = false;
+ 
+-            TargetArchitecture targetArchitecture = Get(_command.TargetArchitecture);
+-            TargetOS targetOS = Get(_command.TargetOS);
++            (TargetArchitecture targetArchitecture, TargetOS targetOS, TargetAbi targetAbi) =
++                Helpers.GetTargetSpec(Get(_command.TargetArchitecture), Get(_command.TargetOS));
+             InstructionSetSupport instructionSetSupport = Helpers.ConfigureInstructionSetSupport(Get(_command.InstructionSet), Get(_command.MaxVectorTBitWidth), isVectorTOptimistic, targetArchitecture, targetOS,
+                 "Unrecognized instruction set {0}", "Unsupported combination of instruction sets: {0}/{1}", logger,
+                 optimizingForSize: _command.OptimizationMode == OptimizationMode.PreferSize);
+--- a/src/runtime/src/coreclr/tools/aot/crossgen2/Crossgen2RootCommand.cs
++++ b/src/runtime/src/coreclr/tools/aot/crossgen2/Crossgen2RootCommand.cs
+@@ -147,8 +147,6 @@ internal class Crossgen2RootCommand : CliRootCommand
+         public OptimizationMode OptimizationMode { get; private set; }
+         public ParseResult Result { get; private set; }
+ 
+-        public static bool IsArmel { get; private set; }
+-
+         public Crossgen2RootCommand(string[] args) : base(SR.Crossgen2BannerText)
+         {
+             Arguments.Add(InputFilePaths);
+@@ -346,18 +344,6 @@ public static IEnumerable<Action<HelpContext>> GetExtendedHelp(HelpContext _)
+             };
+         }
+ 
+-        private static TargetArchitecture MakeTargetArchitecture(ArgumentResult result)
+-        {
+-            string firstToken = result.Tokens.Count > 0 ? result.Tokens[0].Value : null;
+-            if (firstToken != null && firstToken.Equals("armel", StringComparison.OrdinalIgnoreCase))
+-            {
+-                IsArmel = true;
+-                return Internal.TypeSystem.TargetArchitecture.ARM;
+-            }
+-
+-            return Helpers.GetTargetArchitecture(firstToken);
+-        }
+-
+         private static int MakeParallelism(ArgumentResult result)
+         {
+             if (result.Tokens.Count > 0)
+--- a/src/runtime/src/coreclr/tools/aot/crossgen2/Program.cs
++++ b/src/runtime/src/coreclr/tools/aot/crossgen2/Program.cs
+@@ -83,12 +83,12 @@ public int Run()
+             // that would cause the entire image to be invalidated.
+             bool isVectorTOptimistic = true;
+ 
+-            TargetArchitecture targetArchitecture = Get(_command.TargetArchitecture);
+-            TargetOS targetOS = Get(_command.TargetOS);
++            (TargetArchitecture targetArchitecture, TargetOS targetOS, TargetAbi targetAbi) =
++                Helpers.GetTargetSpec(Get(_command.TargetArchitecture), Get(_command.TargetOS));
+             InstructionSetSupport instructionSetSupport = Helpers.ConfigureInstructionSetSupport(Get(_command.InstructionSet), Get(_command.MaxVectorTBitWidth), isVectorTOptimistic, targetArchitecture, targetOS,
+                 SR.InstructionSetMustNotBe, SR.InstructionSetInvalidImplication, logger);
+             SharedGenericsMode genericsMode = SharedGenericsMode.CanonicalReferenceTypes;
+-            var targetDetails = new TargetDetails(targetArchitecture, targetOS, Crossgen2RootCommand.IsArmel ? TargetAbi.NativeAotArmel : TargetAbi.NativeAot, instructionSetSupport.GetVectorTSimdVector());
++            var targetDetails = new TargetDetails(targetArchitecture, targetOS, targetAbi, instructionSetSupport.GetVectorTSimdVector());
+ 
+             ConfigureImageBase(targetDetails);
+ 

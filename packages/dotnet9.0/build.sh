@@ -1,8 +1,9 @@
 TERMUX_PKG_HOMEPAGE=https://dotnet.microsoft.com/en-us/
 TERMUX_PKG_DESCRIPTION=".NET 9.0"
 TERMUX_PKG_LICENSE="MIT"
-TERMUX_PKG_MAINTAINER="@truboxl"
+TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="9.0.19"
+TERMUX_PKG_REVISION=1
 _DOTNET_SDK_VERSION="9.0.120"
 TERMUX_PKG_SRCURL=git+https://github.com/dotnet/dotnet
 TERMUX_PKG_GIT_BRANCH="v${_DOTNET_SDK_VERSION}"
@@ -14,8 +15,6 @@ TERMUX_PKG_NO_STATICSPLIT=true
 TERMUX_PKG_AUTO_UPDATE=true
 # https://github.com/dotnet/runtime/issues/7335
 # linux-x86 is not officially supported but works
-# TODO linux-bionic-arm is broken
-TERMUX_PKG_EXCLUDED_ARCHES="arm"
 
 termux_pkg_auto_update() {
 	local api_url="https://api.github.com/repos/dotnet/core/git/refs/tags"
@@ -95,19 +94,23 @@ termux_step_configure() {
 
 	export ANDROID_NDK_ROOT="${TERMUX_PKG_TMPDIR}"
 
-	# unified sysroot needed when CMAKE_SYSROOT / --sysroot cannot be used
+	# unified sysroot combining TERMUX_STANDALONE_TOOLCHAIN/sysroot and TERMUX_PREFIX needed
+	# as CMAKE_SYSROOT / --sysroot cannot be used
 	export ROOTFS_DIR="${TERMUX_PKG_TMPDIR}/sysroot"
 	if [[ -e "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot.tmp" ]]; then
+		echo "INFO: Moving ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot.tmp to ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot"
 		rm -f "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot"
-		mv -v "${TERMUX_STANDALONE_TOOLCHAIN}"/sysroot{.tmp,}
+		mv "${TERMUX_STANDALONE_TOOLCHAIN}"/sysroot{.tmp,}
 	fi
 	rm -fr "${ROOTFS_DIR}"
 	echo "INFO: Copying ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot to ${ROOTFS_DIR}"
 	cp -fr "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot" "${ROOTFS_DIR}"
 	echo "INFO: Copying ${TERMUX_PREFIX} to ${ROOTFS_DIR}"
 	cp -fr "${TERMUX_PREFIX}" "${ROOTFS_DIR}"
-	mv -v "${TERMUX_STANDALONE_TOOLCHAIN}"/sysroot{,.tmp}
-	ln -sv "${ROOTFS_DIR}" "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot"
+	echo "INFO: Moving ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot to ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot.tmp"
+	mv "${TERMUX_STANDALONE_TOOLCHAIN}"/sysroot{,.tmp}
+	echo "INFO: Symbolic linking ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot to ${ROOTFS_DIR}"
+	ln -fs "${ROOTFS_DIR}" "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot"
 
 	#echo "RID=android.${TERMUX_PKG_API_LEVEL}-${arch}" > "${ROOTFS_DIR}/android_platform"
 
@@ -159,6 +162,16 @@ termux_step_configure() {
 	# Android has no liblttng-ust, Linux also has different issue
 	set(FEATURE_EVENT_TRACE 0)
 	EOL
+
+	if [[ "$TERMUX_ARCH" == "arm" ]]; then
+		cat <<- EOL >> "${TERMUX_PKG_TMPDIR}/build/cmake/android.toolchain.cmake"
+		set(CLR_CMAKE_TARGET_UNIX_ARM 1)
+		set(CLR_CMAKE_TARGET_ARCH_ARMV7L 1)
+		set(ARM_SOFTFP 1)
+		EOL
+		CFLAGS+=" -DARM_SOFTFP"
+		CXXFLAGS+=" -DARM_SOFTFP"
+	fi
 
 	echo "INFO: ${TERMUX_PKG_TMPDIR}/build/cmake/android.toolchain.cmake"
 	cat "${TERMUX_PKG_TMPDIR}/build/cmake/android.toolchain.cmake"
@@ -361,8 +374,9 @@ termux_step_make_install() {
 
 termux_step_post_make_install() {
 	echo "INFO: Restoring sysroot"
+	echo "INFO: Moving ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot.tmp to ${TERMUX_STANDALONE_TOOLCHAIN}/sysroot"
 	rm -fr "${TERMUX_STANDALONE_TOOLCHAIN}/sysroot"
-	mv -v "${TERMUX_STANDALONE_TOOLCHAIN}"/sysroot{.tmp,}
+	mv "${TERMUX_STANDALONE_TOOLCHAIN}"/sysroot{.tmp,}
 
 	unset ANDROID_NDK_ROOT CONFIG CROSSCOMPILE ROOTFS_DIR
 	unset EXTRA_CFLAGS EXTRA_CXXFLAGS EXTRA_LDFLAGS
