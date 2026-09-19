@@ -399,9 +399,20 @@ _show_error_message() {
 }
 
 termux_step_post_massage() {
+	local upstream_bin=$(ls "${TERMUX_PKG_CACHEDIR}/emsdk/upstream/bin")
+	local llvm_bin=$(ls "${TERMUX_TOPDIR}/emscripten/subpackages/emscripten-llvm/massage/${TERMUX_PREFIX_CLASSICAL}/opt/emscripten-llvm/bin")
+	local binaryen_bin=$(ls "${TERMUX_TOPDIR}/emscripten/subpackages/emscripten-binaryen/massage/${TERMUX_PREFIX_CLASSICAL}/opt/emscripten-binaryen/bin")
+	echo "upstream_bin=$upstream_bin"
+	echo "llvm_bin=$llvm_bin"
+	echo "binaryen_bin=$binaryen_bin"
+
 	local upstream_bin=$(find "${TERMUX_PKG_CACHEDIR}/emsdk/upstream/bin" -mindepth 1 -maxdepth 1 -type f -print0 | xargs -0 -P"${TERMUX_PKG_MAKE_PROCESSES}" -i bash -c "[[ -x '{}' ]] && basename '{}'" | sort)
 	local llvm_bin=$(find "${TERMUX_TOPDIR}/emscripten/subpackages/emscripten-llvm/massage/${TERMUX_PREFIX_CLASSICAL}/opt/emscripten-llvm/bin" -mindepth 1 -maxdepth 1 -type f | xargs -0 -P"${TERMUX_PKG_MAKE_PROCESSES}" -i bash -c "[[ -x '{}' ]] && basename '{}'" | sort)
 	local binaryen_bin=$(find "${TERMUX_TOPDIR}/emscripten/subpackages/emscripten-binaryen/massage/${TERMUX_PREFIX_CLASSICAL}/opt/emscripten-binaryen/bin" -mindepth 1 -maxdepth 1 -type f -print0 | xargs -0 -P"${TERMUX_PKG_MAKE_PROCESSES}" -i bash -c "[[ -x '{}' ]] && basename '{}'" | sort)
+	echo "upstream_bin=$upstream_bin"
+	echo "llvm_bin=$llvm_bin"
+	echo "binaryen_bin=$binaryen_bin"
+
 	local df=$(diff -u <(echo "${upstream_bin}") <(echo -e "${llvm_bin}\n${binaryen_bin}" | sort))
 	if [[ -n "${df}" ]]; then
 		_show_error_message "binary" "binaries"
@@ -410,6 +421,8 @@ termux_step_post_massage() {
 
 	local upstream_entrypoint=$(find "${TERMUX_PKG_CACHEDIR}/emsdk/upstream/emscripten" -mindepth 1 -maxdepth 1 -type f -print0 | xargs -0 -P"${TERMUX_PKG_MAKE_PROCESSES}" -i bash -c "[[ -x '{}' ]] && basename '{}'" | sort)
 	local downstream_entrypoint=$(find "${TERMUX_PREFIX}/opt/emscripten" -mindepth 1 -maxdepth 1 -type f -print0 | xargs -0 -P"${TERMUX_PKG_MAKE_PROCESSES}" -i bash -c "[[ -x '{}' ]] && basename '{}'" | sort)
+	echo "upstream_entrypoint=$upstream_entrypoint"
+	echo "downstream_entrypoint=$downstream_entrypoint"
 	local df2=$(diff -u <(echo "${upstream_entrypoint}") <(echo "${downstream_entrypoint}"))
 	if [[ -n "${df2}" ]]; then
 		_show_error_message "entrypoint" "entrypoints"
