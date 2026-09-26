@@ -269,8 +269,8 @@ termux_step_massage() {
 		local t0=$(get_epoch)
 		local files valid
 		files="$(find . -type f)"
-		valid="$(IFS=; find . -type f -print0 | \
-			while read -r -d '' file; do
+		valid="$(IFS=; echo "${files}" | \
+			while read -r file; do
 				# Find files with ELF or static library signature in the first 4 bytes bytes
 				read -rN4 hdr < "$file" || continue
 				[[ $hdr == $'\x7fELF' || $hdr == '!<ar' ]] && printf '%s\n' "$file" || :
