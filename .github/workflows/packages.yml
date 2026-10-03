@@ -99,7 +99,7 @@ jobs:
           # Process tag '%ci:no-build' that may be added as line to commit message.
           # Forces CI to cancel current build with status 'passed'
           if grep -qiP '^\s*%ci:no-build\s*$' <(git log --format="%B" -n 1 --no-merges "HEAD"); then
-            tar cf artifacts/debs-${{ matrix.target_arch }}.tar debs
+            tar --sort=name -cf artifacts/debs-${{ matrix.target_arch }}.tar debs
             echo "[!] Force exiting as tag '%ci:no-build' was applied to HEAD commit message."
             exit 0
           fi
@@ -332,7 +332,7 @@ jobs:
 
         # Files containing certain symbols (e.g. ":") will cause failure in actions/upload-artifact.
         # Archiving *.deb files in a tarball to avoid issues with uploading.
-        tar cf artifacts/debs-${{ matrix.target_arch }}-${{ github.sha }}.tar debs
+        tar --sort=name -cf artifacts/debs-${{ matrix.target_arch }}-${{ github.sha }}.tar debs
     - name: Checksums for built *.deb files
       if: always()
       run: |
