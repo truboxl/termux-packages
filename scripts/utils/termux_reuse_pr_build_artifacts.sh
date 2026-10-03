@@ -217,9 +217,9 @@ readarray -t COMMITS < <(git rev-list --no-merges "$OLD_COMMIT..$HEAD_COMMIT" ||
 		fragment workflowRun on Commit {
 			checkSuites(first: 32) { nodes { workflowRun { event file { path } databaseId } conclusion status } }
 		}"
-
+		echo "WORKFLOW_PR_QUERY=$WORKFLOW_PR_QUERY"
 		RESPONSE="$(graphql_request "$WORKFLOW_PR_QUERY" || infoexit "Failed to perform GraphQL request, not performing CI fast path")"
-
+		echo "REPOSNSE=$REPSONSE"
 		# Obtain the most recent, related, successful `packages.yml` workflow run.
 		WORKFLOW_ID="$(
 			jq -r '[.data.repository.object?.checkSuites?.nodes[]?
@@ -230,6 +230,7 @@ readarray -t COMMITS < <(git rev-list --no-merges "$OLD_COMMIT..$HEAD_COMMIT" ||
 				and .status == "COMPLETED")
 				| .workflowRun.databaseId][0] // empty' <<< "$RESPONSE" || :
 		)"
+		echo "WORKFLOW_ID=$WORKFLOW_ID"
 		if [[ -n "${WORKFLOW_ID}" ]]; then
 			echo "We can safely reuse CI artifacts from https://github.com/termux/termux-packages/actions/runs/${WORKFLOW_ID}"
 			if download_ci_artifacts "${WORKFLOW_ID}"; then
@@ -269,9 +270,9 @@ readarray -t COMMITS < <(git rev-list --no-merges "$OLD_COMMIT..$HEAD_COMMIT" ||
 	fragment workflowRun on Commit {
 		checkSuites(first: 32) { nodes { workflowRun { event file { path } databaseId } conclusion status } }
 	}"
-
+	echo "WORKFLOW_PR_QUERY=$WORKFLOW_PR_QUERY"
 	RESPONSE="$(graphql_request "$WORKFLOW_COMMITS_QUERY" || infoexit "Failed to perform GraphQL request, not performing CI fast path")"
-
+	echo "REPOSNSE=$REPSONSE"
 	# git rev-list prints commits in chronologically descending order, so we can check them as is.
 	for commit in "${COMMITS[@]}"; do
 		# Get the most recent successful `packages.yml` workflow run for this commit if any
@@ -284,6 +285,7 @@ readarray -t COMMITS < <(git rev-list --no-merges "$OLD_COMMIT..$HEAD_COMMIT" ||
 					.status == "COMPLETED"
 				) | .workflowRun.databaseId][0] // empty' <<< "$RESPONSE"
 		)"
+		echo "WORKFLOW_ID=$WORKFLOW_ID"
 		# No need to go on if we found a match.
 		[[ -z "${WORKFLOW_ID:-}" ]] || break
 	done
