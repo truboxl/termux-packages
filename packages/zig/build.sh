@@ -4,7 +4,8 @@ TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="zig/LICENSE"
 TERMUX_PKG_MAINTAINER="@termux"
 TERMUX_PKG_VERSION="0.17.0"
-TERMUX_PKG_SRCURL=https://ziglang.org/download/${TERMUX_PKG_VERSION}/zig-bootstrap-${TERMUX_PKG_VERSION}.tar.xz
+TERMUX_PKG_REVISION=1
+TERMUX_PKG_SRCURL="https://ziglang.org/download/${TERMUX_PKG_VERSION}/zig-bootstrap-${TERMUX_PKG_VERSION}.tar.xz"
 TERMUX_PKG_SHA256=1e9e9b8e3c753b35dfb1d9ea48f097579fadbd3e5c1e724ab3fc5bce05477b71
 TERMUX_PKG_DEPENDS="resolv-conf"
 TERMUX_PKG_ANTI_BUILD_DEPENDS="resolv-conf"
@@ -16,7 +17,7 @@ TERMUX_PKG_NO_ELF_CLEANER=true
 
 termux_step_post_get_source() {
 	local p
-	for p in "${TERMUX_PKG_BUILDER_DIR}/${TERMUX_PKG_VERSION}"/*.diff; do
+	for p in "${TERMUX_PKG_BUILDER_DIR}"/*.diff; do
 		echo "Applying patch: $(basename "${p}")"
 		sed "s|@TERMUX_PREFIX@|${TERMUX_PREFIX}|g" "${p}" | \
 			patch --silent -p1
@@ -24,6 +25,9 @@ termux_step_post_get_source() {
 }
 
 termux_step_pre_configure() {
+	# this is buildorder.py workaround
+	TERMUX_PKG_DEPENDS+=", zig-common"
+
 	termux_setup_cmake
 	termux_setup_ninja
 	termux_setup_zig
@@ -54,12 +58,38 @@ termux_step_make_install() {
 }
 
 termux_step_post_massage() {
-	if [[ "${TERMUX_ON_DEVICE_BUILD}" == "true" ]]; then return; fi
-	if [[ -z "$(find /proc/sys/fs/binfmt_misc -type f -name 'qemu-*')" ]]; then return; fi
+	local arch="$(uname -m)"
+	case "${arch}" in
+	armv*) arch="arm" ;;
+	i*86) arch="i686" ;;
+	esac
+
+	local offset_0x10
+	offset_0x10="$(xxd -l 0x11 "$TERMUX_TOPDIR/$TERMUX_PKG_NAME/massage/$TERMUX_PREFIX_CLASSICAL/lib/zig/zig" | tail -n1 | cut -d" " -f2)"
+	case "${offset_0x10}" in
+	02) termux_error_exit "wrong value at offset_0x10 = 02" ;;
+	*) echo "INFO: offset_0x10 = ${offset_0x10}" ;;
+	esac
+
+	if [[ "${TERMUX_ARCH}" == "${arch}" ]]; then
+		:
+	elif [[ "${TERMUX_ARCH}" == "arm" && "${arch}" == "aarch64" ]]; then
+		:
+	elif [[ "${TERMUX_ARCH}" == "i686" && "${arch}" == "x86_64" ]]; then
+		:
+	elif [[ -n "$(find /proc/sys/fs/binfmt_misc -type f -name 'qemu-*')" ]]; then
+		:
+	else
+		echo "WARN: Skip self test"
+		return
+	fi
 
 	( # self test
 		cd "${TERMUX_PKG_TMPDIR}" || termux_error_exit "Failed to perform selftest for Zig $TERMUX_PKG_VERSION"
-		"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX_CLASSICAL/lib/zig/zig" version
-		"$TERMUX_PKG_MASSAGEDIR/$TERMUX_PREFIX_CLASSICAL/lib/zig/zig" init
+		cp -fr "$TERMUX_TOPDIR/$TERMUX_PKG_NAME/massage/$TERMUX_PREFIX_CLASSICAL/lib/zig/" .
+		cp -fr "$TERMUX_TOPDIR/$TERMUX_PKG_NAME/subpackages/zig-common/massage/$TERMUX_PREFIX_CLASSICAL/lib/zig/" .
+		cd zig/
+		zig version
+		zig init
 	)
 }
