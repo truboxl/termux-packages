@@ -35,6 +35,11 @@ termux_step_massage() {
 	rm -f glibc/etc/ld{,32}.so.cache
 	rm -rf glibc/var/cache/ldconfig{,32}
 
+	# Remove duplicated dotnet runtime in dependant packages
+	if [[ "$TERMUX_PKG_NAME" != "dotnet"* ]]; then
+		rm -fr lib/dotnet
+	fi
+
 	# `update-mime-database` updates NOT ONLY "$PREFIX/share/mime/mime.cache".
 	# Simply removing this specific file does not solve the issue.
 	if [ -e "share/mime/mime.cache" ]; then
