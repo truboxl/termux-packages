@@ -75,3 +75,11 @@
  
  # Finally, we can cross compile Zig itself, with Zig.
  cd "$ROOTDIR/zig"
+@@ -200,6 +208,7 @@
+   -Dflat \
+   -Dstatic-llvm \
+   -Doptimize=ReleaseFast \
++  -Dpie \
+   -Dstrip \
+   -Dtarget="$TARGET" \
+   -Dcpu="$MCPU" \
