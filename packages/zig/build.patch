@@ -35,7 +35,7 @@
  
  # Now we have Zig as a cross compiler.
  ZIG="$ROOTDIR/out/host/bin/zig"
-@@ -76,7 +80,9 @@
+@@ -76,7 +80,10 @@
  # the final zig binary to have zlib support enabled.
  mkdir -p "$ROOTDIR/out/build-zlib-$TARGET-$MCPU"
  cd "$ROOTDIR/out/build-zlib-$TARGET-$MCPU"
@@ -43,10 +43,11 @@
 +cmake -G Ninja "$ROOTDIR/zlib" \
 +  -DCMAKE_C_LINKER_DEPFILE_SUPPORTED=FALSE \
 +  -DCMAKE_CXX_LINKER_DEPFILE_SUPPORTED=FALSE \
++  -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE \
    -DCMAKE_INSTALL_PREFIX="$ROOTDIR/out/$TARGET-$MCPU" \
    -DCMAKE_PREFIX_PATH="$ROOTDIR/out/$TARGET-$MCPU" \
    -DCMAKE_BUILD_TYPE=Release \
-@@ -89,7 +95,7 @@
+@@ -89,7 +96,7 @@
    -DCMAKE_RC_COMPILER="$ROOTDIR/out/host/bin/llvm-rc" \
    -DCMAKE_AR="$ROOTDIR/out/host/bin/llvm-ar" \
    -DCMAKE_RANLIB="$ROOTDIR/out/host/bin/llvm-ranlib"
@@ -55,7 +56,7 @@
  
  # Same deal for zstd.
  # The build system for zstd is whack so I just put all the files here.
-@@ -101,6 +107,7 @@
+@@ -101,6 +108,7 @@
    -target $TARGET \
    -mcpu=$MCPU \
    -fno-sanitize-c -fstrip -OReleaseFast \
@@ -63,7 +64,7 @@
    -lc \
    "$ROOTDIR/zstd/lib/decompress/zstd_ddict.c" \
    "$ROOTDIR/zstd/lib/decompress/zstd_decompress.c" \
-@@ -139,7 +146,9 @@
+@@ -139,7 +147,9 @@
  # Rebuild LLVM with Zig.
  mkdir -p "$ROOTDIR/out/build-llvm-$TARGET-$MCPU"
  cd "$ROOTDIR/out/build-llvm-$TARGET-$MCPU"
@@ -74,7 +75,7 @@
    -DCMAKE_INSTALL_PREFIX="$ROOTDIR/out/$TARGET-$MCPU" \
    -DCMAKE_PREFIX_PATH="$ROOTDIR/out/$TARGET-$MCPU" \
    -DCMAKE_BUILD_TYPE=Release \
-@@ -190,7 +199,7 @@
+@@ -190,7 +200,7 @@
    -DCLANG_TOOL_C_INDEX_TEST_BUILD=OFF \
    -DCLANG_TOOL_LIBCLANG_BUILD=OFF \
    -DLLD_BUILD_TOOLS=OFF
@@ -83,7 +84,7 @@
  
  # Finally, we can cross compile Zig itself, with Zig.
  cd "$ROOTDIR/zig"
-@@ -200,6 +209,7 @@
+@@ -200,6 +210,7 @@
    -Dflat \
    -Dstatic-llvm \
    -Doptimize=ReleaseFast \
