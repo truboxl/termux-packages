@@ -55,7 +55,15 @@
  
  # Same deal for zstd.
  # The build system for zstd is whack so I just put all the files here.
-@@ -139,7 +145,9 @@
+@@ -101,6 +107,7 @@
+   -target $TARGET \
+   -mcpu=$MCPU \
+   -fno-sanitize-c -fstrip -OReleaseFast \
++  -fPIC \
+   -lc \
+   "$ROOTDIR/zstd/lib/decompress/zstd_ddict.c" \
+   "$ROOTDIR/zstd/lib/decompress/zstd_decompress.c" \
+@@ -139,7 +146,9 @@
  # Rebuild LLVM with Zig.
  mkdir -p "$ROOTDIR/out/build-llvm-$TARGET-$MCPU"
  cd "$ROOTDIR/out/build-llvm-$TARGET-$MCPU"
@@ -66,7 +74,7 @@
    -DCMAKE_INSTALL_PREFIX="$ROOTDIR/out/$TARGET-$MCPU" \
    -DCMAKE_PREFIX_PATH="$ROOTDIR/out/$TARGET-$MCPU" \
    -DCMAKE_BUILD_TYPE=Release \
-@@ -190,7 +198,7 @@
+@@ -190,7 +199,7 @@
    -DCLANG_TOOL_C_INDEX_TEST_BUILD=OFF \
    -DCLANG_TOOL_LIBCLANG_BUILD=OFF \
    -DLLD_BUILD_TOOLS=OFF
@@ -75,7 +83,7 @@
  
  # Finally, we can cross compile Zig itself, with Zig.
  cd "$ROOTDIR/zig"
-@@ -200,6 +208,7 @@
+@@ -200,6 +209,7 @@
    -Dflat \
    -Dstatic-llvm \
    -Doptimize=ReleaseFast \
