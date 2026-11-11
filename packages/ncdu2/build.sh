@@ -12,6 +12,7 @@ TERMUX_PKG_REPLACES="ncdu"
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_UPDATE_VERSION_REGEXP='^v\K2\.\d+(\.\d+)?$'
 TERMUX_PKG_BUILD_IN_SRC=true
+TERMUX_PKG_NO_ELF_CLEANER=true
 
 termux_step_post_get_source() {
 	local f
