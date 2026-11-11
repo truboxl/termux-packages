@@ -4,6 +4,7 @@ TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_LICENSE_FILE="LICENSES/MIT.txt"
 TERMUX_PKG_MAINTAINER="Joshua Kahn <tom@termux.dev>"
 TERMUX_PKG_VERSION="2.13.0"
+TERMUX_PKG_REVISION=1
 TERMUX_PKG_SRCURL="https://github.com/BratishkaErik/ncdu/releases/download/v${TERMUX_PKG_VERSION}/ncdu-${TERMUX_PKG_VERSION}-src.tar.gz"
 TERMUX_PKG_SHA256=425cd86b1100ebd85c852f9f8a37aaa29a2bd81685ed0c7ff1ca6a7e95a95d7e
 TERMUX_PKG_CONFLICTS="ncdu"
@@ -11,6 +12,7 @@ TERMUX_PKG_REPLACES="ncdu"
 TERMUX_PKG_AUTO_UPDATE=true
 TERMUX_PKG_UPDATE_VERSION_REGEXP='^v\K2\.\d+(\.\d+)?$'
 TERMUX_PKG_BUILD_IN_SRC=true
+TERMUX_PKG_NO_ELF_CLEANER=true
 
 termux_step_post_get_source() {
 	local f
@@ -24,12 +26,34 @@ termux_step_post_get_source() {
 
 termux_step_pre_configure() {
 	termux_setup_zig
-	unset CFLAGS LDFLAGS
+	unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
 }
 
 termux_step_make() {
-	ZIG_GLOBAL_CACHE_DIR="${TERMUX_PKG_CACHEDIR}/zig-global-cache" \
-		zig build --release=fast -Dstrip -Dtarget="${ZIG_TARGET_NAME}"
+	local _sysroot="${NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+	local _libc_file="${TERMUX_PKG_TMPDIR}/zig-libc.txt"
+	cat > "${_libc_file}" <<-EOF
+	include_dir=${_sysroot}/usr/include
+	sys_include_dir=${_sysroot}/usr/include/${TERMUX_HOST_PLATFORM}
+	crt_dir=${_sysroot}/usr/lib/${TERMUX_HOST_PLATFORM}/${TERMUX_PKG_API_LEVEL}
+	msvc_lib_dir=
+	kernel32_lib_dir=
+	cc_dir=${_sysroot}/usr/lib/${TERMUX_HOST_PLATFORM}/${TERMUX_PKG_API_LEVEL}
+	darwin_sdk_dir=
+	EOF
+
+	export ZIG_GLOBAL_CACHE_DIR="${TERMUX_PKG_CACHEDIR}/zig-global-cache"
+
+	if ! zig build \
+			--libc "${_libc_file}" \
+			--release=fast \
+			--search-prefix "${TERMUX_PREFIX}" \
+			--verbose \
+			-Dstrip \
+			-Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}"; then
+		find "${ZIG_GLOBAL_CACHE_DIR}" -name "config.log" | sort | xargs -r -n1 -i sh -c "echo {}; cat {}"
+		termux_error_exit "see above"
+	fi
 }
 
 termux_step_make_install() {
