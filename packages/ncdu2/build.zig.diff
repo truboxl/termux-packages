@@ -1,0 +1,62 @@
+--- a/build.zig
++++ b/build.zig
+@@ -35,6 +35,11 @@
+         .link_system_libs = sys_libs.items,
+     });
+ 
++    t.addIncludePath(.{ .cwd_relative = "@PREFIX@/include" });
++    t.addIncludePath(.{ .cwd_relative = "@PREFIX@/include/@TRIPLE@" });
++    t.defineCMacro("__ANDROID_MIN_SDK_VERSION__", "@API_LEVEL@");
++    t.defineCMacro("BIONIC_IOCTL_NO_SIGNEDNESS_OVERLOAD", null);
++
+     const main_mod = b.createModule(.{
+         .root_source_file = b.path("src/main.zig"),
+         .target = target,
+@@ -60,7 +65,7 @@
+             .target = target,
+             .optimize = optimize,
+ 
+-            .linkage = .static,
++            .linkage = .dynamic,
+             .strip = strip,
+             .pie = pie,
+ 
+@@ -163,7 +168,7 @@
+     const target_zig_format = zigFormat(b.graph.arena, target);
+ 
+     const host_gnu_format = gnuFormat(b.graph.arena, b.graph.host.result);
+-    const host_zig_format = zigFormat(b.graph.arena, b.graph.host.result);
++    //const host_zig_format = zigFormat(b.graph.arena, b.graph.host.result);
+ 
+     const ncurses_cache = b.addNamedWriteFiles(b.fmt("ncurses-{s}", .{target_zig_format}));
+     const cwd = ncurses_cache.getDirectory();
+@@ -214,11 +219,13 @@
+     const zig_ar = b.fmt("{s} ar", .{b.graph.zig_exe});
+     const zig_ranlib = b.fmt("{s} ranlib", .{b.graph.zig_exe});
+ 
+-    run_config.setEnvironmentVariable("BUILD_CC", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
+-    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
++    //run_config.setEnvironmentVariable("BUILD_CC", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
++    //run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
++    run_config.setEnvironmentVariable("BUILD_CC", "gcc");
++    run_config.setEnvironmentVariable("BUILD_LD", "gcc");
+ 
+-    run_config.setEnvironmentVariable("CC", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
+-    run_config.setEnvironmentVariable("LD", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
++    run_config.setEnvironmentVariable("CC", b.fmt("{s} --target={s} @CFLAGS@ -shared", .{ zig_cc, target_zig_format }));
++    run_config.setEnvironmentVariable("LD", b.fmt("{s} --target={s} @LDFLAGS@ -shared", .{ zig_cc, target_zig_format }));
+     run_config.setEnvironmentVariable("AR", zig_ar);
+     run_config.setEnvironmentVariable("RANLIB", zig_ranlib);
+ 
+@@ -230,9 +237,9 @@
+         else
+             "",
+     }) catch @panic("OOM");
+-    const ldflags = b.fmt("--target={s}", .{target_zig_format});
++    const ldflags = b.fmt("--target={s} @LDFLAGS@ -shared", .{target_zig_format});
+ 
+-    run_config.setEnvironmentVariable("CPPFLAGS", "-D_GNU_SOURCE");
++    run_config.setEnvironmentVariable("CPPFLAGS", "-D_GNU_SOURCE @CPPFLAGS@");
+     run_config.setEnvironmentVariable("CFLAGS", cflags);
+     run_config.setEnvironmentVariable("LDFLAGS", ldflags);
+ 
