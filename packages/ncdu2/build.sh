@@ -26,7 +26,7 @@ termux_step_post_get_source() {
 
 termux_step_pre_configure() {
 	termux_setup_zig
-	unset CFLAGS LDFLAGS
+	unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
 }
 
 termux_step_make() {
