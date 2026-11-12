@@ -42,14 +42,18 @@ termux_step_make() {
 	darwin_sdk_dir=
 	EOF
 
-	ZIG_GLOBAL_CACHE_DIR="${TERMUX_PKG_CACHEDIR}/zig-global-cache" \
-		zig build \
+	export ZIG_GLOBAL_CACHE_DIR="${TERMUX_PKG_CACHEDIR}/zig-global-cache"
+
+	if ! zig build \
 			--libc "${_libc_file}" \
 			--release=fast \
 			--search-prefix "${TERMUX_PREFIX}" \
 			--verbose \
 			-Dstrip \
-			-Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}"
+			-Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}"; then
+		find "${ZIG_GLOBAL_CACHE_DIR}" -name "config.log" | sort | xargs -r -n1 -i sh -c "echo {}; cat {}"
+		termux_error_exit "see above"
+	fi
 }
 
 termux_step_make_install() {
