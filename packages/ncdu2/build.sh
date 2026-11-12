@@ -30,8 +30,20 @@ termux_step_pre_configure() {
 }
 
 termux_step_make() {
+	local _sysroot="${NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
+	local _libc_file="${TERMUX_PKG_TMPDIR}/zig-libc.txt"
+	cat > "${_libc_file}" <<-EOF
+	include_dir=${_sysroot}/usr/include
+	sys_include_dir=${_sysroot}/usr/include/${TERMUX_HOST_PLATFORM}
+	crt_dir=${_sysroot}/usr/lib/${TERMUX_HOST_PLATFORM}/${TERMUX_PKG_API_LEVEL}
+	msvc_lib_dir=
+	kernel32_lib_dir=
+	cc_dir=${_sysroot}/usr/lib/${TERMUX_HOST_PLATFORM}/${TERMUX_PKG_API_LEVEL}
+	darwin_sdk_dir=
+	EOF
+
 	ZIG_GLOBAL_CACHE_DIR="${TERMUX_PKG_CACHEDIR}/zig-global-cache" \
-		zig build --release=fast -Dpie -Dstrip -Dtarget="${ZIG_TARGET_NAME}"
+		zig build --release=fast --libc "${_libc_file}" -Dstrip -Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}"
 }
 
 termux_step_make_install() {
