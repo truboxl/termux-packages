@@ -47,6 +47,7 @@ termux_step_make() {
 			--libc "${_libc_file}" \
 			--release=fast \
 			--search-prefix "${TERMUX_PREFIX}" \
+			--verbose \
 			-Dstrip \
 			-Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}"
 }
