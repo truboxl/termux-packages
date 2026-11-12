@@ -43,7 +43,12 @@ termux_step_make() {
 	EOF
 
 	ZIG_GLOBAL_CACHE_DIR="${TERMUX_PKG_CACHEDIR}/zig-global-cache" \
-		zig build --release=fast --libc "${_libc_file}" -Dstrip -Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}"
+		zig build \
+			--libc "${_libc_file}" \
+			--release=fast \
+			--search-prefix "${TERMUX_PREFIX}" \
+			-Dstrip \
+			-Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}"
 }
 
 termux_step_make_install() {
