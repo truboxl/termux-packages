@@ -54,8 +54,7 @@ termux_step_make() {
 
 	export ZIG_GLOBAL_CACHE_DIR="${TERMUX_PKG_CACHEDIR}/zig-global-cache"
 
-	if ! zig build \
-			--libc "${_libc_file}" \
+	if ! ZIG_LIBC="${_libc_file}" zig build \
 			--release=fast \
 			-Dstrip \
 			-Dtarget="${TERMUX_ARCH}-linux-android"; then
