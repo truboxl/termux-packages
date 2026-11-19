@@ -51,7 +51,7 @@ termux_step_make() {
 			--verbose \
 			-Dstrip \
 			-Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}"; then
-		find "${ZIG_GLOBAL_CACHE_DIR}" -name "config.log" | sort | xargs -r -n1 -i sh -c "echo {}; cat {}"
+		find "${ZIG_GLOBAL_CACHE_DIR}" -name "config.log" | sort | xargs -r -i sh -c "echo {}; cat {}"
 		termux_error_exit "see above"
 	fi
 }
