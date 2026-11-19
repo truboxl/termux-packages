@@ -31,7 +31,7 @@ termux_step_pre_configure() {
 	echo "Applying patch: $(basename "${p}")"
 	sed \
 		-e "s|@CFLAGS@|${CFLAGS}|g" \
-		-e "s|@CPPLAGS@|${CPPFLAGS}|g" \
+		-e "s|@CPPFLAGS@|${CPPFLAGS}|g" \
 		-e "s|@LDFLAGS@|${LDFLAGS}|g" \
 		"${p}" |
 		patch --silent -p1
