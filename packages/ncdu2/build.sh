@@ -50,7 +50,7 @@ termux_step_make() {
 			--search-prefix "${TERMUX_PREFIX}" \
 			--verbose \
 			-Dstrip \
-			-Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}"; then
+			-Dtarget="${TERMUX_ARCH}-linux-android"; then
 		find "${ZIG_GLOBAL_CACHE_DIR}" -name "config.log" | sort | xargs -i sh -c "echo {}; cat {}" || :
 		find . -name "config.log" | sort | xargs -i sh -c "echo {}; cat {}" || :
 
