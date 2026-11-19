@@ -26,6 +26,16 @@ termux_step_post_get_source() {
 
 termux_step_pre_configure() {
 	termux_setup_zig
+
+	local p="${TERMUX_PKG_BUILDER_DIR}/build.zig.diff"
+	echo "Applying patch: $(basename "${p}")"
+	sed \
+		-e "s|@CFLAGS@|${CFLAGS}|g" \
+		-e "s|@CPPLAGS@|${CPPFLAGS}|g" \
+		-e "s|@LDFLAGS@|${LDFLAGS}|g" \
+		"${p}" |
+		patch --silent -p1
+
 	unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
 }
 
@@ -47,8 +57,6 @@ termux_step_make() {
 	if ! zig build \
 			--libc "${_libc_file}" \
 			--release=fast \
-			--search-prefix "${TERMUX_PREFIX}" \
-			--verbose \
 			-Dstrip \
 			-Dtarget="${TERMUX_ARCH}-linux-android"; then
 		find "${ZIG_GLOBAL_CACHE_DIR}" -name "config.log" | sort | xargs -i sh -c "echo {}; cat {}" || :

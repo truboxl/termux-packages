@@ -1,0 +1,31 @@
+diff -uNr a/build.zig b/build.zig
+--- a/build.zig	2026-11-19 02:46:12.000000000 +0800
++++ b/build.zig	2026-11-20 01:36:13.048368751 +0800
+@@ -214,11 +214,11 @@
+     const zig_ar = b.fmt("{s} ar", .{b.graph.zig_exe});
+     const zig_ranlib = b.fmt("{s} ranlib", .{b.graph.zig_exe});
+ 
+-    run_config.setEnvironmentVariable("BUILD_CC", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
+-    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
++    run_config.setEnvironmentVariable("BUILD_CC", b.fmt("{s} --target={s} @CFLAGS@", .{ zig_cc, host_zig_format }));
++    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s} @LDFLAGS@", .{ zig_cc, host_zig_format }));
+ 
+-    run_config.setEnvironmentVariable("CC", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
+-    run_config.setEnvironmentVariable("LD", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
++    run_config.setEnvironmentVariable("CC", b.fmt("{s} --target={s} @CFLAGS@", .{ zig_cc, target_zig_format }));
++    run_config.setEnvironmentVariable("LD", b.fmt("{s} --target={s} @LDFLAGS@", .{ zig_cc, target_zig_format }));
+     run_config.setEnvironmentVariable("AR", zig_ar);
+     run_config.setEnvironmentVariable("RANLIB", zig_ranlib);
+ 
+@@ -230,9 +230,9 @@
+         else
+             "",
+     }) catch @panic("OOM");
+-    const ldflags = b.fmt("--target={s}", .{target_zig_format});
++    const ldflags = b.fmt("--target={s} @LDFLAGS@", .{target_zig_format});
+ 
+-    run_config.setEnvironmentVariable("CPPFLAGS", "-D_GNU_SOURCE");
++    run_config.setEnvironmentVariable("CPPFLAGS", "-D_GNU_SOURCE @CPPFLAGS@");
+     run_config.setEnvironmentVariable("CFLAGS", cflags);
+     run_config.setEnvironmentVariable("LDFLAGS", ldflags);
+ 
