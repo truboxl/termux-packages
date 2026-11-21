@@ -1,5 +1,6 @@
---- a/build.zig
-+++ b/build.zig
+diff -uNr a/build.zig b/build.zig
+--- a/build.zig	2026-11-19 02:46:12.000000000 +0800
++++ b/build.zig	2026-11-21 16:14:36.955103408 +0800
 @@ -214,11 +214,13 @@
      const zig_ar = b.fmt("{s} ar", .{b.graph.zig_exe});
      const zig_ranlib = b.fmt("{s} ranlib", .{b.graph.zig_exe});
@@ -8,8 +9,8 @@
 -    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
 +    //run_config.setEnvironmentVariable("BUILD_CC", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
 +    //run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
-+    run_config.setEnvironmentVariable("BUILD_CC", b.fmt("gcc --target={s}", .{ zig_cc, host_zig_format }));
-+    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("gcc --target={s}", .{ zig_cc, host_zig_format }));
++    run_config.setEnvironmentVariable("BUILD_CC", b.fmt("gcc --target={s}", .{ host_zig_format }));
++    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("gcc --target={s}", .{ host_zig_format }));
  
 -    run_config.setEnvironmentVariable("CC", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
 -    run_config.setEnvironmentVariable("LD", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
