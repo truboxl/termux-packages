@@ -8,8 +8,8 @@
 -    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
 +    //run_config.setEnvironmentVariable("BUILD_CC", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
 +    //run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
-+    run_config.setEnvironmentVariable("BUILD_CC", b.fmt("gcc --target={s}", .{ host_zig_format }));
-+    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("gcc --target={s}", .{ host_zig_format }));
++    run_config.setEnvironmentVariable("BUILD_CC", b.fmt("gcc"));
++    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("gcc"));
  
 -    run_config.setEnvironmentVariable("CC", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
 -    run_config.setEnvironmentVariable("LD", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
