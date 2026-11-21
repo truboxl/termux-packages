@@ -40,9 +40,15 @@ termux_step_pre_configure() {
 }
 
 termux_step_make() {
+	local arch
+	case "${TERMUX_ARCH}" in
+	i686) arch=x86 ;;
+	*) arch="${TERMUX_ARCH}" ;;
+	esac
+
 	local _sysroot="${NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
-	local _libc_file="${TERMUX_PKG_TMPDIR}/zig-libc.txt"
-	cat > "${_libc_file}" <<-EOF
+	export ZIG_LIBC="${TERMUX_PKG_TMPDIR}/zig-libc.txt"
+	cat > "${ZIG_LIBC}" <<-EOF
 	include_dir=${_sysroot}/usr/include
 	sys_include_dir=${_sysroot}/usr/include/${TERMUX_HOST_PLATFORM}
 	crt_dir=${_sysroot}/usr/lib/${TERMUX_HOST_PLATFORM}/${TERMUX_PKG_API_LEVEL}
@@ -54,10 +60,11 @@ termux_step_make() {
 
 	export ZIG_GLOBAL_CACHE_DIR="${TERMUX_PKG_CACHEDIR}/zig-global-cache"
 
-	if ! ZIG_LIBC="${_libc_file}" zig build \
+	if ! zig build \
 			--release=fast \
 			-Dstrip \
-			-Dtarget="${TERMUX_ARCH}-linux-android"; then
+			-Dcpu=baseline \
+			-Dtarget="${arch}-linux-android"; then
 		find "${ZIG_GLOBAL_CACHE_DIR}" -name "config.log" | sort | xargs -i sh -c "echo {}; cat {}" || :
 		find . -name "config.log" | sort | xargs -i sh -c "echo {}; cat {}" || :
 
