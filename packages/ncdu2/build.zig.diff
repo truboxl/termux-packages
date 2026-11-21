@@ -1,5 +1,14 @@
 --- a/build.zig
 +++ b/build.zig
+@@ -163,7 +163,7 @@
+     const target_zig_format = zigFormat(b.graph.arena, target);
+ 
+     const host_gnu_format = gnuFormat(b.graph.arena, b.graph.host.result);
+-    const host_zig_format = zigFormat(b.graph.arena, b.graph.host.result);
++    //const host_zig_format = zigFormat(b.graph.arena, b.graph.host.result);
+ 
+     const ncurses_cache = b.addNamedWriteFiles(b.fmt("ncurses-{s}", .{target_zig_format}));
+     const cwd = ncurses_cache.getDirectory();
 @@ -214,11 +214,13 @@
      const zig_ar = b.fmt("{s} ar", .{b.graph.zig_exe});
      const zig_ranlib = b.fmt("{s} ranlib", .{b.graph.zig_exe});
@@ -8,8 +17,8 @@
 -    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
 +    //run_config.setEnvironmentVariable("BUILD_CC", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
 +    //run_config.setEnvironmentVariable("BUILD_LD", b.fmt("{s} --target={s}", .{ zig_cc, host_zig_format }));
-+    run_config.setEnvironmentVariable("BUILD_CC", b.fmt("gcc"));
-+    run_config.setEnvironmentVariable("BUILD_LD", b.fmt("gcc"));
++    run_config.setEnvironmentVariable("BUILD_CC", "gcc");
++    run_config.setEnvironmentVariable("BUILD_LD", "gcc");
  
 -    run_config.setEnvironmentVariable("CC", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
 -    run_config.setEnvironmentVariable("LD", b.fmt("{s} --target={s}", .{ zig_cc, target_zig_format }));
