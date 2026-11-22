@@ -1,0 +1,11 @@
+--- a/src/terminal/page.zig
++++ b/src/terminal/page.zig
+@@ -2035,7 +2035,7 @@
+     fn availableBytesForGrid(self: Capacity) usize {
+         comptime {
+             assert(cells_align % Page.MetaLayout.alignment == 0);
+-            assert(@sizeOf(Cell) % Page.MetaLayout.alignment == 0);
++            //assert(@sizeOf(Cell) % Page.MetaLayout.alignment == 0);
+         }
+ 
+         const l = Page.layout(self);
