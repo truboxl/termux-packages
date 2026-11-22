@@ -43,12 +43,18 @@ termux_step_configure() {
 }
 
 termux_step_make() {
+	local _target="${TERMUX_ARCH}-linux-android"
+	case "${TERMUX_ARCH}" in
+		arm) _target="arm-linux-androideabi" ;;
+		i686) _target="x86-linux-android" ;;
+	esac
+
 	# GTK4 and libadwaita are built against Bionic, so target the Android ABI instead of musl.
 	# Ghostty's pkg/android-ndk looks up the NDK path through ANDROID_NDK_HOME.
 	export ANDROID_NDK_HOME="${NDK}"
 	local _sysroot="${NDK}/toolchains/llvm/prebuilt/linux-x86_64/sysroot"
-	local _libc_file="${TERMUX_PKG_TMPDIR}/zig-libc.txt"
-	cat > "${_libc_file}" <<-EOF
+	export ZIG_LIBC="${TERMUX_PKG_TMPDIR}/zig-libc.txt"
+	cat > "${ZIG_LIBC}" <<-EOF
 		include_dir=${_sysroot}/usr/include
 		sys_include_dir=${_sysroot}/usr/include/${TERMUX_HOST_PLATFORM}
 		crt_dir=${_sysroot}/usr/lib/${TERMUX_HOST_PLATFORM}/${TERMUX_PKG_API_LEVEL}
@@ -58,7 +64,6 @@ termux_step_make() {
 		darwin_sdk_dir=
 	EOF
 
-	export ZIG_LIBC="${_libc_file}"
 	export ZIG_ANDROID_API="${TERMUX_PKG_API_LEVEL}"
 
 	# Ghostty links -lbzip2, Termux ships libbz2. Alias kept outside $TERMUX_PREFIX
@@ -69,10 +74,10 @@ termux_step_make() {
 	# Wayland off: Termux only has gtk-layer-shell for GTK3
 	zig build \
 		--prefix "${TERMUX_PKG_TMPDIR}/ghostty-prefix" \
-		--libc "${_libc_file}" \
+		--libc "${ZIG_LIBC}" \
 		--search-prefix "${TERMUX_PREFIX}" \
 		--search-prefix "${_bz2_compat}" \
-		-Dtarget="${TERMUX_ARCH}-linux-android.${TERMUX_PKG_API_LEVEL}" \
+		-Dtarget="${_target}.${TERMUX_PKG_API_LEVEL}" \
 		-Dcpu=baseline \
 		-Doptimize=ReleaseFast \
 		-Dapp-runtime=gtk \
