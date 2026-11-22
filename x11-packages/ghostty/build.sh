@@ -3,12 +3,12 @@ TERMUX_PKG_DESCRIPTION="Fast, feature-rich, GPU-accelerated terminal emulator (G
 TERMUX_PKG_LICENSE="MIT"
 TERMUX_PKG_MAINTAINER="Gouranga Das Samrat <gouranga.das.khulna@gmail.com>"
 TERMUX_PKG_VERSION="1.4.0"
+TERMUX_PKG_REVISION=1
 # Release tarball ships prebuilt GTK resources
 TERMUX_PKG_SRCURL="https://release.files.ghostty.org/${TERMUX_PKG_VERSION}/ghostty-${TERMUX_PKG_VERSION}.tar.gz"
 TERMUX_PKG_SHA256=cb188ac6c3a8278d5fd7bfef15d8c017104c87f638b5560eb38024a71ae0f005
 TERMUX_PKG_DEPENDS="fontconfig, freetype, glib, gtk4, harfbuzz, libadwaita, libbz2, libpng, libx11, oniguruma, zlib"
 TERMUX_PKG_BUILD_DEPENDS="xorgproto"
-TERMUX_PKG_EXCLUDED_ARCHES="arm, i686"
 TERMUX_PKG_BUILD_IN_SRC=true
 TERMUX_PKG_AUTO_UPDATE=false
 TERMUX_PKG_RM_AFTER_INSTALL="
